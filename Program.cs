@@ -7,11 +7,11 @@ using BTKETicaretSitesi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Veritabanı bağlantısı
+// VeritabanÄ± baÄŸlantÄ±sÄ±
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Kimlik ve rol yapılandırması
+// Kimlik ve rol yapÄ±landÄ±rmasÄ±
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
     options.SignIn.RequireConfirmedAccount = true;
@@ -19,19 +19,19 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
 
-// Email gönderimi yapılandırması
+// Email gÃ¶nderimi yapÄ±landÄ±rmasÄ±
 builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("SmtpSettings"));
 builder.Services.AddTransient<IEmailSender, SmtpEmailSender>();
 
-builder.Services.AddHttpContextAccessor(); // Email veya kullanıcı bilgilerine ulaşmak için gerekli
+builder.Services.AddHttpContextAccessor(); // Email veya kullanÄ±cÄ± bilgilerine ulaÅŸmak iÃ§in gerekli
 
-// Razor Pages ve Controller desteği
+// Razor Pages ve Controller desteÄŸi
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 
 var app = builder.Build();
 
-// Seed işlemi (rol ve kullanıcı ekleme)
+// Seed iÅŸlemi (rol ve kullanÄ±cÄ± ekleme)
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
@@ -44,11 +44,11 @@ using (var scope = app.Services.CreateScope())
     catch (Exception ex)
     {
         var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "Veritabanı tohumlama sırasında bir hata oluştu.");
+        logger.LogError(ex, "VeritabanÄ± tohumlama sÄ±rasÄ±nda bir hata oluÅŸtu.");
     }
 }
 
-// HTTP pipeline yapılandırması
+// HTTP pipeline yapÄ±landÄ±rmasÄ±
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -60,7 +60,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-app.UseAuthentication(); // <-- Bu şart
+app.UseAuthentication(); // <-- Bu ÅŸart
 app.UseAuthorization();
 
 app.MapControllerRoute(
