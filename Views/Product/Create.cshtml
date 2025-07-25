@@ -12,7 +12,6 @@
         <form asp-action="Create" enctype="multipart/form-data" id="productForm">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-            <!-- Temel Bilgiler -->
             <div class="card mb-4">
                 <div class="card-header bg-primary text-white">
                     <h5 class="mb-0">Temel Bilgiler</h5>
@@ -120,7 +119,6 @@
                 </div>
             </div>
 
-            <!-- Ürün Görselleri -->
             <div class="card mb-4">
                 <div class="card-header bg-primary text-white">
                     <h5 class="mb-0">Ürün Görselleri</h5>
@@ -133,7 +131,6 @@
                     </div>
 
                     <div id="imagePreviewContainer" class="row mt-3">
-                        <!-- Resim önizlemeleri buraya eklenecek -->
                     </div>
 
                     <div class="alert alert-info mt-3">
@@ -142,7 +139,6 @@
                 </div>
             </div>
 
-            <!-- Ürün Özellikleri -->
             <div class="card mb-4">
                 <div class="card-header bg-primary text-white">
                     <h5 class="mb-0">Ürün Özellikleri</h5>
@@ -170,7 +166,6 @@
                 </div>
             </div>
 
-            <!-- Ürün Varyantları -->
             <div class="card mb-4">
                 <div class="card-header bg-primary text-white">
                     <h5 class="mb-0">Ürün Varyantları</h5>
@@ -228,6 +223,9 @@
                 <a asp-action="Index" class="btn btn-secondary btn-lg">
                     <i class="fas fa-times"></i> İptal
                 </a>
+                <button type="button" id="generateAIDescription" class="btn btn-info btn-lg">
+                    <i class="fas fa-robot"></i> Ürün Tanımını Yapay Zeka Oluştursun
+                </button>
             </div>
         </form>
     </div>
@@ -295,7 +293,7 @@
             }
         });
 
-        // Resim önizleme
+        // Resim önizleme (mevcut kodunuz)
         document.querySelector('input[name="productImages"]').addEventListener('change', function (e) {
             const container = document.getElementById('imagePreviewContainer');
             container.innerHTML = '';
@@ -306,109 +304,206 @@
                     const previewDiv = document.createElement('div');
                     previewDiv.className = 'col-md-3 image-preview';
                     previewDiv.innerHTML = `
-                                <img src="${event.target.result}" alt="Preview" />
-                                <span class="remove-image" data-index="${index}">×</span>
-                                <input type="hidden" name="UploadedImages[${index}]" value="${event.target.result}" />
-                            `;
+                                        <img src="${event.target.result}" alt="Preview" />
+                                        <span class="remove-image" data-index="${index}">×</span>
+                                        <input type="hidden" name="UploadedImages[${index}]" value="${event.target.result}" />
+                                    `;
                     container.appendChild(previewDiv);
                 };
                 reader.readAsDataURL(file);
             });
         });
 
-        // Resim silme
+        // Resim silme (mevcut kodunuz)
         document.getElementById('imagePreviewContainer').addEventListener('click', function (e) {
             if (e.target.classList.contains('remove-image')) {
                 e.target.parentElement.remove();
             }
         });
 
-        // Özellik ekleme
+        // Özellik ekleme (mevcut kodunuz)
         let attributeIndex = 1;
         document.getElementById('addAttribute').addEventListener('click', function () {
             const container = document.getElementById('attributesContainer');
             const newAttribute = document.createElement('div');
             newAttribute.className = 'attribute-group mb-3';
             newAttribute.innerHTML = `
-                        <div class="row">
-                            <div class="col-md-5">
-                                <input type="text" name="Attributes[${attributeIndex}].Key" class="form-control" placeholder="Özellik Adı" />
-                            </div>
-                            <div class="col-md-5">
-                                <input type="text" name="Attributes[${attributeIndex}].Value" class="form-control" placeholder="Özellik Değeri" />
-                            </div>
-                            <div class="col-md-2">
-                                <button type="button" class="btn btn-danger remove-attribute">Sil</button>
-                            </div>
-                        </div>
-                    `;
+                                        <div class="row">
+                                            <div class="col-md-5">
+                                                <input type="text" name="Attributes[${attributeIndex}].Key" class="form-control" placeholder="Özellik Adı" />
+                                            </div>
+                                            <div class="col-md-5">
+                                                <input type="text" name="Attributes[${attributeIndex}].Value" class="form-control" placeholder="Özellik Değeri" />
+                                            </div>
+                                            <div class="col-md-2">
+                                                <button type="button" class="btn btn-danger remove-attribute">Sil</button>
+                                            </div>
+                                        </div>
+                                    `;
             container.appendChild(newAttribute);
             attributeIndex++;
         });
 
-        // Özellik silme
+        // Özellik silme (mevcut kodunuz)
         document.getElementById('attributesContainer').addEventListener('click', function (e) {
             if (e.target.classList.contains('remove-attribute')) {
                 e.target.closest('.attribute-group').remove();
             }
         });
 
-        // Varyant ekleme
+        // Varyant ekleme (mevcut kodunuz)
         let variantIndex = 1;
         document.getElementById('addVariant').addEventListener('click', function () {
             const container = document.getElementById('variantsContainer');
             const newVariant = document.createElement('div');
             newVariant.className = 'variant-group mb-3 border p-3';
             newVariant.innerHTML = `
-                        <div class="row">
-                            <div class="col-md-4">
-                                <div class="form-group">
-                                    <label>Varyant Adı</label>
-                                    <input type="text" name="Variants[${variantIndex}].Name" class="form-control" placeholder="Örn: XL, Kırmızı" />
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <label>Fiyat</label>
-                                    <div class="input-group">
-                                        <input type="number" name="Variants[${variantIndex}].Price" class="form-control" placeholder="Fiyat" step="0.01" />
-                                        <span class="input-group-text">₺</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <label>Stok Adedi</label>
-                                    <input type="number" name="Variants[${variantIndex}].StockQuantity" class="form-control" placeholder="Stok" min="0" />
-                                </div>
-                            </div>
-                            <div class="col-md-2 d-flex align-items-end">
-                                <button type="button" class="btn btn-danger remove-variant">Sil</button>
-                            </div>
-                        </div>
-                        <div class="row mt-2">
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label>SKU</label>
-                                    <input type="text" name="Variants[${variantIndex}].SKU" class="form-control" placeholder="Varyant SKU" />
-                                </div>
-                            </div>
-                        </div>
-                    `;
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <div class="form-group">
+                                                    <label>Varyant Adı</label>
+                                                    <input type="text" name="Variants[${variantIndex}].Name" class="form-control" placeholder="Örn: XL, Kırmızı" />
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group">
+                                                    <label>Fiyat</label>
+                                                    <div class="input-group">
+                                                        <input type="number" name="Variants[${variantIndex}].Price" class="form-control" placeholder="Fiyat" step="0.01" />
+                                                        <span class="input-group-text">₺</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group">
+                                                    <label>Stok Adedi</label>
+                                                    <input type="number" name="Variants[${variantIndex}].StockQuantity" class="form-control" placeholder="Stok" min="0" />
+                                                </div>
+                                            </div>
+                                            <div class="col-md-2 d-flex align-items-end">
+                                                <button type="button" class="btn btn-danger remove-variant">Sil</button>
+                                            </div>
+                                        </div>
+                                        <div class="row mt-2">
+                                            <div class="col-md-12">
+                                                <div class="form-group">
+                                                    <label>SKU</label>
+                                                    <input type="text" name="Variants[${variantIndex}].SKU" class="form-control" placeholder="Varyant SKU" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    `;
             container.appendChild(newVariant);
             variantIndex++;
         });
 
-        // Varyant silme
+        // Varyant silme (mevcut kodunuz)
         document.getElementById('variantsContainer').addEventListener('click', function (e) {
             if (e.target.classList.contains('remove-variant')) {
                 e.target.closest('.variant-group').remove();
             }
         });
 
-        // Form gönderilmeden önce CKEditor içeriğini al
+        // Form gönderilmeden önce CKEditor içeriğini al (mevcut kodunuz)
         document.getElementById('productForm').addEventListener('submit', function () {
             document.getElementById('Description').value = CKEDITOR.instances.descriptionEditor.getData();
         });
+
+        // --- YENİ EKLENECEK KODLAR BURADAN BAŞLAR ---
+
+        document.getElementById('generateAIDescription').addEventListener('click', async function () {
+            // Butonu devre dışı bırak ve yükleniyor ikonu göster
+            const generateButton = this;
+            generateButton.disabled = true;
+            generateButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Oluşturuluyor...';
+
+            const productName = document.getElementById('Name').value;
+            const categoryId = document.getElementById('CategoryId').value;
+            const price = document.getElementById('Price').value;
+            const discountPrice = document.getElementById('DiscountPrice').value;
+            const stockQuantity = document.getElementById('StockQuantity').value;
+
+            // Özellikleri topla
+            const attributes = [];
+            document.querySelectorAll('#attributesContainer .attribute-group').forEach(group => {
+                const keyInput = group.querySelector('input[name$=".Key"]');
+                const valueInput = group.querySelector('input[name$=".Value"]');
+                if (keyInput && valueInput && keyInput.value && valueInput.value) {
+                    attributes.push({ key: keyInput.value, value: valueInput.value });
+                }
+            });
+
+            // Varyantları topla
+            const variants = [];
+            document.querySelectorAll('#variantsContainer .variant-group').forEach(group => {
+                const variantNameInput = group.querySelector('input[name$=".Name"]');
+                const variantPriceInput = group.querySelector('input[name$=".Price"]');
+                const variantStockQuantityInput = group.querySelector('input[name$=".StockQuantity"]');
+                const variantSkuInput = group.querySelector('input[name$=".SKU"]');
+
+                if (variantNameInput && variantNameInput.value) {
+                    variants.push({
+                        name: variantNameInput.value,
+                        price: variantPriceInput ? variantPriceInput.value : null,
+                        stockQuantity: variantStockQuantityInput ? variantStockQuantityInput.value : null,
+                        sku: variantSkuInput ? variantSkuInput.value : null
+                    });
+                }
+            });
+
+            // Kategori adını bul
+            let categoryName = '';
+            if (categoryId) {
+                const categorySelect = document.getElementById('CategoryId');
+                const selectedOption = categorySelect.options[categorySelect.selectedIndex];
+                if (selectedOption) {
+                    categoryName = selectedOption.textContent;
+                }
+            }
+
+
+            const productData = {
+                name: productName,
+                categoryName: categoryName,
+                price: parseFloat(price) || 0,
+                discountPrice: parseFloat(discountPrice) || 0,
+                stockQuantity: parseInt(stockQuantity) || 0,
+                attributes: attributes,
+                variants: variants
+            };
+
+            try {
+                // Bu URL'i kendi controller'ınızın yoluna göre ayarlayın
+                const response = await fetch('/Product/GenerateDescription', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        // Anti-forgery token'ı güvenlik için ekliyoruz
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                    },
+                    body: JSON.stringify(productData)
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.description) {
+                        CKEDITOR.instances.descriptionEditor.setData(data.description); // CKEditor'a AI tarafından oluşturulan metni ata
+                    } else {
+                        alert('Yapay zeka tanımı oluşturulamadı.');
+                    }
+                } else {
+                    const errorText = await response.text();
+                    alert('Hata oluştu: ' + errorText);
+                }
+            } catch (error) {
+                console.error('API çağrısında hata:', error);
+                alert('Bir hata oluştu, lütfen konsolu kontrol edin.');
+            } finally {
+                // Butonu tekrar aktif et
+                generateButton.disabled = false;
+                generateButton.innerHTML = '<i class="fas fa-robot"></i> Ürün Tanımını Yapay Zeka Oluştursun';
+            }
+        });
+        // --- YENİ EKLENECEK KODLAR BURADA SONA ERER ---
     </script>
 }

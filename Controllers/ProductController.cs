@@ -7,16 +7,24 @@ using System.Linq;
 using System.Threading.Tasks;
 using BTKETicaretSitesi.Models.ViewModels;
 using BTKETicaretSitesi.ViewModels;
+using System.Text;
+using Azure.Core;
+
+// using Google.GenerativeAI; // Bu satırı silin veya yorumlayın
+using GenerativeAI; // Bu yeni using ifadesi
+// Diğer using'leriniz...
 
 namespace BTKETicaretSitesi.Controllers
 {
     public class ProductController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IConfiguration _configuration;
 
-        public ProductController(ApplicationDbContext context)
+        public ProductController(ApplicationDbContext context, IConfiguration configuration)
         {
             _context = context;
+            _configuration = configuration;
         }
 
         // GET: Product
@@ -418,6 +426,128 @@ namespace BTKETicaretSitesi.Controllers
             };
 
             return View(viewModel);
+        }
+
+
+
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken] // Cross-Site Request Forgery'ye karşı koruma
+        public async Task<IActionResult> GenerateDescription([FromBody] ProductAIDescriptionRequest request)
+        {
+            if (request == null || string.IsNullOrWhiteSpace(request.Name))
+            {
+                return BadRequest(new { message = "Ürün adı boş olamaz." });
+            }
+
+            // 1. Prompt Oluşturma
+            string prompt = CreateAIPrompt(request);
+
+            // 2. AI Servisini Çağırma
+            string aiGeneratedDescription = await CallAIGenerationService(prompt); // Bu metod AI servisi ile etkileşime geçecek
+
+            if (string.IsNullOrWhiteSpace(aiGeneratedDescription))
+            {
+                return StatusCode(500, new { message = "Yapay zeka tanım oluşturamadı." });
+            }
+
+            return Ok(new { description = aiGeneratedDescription });
+        }
+
+        private string CreateAIPrompt(ProductAIDescriptionRequest request)
+        {
+            StringBuilder promptBuilder = new StringBuilder();
+            promptBuilder.AppendLine("E-ticaret sitemde satışları artıracak, ikna edici ve SEO dostu bir ürün açıklaması oluştur.");
+            promptBuilder.AppendLine("Açıklama, müşterileri ürünü almaya teşvik etmeli, faydalarına odaklanmalı ve çekici bir dil kullanmalıdır.");
+            promptBuilder.AppendLine("Açıklama Türkçe olmalı ve paragraf şeklinde, akıcı ve doğal bir dil ile yazılmalı.");
+            promptBuilder.AppendLine("Açıklama, ürünün temel özelliklerini, faydalarını ve hedef kitlenin neden bu ürüne ihtiyacı olduğunu vurgulamalıdır. HTML etiketleri içermemelidir.");
+            promptBuilder.AppendLine("Açıklama 200-500 kelime arasında olmalıdır.");
+            promptBuilder.AppendLine("--------------------");
+            promptBuilder.AppendLine($"Ürün Adı: {request.Name}");
+
+            if (!string.IsNullOrWhiteSpace(request.CategoryName))
+            {
+                promptBuilder.AppendLine($"Kategori: {request.CategoryName}");
+            }
+
+            if (request.Price > 0)
+            {
+                promptBuilder.AppendLine($"Fiyat: {request.Price:C}"); // Para birimi formatı ekle
+            }
+            if (request.DiscountPrice > 0 && request.DiscountPrice < request.Price)
+            {
+                promptBuilder.AppendLine($"İndirimli Fiyat: {request.DiscountPrice:C}");
+            }
+            if (request.StockQuantity > 0)
+            {
+                promptBuilder.AppendLine($"Stok Adedi: {request.StockQuantity}");
+            }
+
+            if (request.Attributes != null && request.Attributes.Any())
+            {
+                promptBuilder.AppendLine("Özellikler:");
+                foreach (var attr in request.Attributes)
+                {
+                    promptBuilder.AppendLine($"- {attr.Key}: {attr.Value}");
+                }
+            }
+
+            if (request.Variants != null && request.Variants.Any())
+            {
+                promptBuilder.AppendLine("Varyantlar:");
+                foreach (var variant in request.Variants)
+                {
+                    string variantInfo = $"- Adı: {variant.Name}";
+                    if (variant.Price.HasValue) variantInfo += $", Fiyat: {variant.Price.Value:C}";
+                    if (variant.StockQuantity.HasValue) variantInfo += $", Stok: {variant.StockQuantity.Value}";
+                    if (!string.IsNullOrWhiteSpace(variant.SKU)) variantInfo += $", SKU: {variant.SKU}";
+                    promptBuilder.AppendLine(variantInfo);
+                }
+            }
+            promptBuilder.AppendLine("--------------------");
+            promptBuilder.AppendLine("Şimdi bu bilgilerle ürünü en iyi şekilde pazarlayan bir açıklama oluşturun.");
+
+            return promptBuilder.ToString();
+        }
+        private async Task<string> CallAIGenerationService(string prompt)
+        {
+            var apiKey = _configuration["GoogleAI:ApiKey"];
+
+            if (string.IsNullOrWhiteSpace(apiKey))
+            {
+                Console.WriteLine("HATA: Google Gemini API Anahtarı bulunamadı. Lütfen User Secrets'ı veya ortam değişkenlerini kontrol edin.");
+                return null;
+            }
+
+            try
+            {
+                // **DEĞİŞİKLİK BURADA**
+                // Google_GenerativeAI kütüphanesine göre bir GoogleAi istemcisi oluştur
+                var googleAIClient = new GoogleAi(apiKey); // Namespace'i Google_GenerativeAI olmalı
+
+                // Bir GenerativeModel elde et (model adını belirtiyoruz)
+                // "models/gemini-pro" veya "gemini-pro" gibi bir model adı kullanın
+                var model = googleAIClient.CreateGenerativeModel("models/gemini-1.5-flash"); // Veya "gemini-1.5-flash" gibi
+
+                // Prompt'u (yönergeyi) modele gönderin ve yanıtı bekleyin
+                var response = await model.GenerateContentAsync(prompt); // Bu metod da değişebilir
+
+                // Yanıttan oluşturulan metni çıkarın
+                // Bu kısım da kütüphaneye göre değişebilir.
+                // Örneğin, response.Text() gibi bir metod olabilir.
+                if (response != null && !string.IsNullOrWhiteSpace(response.Text()))
+                {
+                    return response.Text();
+                }
+
+                return null;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Gemini API çağrısında bir hata oluştu: {ex.Message}");
+                return null;
+            }
         }
     }
 }
