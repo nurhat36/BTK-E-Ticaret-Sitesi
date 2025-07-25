@@ -1,0 +1,62 @@
+﻿@model IEnumerable<BTKETicaretSitesi.Models.Product>
+
+@{
+    ViewData["Title"] = "Ürünler";
+}
+
+<h1>Ürünler</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Yeni Ürün Ekle</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Resim</th>
+            <th>Ürün Adı</th>
+            <th>Kategori</th>
+            <th>Fiyat</th>
+            <th>Stok</th>
+            <th>Durum</th>
+            <th>İşlemler</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @{
+                        var mainImage = item.Images?.FirstOrDefault(i => i.IsMainImage);
+                        if (mainImage != null)
+                        {
+                            <img src="@mainImage.ImageUrl" width="50" height="50" />
+                        }
+                    }
+                </td>
+                <td>@Html.DisplayFor(modelItem => item.Name)</td>
+                <td>@Html.DisplayFor(modelItem => item.Category.Name)</td>
+                <td>
+                    @if (item.DiscountPrice.HasValue)
+                    {
+                        <span class="text-decoration-line-through">@item.Price.ToString("C")</span>
+                        <span class="text-danger">@item.DiscountPrice.Value.ToString("C")</span>
+                    }
+                    else
+                    {
+                        @item.Price.ToString("C")
+                    }
+                </td>
+                <td>@Html.DisplayFor(modelItem => item.StockQuantity)</td>
+                <td>@(item.IsActive ? "Aktif" : "Pasif")</td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-info btn-sm">Detay</a>
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning btn-sm">Düzenle</a>
+                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger btn-sm">Sil</a>
+                    <a asp-action="ManageImages" asp-route-productId="@item.Id" class="btn btn-secondary btn-sm">Resimler</a>
+                    <a asp-action="ManageAttributes" asp-route-productId="@item.Id" class="btn btn-secondary btn-sm">Özellikler</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

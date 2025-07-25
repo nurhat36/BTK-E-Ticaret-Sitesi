@@ -1,0 +1,414 @@
+﻿@model BTKETicaretSitesi.ViewModels.ProductCreateViewModel
+
+@{
+    ViewData["Title"] = "Yeni Ürün Ekle";
+}
+
+<h1>Yeni Ürün Ekle</h1>
+
+<hr />
+<div class="row">
+    <div class="col-md-12">
+        <form asp-action="Create" enctype="multipart/form-data" id="productForm">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <!-- Temel Bilgiler -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Temel Bilgiler</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label asp-for="Name" class="control-label"></label>
+                                <input asp-for="Name" class="form-control" />
+                                <span asp-validation-for="Name" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label asp-for="Slug" class="control-label"></label>
+                                <div class="input-group">
+                                    <input asp-for="Slug" class="form-control" />
+                                    <button type="button" id="generateSlug" class="btn btn-outline-secondary">Oluştur</button>
+                                </div>
+                                <span asp-validation-for="Slug" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="Description" class="control-label"></label>
+                        <textarea asp-for="Description" class="form-control" rows="5" id="descriptionEditor"></textarea>
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label asp-for="Price" class="control-label"></label>
+                                <div class="input-group">
+                                    <input asp-for="Price" class="form-control" />
+                                    <span class="input-group-text">₺</span>
+                                </div>
+                                <span asp-validation-for="Price" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label asp-for="DiscountPrice" class="control-label"></label>
+                                <div class="input-group">
+                                    <input asp-for="DiscountPrice" class="form-control" />
+                                    <span class="input-group-text">₺</span>
+                                </div>
+                                <span asp-validation-for="DiscountPrice" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label asp-for="StockQuantity" class="control-label"></label>
+                                <input asp-for="StockQuantity" class="form-control" type="number" min="0" />
+                                <span asp-validation-for="StockQuantity" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="SKU" class="control-label"></label>
+                                <input asp-for="SKU" class="form-control" />
+                                <span asp-validation-for="SKU" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="Barcode" class="control-label"></label>
+                                <input asp-for="Barcode" class="form-control" />
+                                <span asp-validation-for="Barcode" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="CategoryId" class="control-label"></label>
+                                <select asp-for="CategoryId" class="form-control" asp-items="@(new SelectList(Model.Categories, "Id", "Name"))">
+                                    <option value="">Kategori Seçiniz</option>
+                                </select>
+                                <span asp-validation-for="CategoryId" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="StoreId" class="control-label"></label>
+                                <select asp-for="StoreId" class="form-control" asp-items="@(new SelectList(Model.Stores, "Id", "Name"))">
+                                    <option value="">Mağaza Seçiniz</option>
+                                </select>
+                                <span asp-validation-for="StoreId" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group form-check">
+                        <label class="form-check-label">
+                            <input class="form-check-input" asp-for="IsActive" checked /> @Html.DisplayNameFor(model => model.IsActive)
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ürün Görselleri -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Ürün Görselleri</h5>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label class="control-label">Görselleri Yükle</label>
+                        <input type="file" name="productImages" class="form-control" multiple accept="image/*" />
+                        <small class="form-text text-muted">Birden fazla resim seçebilirsiniz (max 10MB each)</small>
+                    </div>
+
+                    <div id="imagePreviewContainer" class="row mt-3">
+                        <!-- Resim önizlemeleri buraya eklenecek -->
+                    </div>
+
+                    <div class="alert alert-info mt-3">
+                        <p><strong>Not:</strong> İlk yüklenen resim ana resim olarak ayarlanacaktır. Daha sonra resim yönetimi sayfasından düzenleme yapabilirsiniz.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ürün Özellikleri -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Ürün Özellikleri</h5>
+                </div>
+                <div class="card-body">
+                    <div id="attributesContainer">
+                        <div class="attribute-group mb-3">
+                            <div class="row">
+                                <div class="col-md-5">
+                                    <input type="text" name="Attributes[0].Key" class="form-control" placeholder="Özellik Adı (Örn: Renk)" />
+                                </div>
+                                <div class="col-md-5">
+                                    <input type="text" name="Attributes[0].Value" class="form-control" placeholder="Özellik Değeri (Örn: Kırmızı)" />
+                                </div>
+                                <div class="col-md-2">
+                                    <button type="button" class="btn btn-danger remove-attribute">Sil</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="button" id="addAttribute" class="btn btn-secondary mt-2">
+                        <i class="fas fa-plus"></i> Yeni Özellik Ekle
+                    </button>
+                </div>
+            </div>
+
+            <!-- Ürün Varyantları -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Ürün Varyantları</h5>
+                </div>
+                <div class="card-body">
+                    <div id="variantsContainer">
+                        <div class="variant-group mb-3 border p-3">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Varyant Adı</label>
+                                        <input type="text" name="Variants[0].Name" class="form-control" placeholder="Örn: XL, Kırmızı" />
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label>Fiyat</label>
+                                        <div class="input-group">
+                                            <input type="number" name="Variants[0].Price" class="form-control" placeholder="Fiyat" step="0.01" />
+                                            <span class="input-group-text">₺</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label>Stok Adedi</label>
+                                        <input type="number" name="Variants[0].StockQuantity" class="form-control" placeholder="Stok" min="0" />
+                                    </div>
+                                </div>
+                                <div class="col-md-2 d-flex align-items-end">
+                                    <button type="button" class="btn btn-danger remove-variant">Sil</button>
+                                </div>
+                            </div>
+                            <div class="row mt-2">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label>SKU</label>
+                                        <input type="text" name="Variants[0].SKU" class="form-control" placeholder="Varyant SKU" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="button" id="addVariant" class="btn btn-secondary mt-2">
+                        <i class="fas fa-plus"></i> Yeni Varyant Ekle
+                    </button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary btn-lg">
+                    <i class="fas fa-save"></i> Ürünü Kaydet
+                </button>
+                <a asp-action="Index" class="btn btn-secondary btn-lg">
+                    <i class="fas fa-times"></i> İptal
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .attribute-group, .variant-group {
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .image-preview {
+            position: relative;
+            margin: 10px;
+            display: inline-block;
+        }
+
+            .image-preview img {
+                max-width: 150px;
+                max-height: 150px;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                padding: 5px;
+            }
+
+            .image-preview .remove-image {
+                position: absolute;
+                top: 5px;
+                right: 5px;
+                background: rgba(0,0,0,0.5);
+                color: white;
+                border-radius: 50%;
+                width: 25px;
+                height: 25px;
+                text-align: center;
+                line-height: 25px;
+                cursor: pointer;
+            }
+    </style>
+}
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script src="https://cdn.ckeditor.com/4.16.2/standard/ckeditor.js"></script>
+
+    <script>
+        // CKEditor başlatma
+        CKEDITOR.replace('descriptionEditor');
+
+        // Slug oluşturma
+        document.getElementById('generateSlug').addEventListener('click', function () {
+            const name = document.getElementById('Name').value;
+            if (name) {
+                const slug = name.toLowerCase()
+                    .replace(/[^\w\s-]/g, '') // Özel karakterleri kaldır
+                    .replace(/[\s_-]+/g, '-') // Boşluk ve alt çizgiyi tireye çevir
+                    .replace(/^-+|-+$/g, ''); // Baştaki ve sondaki tireleri kaldır
+                document.getElementById('Slug').value = slug;
+            }
+        });
+
+        // Resim önizleme
+        document.querySelector('input[name="productImages"]').addEventListener('change', function (e) {
+            const container = document.getElementById('imagePreviewContainer');
+            container.innerHTML = '';
+
+            Array.from(e.target.files).forEach((file, index) => {
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    const previewDiv = document.createElement('div');
+                    previewDiv.className = 'col-md-3 image-preview';
+                    previewDiv.innerHTML = `
+                                <img src="${event.target.result}" alt="Preview" />
+                                <span class="remove-image" data-index="${index}">×</span>
+                                <input type="hidden" name="UploadedImages[${index}]" value="${event.target.result}" />
+                            `;
+                    container.appendChild(previewDiv);
+                };
+                reader.readAsDataURL(file);
+            });
+        });
+
+        // Resim silme
+        document.getElementById('imagePreviewContainer').addEventListener('click', function (e) {
+            if (e.target.classList.contains('remove-image')) {
+                e.target.parentElement.remove();
+            }
+        });
+
+        // Özellik ekleme
+        let attributeIndex = 1;
+        document.getElementById('addAttribute').addEventListener('click', function () {
+            const container = document.getElementById('attributesContainer');
+            const newAttribute = document.createElement('div');
+            newAttribute.className = 'attribute-group mb-3';
+            newAttribute.innerHTML = `
+                        <div class="row">
+                            <div class="col-md-5">
+                                <input type="text" name="Attributes[${attributeIndex}].Key" class="form-control" placeholder="Özellik Adı" />
+                            </div>
+                            <div class="col-md-5">
+                                <input type="text" name="Attributes[${attributeIndex}].Value" class="form-control" placeholder="Özellik Değeri" />
+                            </div>
+                            <div class="col-md-2">
+                                <button type="button" class="btn btn-danger remove-attribute">Sil</button>
+                            </div>
+                        </div>
+                    `;
+            container.appendChild(newAttribute);
+            attributeIndex++;
+        });
+
+        // Özellik silme
+        document.getElementById('attributesContainer').addEventListener('click', function (e) {
+            if (e.target.classList.contains('remove-attribute')) {
+                e.target.closest('.attribute-group').remove();
+            }
+        });
+
+        // Varyant ekleme
+        let variantIndex = 1;
+        document.getElementById('addVariant').addEventListener('click', function () {
+            const container = document.getElementById('variantsContainer');
+            const newVariant = document.createElement('div');
+            newVariant.className = 'variant-group mb-3 border p-3';
+            newVariant.innerHTML = `
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Varyant Adı</label>
+                                    <input type="text" name="Variants[${variantIndex}].Name" class="form-control" placeholder="Örn: XL, Kırmızı" />
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Fiyat</label>
+                                    <div class="input-group">
+                                        <input type="number" name="Variants[${variantIndex}].Price" class="form-control" placeholder="Fiyat" step="0.01" />
+                                        <span class="input-group-text">₺</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Stok Adedi</label>
+                                    <input type="number" name="Variants[${variantIndex}].StockQuantity" class="form-control" placeholder="Stok" min="0" />
+                                </div>
+                            </div>
+                            <div class="col-md-2 d-flex align-items-end">
+                                <button type="button" class="btn btn-danger remove-variant">Sil</button>
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label>SKU</label>
+                                    <input type="text" name="Variants[${variantIndex}].SKU" class="form-control" placeholder="Varyant SKU" />
+                                </div>
+                            </div>
+                        </div>
+                    `;
+            container.appendChild(newVariant);
+            variantIndex++;
+        });
+
+        // Varyant silme
+        document.getElementById('variantsContainer').addEventListener('click', function (e) {
+            if (e.target.classList.contains('remove-variant')) {
+                e.target.closest('.variant-group').remove();
+            }
+        });
+
+        // Form gönderilmeden önce CKEditor içeriğini al
+        document.getElementById('productForm').addEventListener('submit', function () {
+            document.getElementById('Description').value = CKEDITOR.instances.descriptionEditor.getData();
+        });
+    </script>
+}

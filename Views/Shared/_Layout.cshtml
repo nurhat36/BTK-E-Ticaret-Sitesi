@@ -646,10 +646,16 @@
                                     </li>
                                     <li><hr class="dropdown-divider my-1" /></li>
                                     <li>
-                                        <a class="dropdown-item hvr-forward" asp-controller="Profile" asp-action="ProfiliDuzenle">
+                                        <a class="dropdown-item hvr-forward" asp-area="Identity" asp-page="/Account/Manage/Index">
                                             <i class="fas fa-user me-2"></i>Profil Bilgilerim
                                         </a>
                                     </li>
+                                    @if (User.Identity.IsAuthenticated)
+                                    {
+                                        <li class="nav-item">
+                                            <a class="nav-link" asp-controller="Store" asp-action="Dashboard">Mağazam</a>
+                                        </li>
+                                    }
                                     
                                     <li>
                                         <button id="darkModeToggle" class="btn btn-outline-secondary ms-2" style="padding: 5px 10px; font-size: 1.2rem;">
@@ -691,11 +697,11 @@
     <!-- Chat Box Container -->
    
 
-    <footer class="border-top footer text-muted py-3">
+    @* <footer class="border-top footer text-muted py-3">
         <div class="container text-center">
             &copy; 2025 - YoneticiOtomasyonu - <a class="hvr-underline-from-center" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
-    </footer>
+    </footer> *@
 
     <!-- Scripts -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>

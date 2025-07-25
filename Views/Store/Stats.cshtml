@@ -1,0 +1,269 @@
+﻿@model BTKETicaretSitesi.Models.ViewModels.StoreStatsViewModel
+
+@{
+    ViewData["Title"] = "Mağaza İstatistikleri";
+    var maxActivity = Model.SalesActivities?.Any() == true ?
+        Model.SalesActivities.Max(a => a.OrderCount) : 1;
+
+    // Haftanın günleri için etiketler
+    var dayLabels = new[] { "Paz", "Pzt", "Sal", "Çar", "Per", "Cum", "Cmt" };
+}
+
+<div class="container mt-4">
+    <!-- Diğer istatistik kartları aynı şekilde kalıyor... -->
+    <!-- Yatay Heatmap -->
+    <h2 class="mb-4">@Model.Store.Name İstatistikleri</h2>
+
+    <!-- Genel İstatistik Kartları -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary">
+                <div class="card-body">
+                    <h5 class="card-title">Toplam Ürün</h5>
+                    <p class="card-text display-4">@Model.TotalProducts</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-success">
+                <div class="card-body">
+                    <h5 class="card-title">Toplam Sipariş</h5>
+                    <p class="card-text display-4">@Model.TotalOrders</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-info">
+                <div class="card-body">
+                    <h5 class="card-title">Toplam Ciro</h5>
+                    <p class="card-text display-4">@Model.TotalRevenue.ToString("C")</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-warning">
+                <div class="card-body">
+                    <h5 class="card-title">Ort. Sipariş</h5>
+                    <p class="card-text display-4">@((Model.TotalRevenue / (Model.TotalOrders == 0 ? 1 : Model.TotalOrders)).ToString("C"))</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5>Satış Aktivite Haritası (Son 1 Yıl)</h5>
+        </div>
+        <div class="card-body">
+            <div class="horizontal-heatmap-container">
+                <!-- Haftanın günleri için etiketler (sol tarafa dikey) -->
+                <div class="day-labels">
+                    @foreach (var dayLabel in dayLabels)
+                    {
+                        <div class="day-label">@dayLabel</div>
+                    }
+                </div>
+
+                <!-- Heatmap grid -->
+                <div class="horizontal-heatmap">
+                    @{
+                        var currentDate = DateTime.Now.Date;
+                        var startDate = currentDate.AddYears(-1);
+                        var today = DateTime.Today;
+
+                        // 52 hafta (1 yıl) için sütunlar
+                        for (int week = 0; week < 52; week++)
+                        {
+                            <div class="week-column">
+                                @{
+                                    var weekStart = startDate.AddDays(week * 7);
+                                    // Haftanın 7 günü için
+                                    for (int dayOfWeek = 0; dayOfWeek < 7; dayOfWeek++)
+                                    {
+                                        var date = weekStart.AddDays(dayOfWeek);
+                                        if (date > currentDate) continue;
+
+                                        var activity = Model.SalesActivities.FirstOrDefault(a => a.Date.Date == date.Date);
+                                        var intensity = activity != null ?
+                                        (int)Math.Ceiling((double)activity.OrderCount / maxActivity * 4) : 0;
+                                        var isToday = date.Date == today.Date ? "today-cell" : "";
+
+                                        <div class="day-cell @isToday activity-level-@intensity"
+                                             data-toggle="tooltip"
+                                             title="@date.ToShortDateString() - @(activity?.OrderCount ?? 0) sipariş">
+                                        </div>
+                                    }
+                                }
+                            </div>
+                        }
+                    }
+                    <!-- Bugünün karesi en sağda olacak -->
+                </div>
+            </div>
+
+            <div class="heatmap-legend mt-3">
+                <span>Az</span>
+                <div class="legend-cells">
+                    @for (int i = 0; i < 5; i++)
+                    {
+                        <div class="legend-cell activity-level-@i"></div>
+                    }
+                </div>
+                <span>Çok</span>
+            </div>
+        </div>
+    </div>
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Aylık Satışlar</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="monthlySalesChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5>En Çok Satan Ürünler</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group">
+                        @foreach (var product in Model.TopProducts)
+                        {
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                @product.ProductName
+                                <span class="badge bg-primary rounded-pill">@product.SalesCount adet</span>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    <!-- Diğer içerikler aynı şekilde kalıyor... -->
+</div>
+
+@section Styles {
+    <style>
+        /* Yatay heatmap stilleri */
+        .horizontal-heatmap-container {
+            display: flex;
+            overflow-x: auto;
+            padding-left: 40px; /* Gün etiketleri için boşluk */
+        }
+
+        .day-labels {
+            display: flex;
+            flex-direction: column;
+            margin-right: 5px;
+            position: absolute;
+            left: 15px;
+        }
+
+        .day-label {
+            height: 15px;
+            width: 30px;
+            margin: 1px 0;
+            font-size: 10px;
+            text-align: right;
+            padding-right: 5px;
+        }
+
+        .horizontal-heatmap {
+            display: flex;
+        }
+
+        .week-column {
+            display: flex;
+            flex-direction: column;
+            margin-right: 2px;
+        }
+
+        .day-cell {
+            width: 15px;
+            height: 15px;
+            margin: 1px;
+            border-radius: 2px;
+            background-color: #ebedf0;
+        }
+
+        .today-cell {
+            border: 1px solid #000;
+            box-sizing: border-box;
+        }
+
+        /* Aktivite seviyeleri */
+        .activity-level-1 {
+            background-color: #9be9a8;
+        }
+
+        .activity-level-2 {
+            background-color: #40c463;
+        }
+
+        .activity-level-3 {
+            background-color: #30a14e;
+        }
+
+        .activity-level-4 {
+            background-color: #216e39;
+        }
+
+        /* Legend stilleri aynı kalıyor */
+        .heatmap-legend {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .legend-cells {
+            display: flex;
+            margin: 0 5px;
+        }
+
+        .legend-cell {
+            width: 12px;
+            height: 12px;
+            margin: 0 1px;
+            border-radius: 2px;
+        }
+    </style>
+}
+
+@section Scripts {
+    <!-- Chart.js ve tooltip scriptleri aynı şekilde kalıyor -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip();
+        });
+
+        // Aylık satış grafiği kodu aynı
+        var ctx = document.getElementById('monthlySalesChart').getContext('2d');
+        var monthlySalesChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: @Html.Raw(Json.Serialize(Model.MonthlySales.Keys)),
+                datasets: [{
+                    label: 'Satış Adedi',
+                    data: @Html.Raw(Json.Serialize(Model.MonthlySales.Values)),
+                    backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+}

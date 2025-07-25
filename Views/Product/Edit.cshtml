@@ -1,0 +1,162 @@
+﻿@model BTKETicaretSitesi.ViewModels.ProductEditViewModel
+
+@{
+    ViewData["Title"] = "Ürün Düzenle";
+}
+
+<h1>Ürün Düzenle</h1>
+
+<hr />
+<div class="row">
+    <div class="col-md-8">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+
+            <div class="form-group">
+                <label asp-for="Name" class="control-label"></label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Description" class="control-label"></label>
+                <textarea asp-for="Description" class="form-control" rows="5"></textarea>
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="Price" class="control-label"></label>
+                        <input asp-for="Price" class="form-control" />
+                        <span asp-validation-for="Price" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="DiscountPrice" class="control-label"></label>
+                        <input asp-for="DiscountPrice" class="form-control" />
+                        <span asp-validation-for="DiscountPrice" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="StockQuantity" class="control-label"></label>
+                        <input asp-for="StockQuantity" class="form-control" />
+                        <span asp-validation-for="StockQuantity" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="SKU" class="control-label"></label>
+                        <input asp-for="SKU" class="form-control" />
+                        <span asp-validation-for="SKU" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="Barcode" class="control-label"></label>
+                        <input asp-for="Barcode" class="form-control" />
+                        <span asp-validation-for="Barcode" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="Slug" class="control-label"></label>
+                        <input asp-for="Slug" class="form-control" />
+                        <span asp-validation-for="Slug" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="CategoryId" class="control-label"></label>
+                        <select asp-for="CategoryId" class="form-control" asp-items="@(new SelectList(Model.Categories, "Id", "Name"))"></select>
+                        <span asp-validation-for="CategoryId" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="StoreId" class="control-label"></label>
+                        <select asp-for="StoreId" class="form-control" asp-items="@(new SelectList(Model.Stores, "Id", "Name"))"></select>
+                        <span asp-validation-for="StoreId" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="IsActive" /> @Html.DisplayNameFor(model => model.IsActive)
+                </label>
+            </div>
+
+            <div class="form-group">
+                <input type="submit" value="Güncelle" class="btn btn-primary" />
+                <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-info">Detaylara Dön</a>
+                <a asp-action="Index" class="btn btn-secondary">Listeye Dön</a>
+            </div>
+        </form>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">Hızlı İşlemler</h5>
+            </div>
+            <div class="card-body">
+                <a asp-action="ManageImages" asp-route-productId="@Model.Id" class="btn btn-outline-primary btn-block mb-2">
+                    <i class="fas fa-images"></i> Resimleri Yönet
+                </a>
+                <a asp-action="ManageAttributes" asp-route-productId="@Model.Id" class="btn btn-outline-primary btn-block mb-2">
+                    <i class="fas fa-list"></i> Özellikleri Yönet
+                </a>
+                <a asp-action="ManageVariants" asp-route-productId="@Model.Id" class="btn btn-outline-primary btn-block mb-2">
+                    <i class="fas fa-layer-group"></i> Varyantları Yönet
+                </a>
+                <a asp-action="ManageReviews" asp-route-productId="@Model.Id" class="btn btn-outline-primary btn-block">
+                    <i class="fas fa-comments"></i> Yorumları Yönet
+                </a>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="card-title">Ürün Bilgileri</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Oluşturulma Tarihi:</strong> @DateTime.Now.ToString("dd.MM.yyyy HH:mm")</p>
+                <p><strong>Son Güncelleme:</strong> @DateTime.Now.ToString("dd.MM.yyyy HH:mm")</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        // Slug alanını otomatik oluştur
+        document.getElementById('Name').addEventListener('input', function () {
+            const slugInput = document.getElementById('Slug');
+            if (!slugInput.value) {
+                const slug = this.value
+                    .toLowerCase()
+                    .replace(/[^\w\s-]/g, '') // Özel karakterleri kaldır
+                    .replace(/[\s_-]+/g, '-') // Boşluk ve alt çizgiyi tireye çevir
+                    .replace(/^-+|-+$/g, ''); // Baştaki ve sondaki tireleri kaldır
+                slugInput.value = slug;
+            }
+        });
+    </script>
+}

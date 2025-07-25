@@ -1,0 +1,88 @@
+﻿@model BTKETicaretSitesi.ViewModels.ProductDetailsViewModel
+
+@{
+    ViewData["Title"] = Model.Product.Name;
+}
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="mb-3">
+            <img src="@Model.MainImage" class="img-fluid" alt="@Model.Product.Name" />
+        </div>
+        <div class="row">
+            @foreach (var image in Model.OtherImages)
+            {
+                <div class="col-md-3 mb-3">
+                    <img src="@image.ImageUrl" class="img-thumbnail" alt="@Model.Product.Name" />
+                </div>
+            }
+        </div>
+    </div>
+    <div class="col-md-6">
+        <h1>@Model.Product.Name</h1>
+        <p class="lead">
+            @if (Model.Product.DiscountPrice.HasValue)
+            {
+                <span class="text-decoration-line-through">@Model.Product.Price.ToString("C")</span>
+                <span class="text-danger">@Model.Product.DiscountPrice.Value.ToString("C")</span>
+            }
+            else
+            {
+                @Model.Product.Price.ToString("C")
+            }
+        </p>
+        <p>@Model.Product.Description</p>
+        <p>Stok: @Model.Product.StockQuantity</p>
+        <p>SKU: @Model.Product.SKU</p>
+        <p>Barkod: @Model.Product.Barcode</p>
+
+        <h4>Özellikler</h4>
+        <ul>
+            @foreach (var attr in Model.Attributes)
+            {
+                <li><strong>@attr.Key:</strong> @attr.Value</li>
+            }
+        </ul>
+
+        <h4>Varyantlar</h4>
+        <ul>
+            @foreach (var variant in Model.Variants)
+            {
+                <li>@variant.VariantType - @variant.VariantValue.ToString()</li>
+            }
+        </ul>
+
+        <div class="mt-4">
+            <a asp-action="Index" class="btn btn-secondary">Listeye Dön</a>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-md-12">
+        <h3>Yorumlar</h3>
+        @if (Model.Reviews.Any())
+        {
+            foreach (var review in Model.Reviews)
+            {
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">@review.Title</h5>
+                        <div class="text-warning">
+                            @for (int i = 0; i < review.Rating; i++)
+                            {
+                                <span>★</span>
+                            }
+                        </div>
+                        <p class="card-text">@review.Comment</p>
+                        <p class="text-muted">@review.User.UserName - @review.ReviewDate.ToShortDateString()</p>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <p>Henüz yorum yapılmamış.</p>
+        }
+    </div>
+</div>
