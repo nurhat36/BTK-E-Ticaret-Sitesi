@@ -1,0 +1,123 @@
+﻿@model BTKETicaretSitesi.Models.ViewModels.ProductImagesViewModel
+@{
+    ViewData["Title"] = $"{Model.ProductName} - Resim Yönetimi";
+    Layout = "_ManagementLayout";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>@Model.ProductName - Resim Yönetimi</h2>
+        <a asp-controller="Product" asp-action="Edit" asp-route-id="@Model.ProductId" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Ürüne Dön
+        </a>
+    </div>
+
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Resim Yükle</h5>
+        </div>
+        <div class="card-body">
+            <form id="uploadForm" enctype="multipart/form-data">
+                <div class="input-group">
+                    <input type="file" class="form-control" id="imageInput" multiple accept="image/*">
+                    <button class="btn btn-success" type="submit">
+                        <i class="fas fa-upload"></i> Yükle
+                    </button>
+                </div>
+                <small class="form-text text-muted">Maksimum 10MB, JPG/PNG formatında</small>
+            </form>
+        </div>
+    </div>
+
+    <div class="card shadow mt-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Resimler</h5>
+        </div>
+        <div class="card-body">
+            <div id="imageList" class="row">
+                @foreach (var image in Model.Images)
+                {
+                    <div class="col-md-3 mb-4 image-item" data-id="@image.Id">
+                        <div class="card h-100">
+                            <img src="@image.ImageUrl" class="card-img-top" alt="Ürün resmi">
+                            <div class="card-body text-center">
+                                @if (image.IsMainImage)
+                                {
+                                    <span class="badge bg-success mb-2">Ana Resim</span>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-sm btn-outline-primary set-main-btn mb-2">
+                                        Ana Resim Yap
+                                    </button>
+                                }
+                                <button class="btn btn-sm btn-outline-danger delete-btn">
+                                    <i class="fas fa-trash"></i> Sil
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Resim yükleme
+            $('#uploadForm').on('submit', function (e) {
+                e.preventDefault();
+                var files = $('#imageInput')[0].files;
+                var formData = new FormData();
+
+                for (var i = 0; i < files.length; i++) {
+                    formData.append('files', files[i]);
+                }
+
+                $.ajax({
+                    url: '/admin/products/@Model.ProductId/images/upload',
+                    type: 'POST',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        location.reload();
+                    },
+                    error: function (xhr) {
+                        alert(xhr.responseText);
+                    }
+                });
+            });
+
+            // Ana resim yapma
+            $(document).on('click', '.set-main-btn', function () {
+                var imageId = $(this).closest('.image-item').data('id');
+
+                $.post('/admin/products/@Model.ProductId/images/set-main', { imageId: imageId })
+                    .done(function () {
+                        location.reload();
+                    })
+                    .fail(function (xhr) {
+                        alert(xhr.responseText);
+                    });
+            });
+
+            // Resim silme
+            $(document).on('click', '.delete-btn', function () {
+                if (!confirm('Resmi silmek istediğinize emin misiniz?')) return;
+
+                var imageId = $(this).closest('.image-item').data('id');
+
+                $.post('/admin/products/@Model.ProductId/images/delete', { imageId: imageId })
+                    .done(function () {
+                        location.reload();
+                    })
+                    .fail(function (xhr) {
+                        alert(xhr.responseText);
+                    });
+            });
+        });
+    </script>
+}

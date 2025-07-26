@@ -1,6 +1,7 @@
 ﻿@model BTKETicaretSitesi.Models.ViewModels.StoreStatsViewModel
 
 @{
+    Layout = "_ManagementLayout";
     ViewData["Title"] = "Mağaza İstatistikleri";
     var maxActivity = Model.SalesActivities?.Any() == true ?
         Model.SalesActivities.Max(a => a.OrderCount) : 1;

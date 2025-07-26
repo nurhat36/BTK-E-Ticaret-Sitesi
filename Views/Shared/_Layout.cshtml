@@ -652,9 +652,18 @@
                                     </li>
                                     @if (User.Identity.IsAuthenticated)
                                     {
-                                        <li class="nav-item">
-                                            <a class="nav-link" asp-controller="Store" asp-action="Dashboard">Mağazam</a>
-                                        </li>
+                                        @if (User.IsInRole("Admin"))
+                                        {
+                                            <li class="nav-item">
+                                                <a class="nav-link" asp-controller="AdminStore" asp-action="Index">Mağazalar</a>
+                                            </li>
+                                        }
+                                        else
+                                        {
+                                            <li class="nav-item">
+                                                <a class="nav-link" asp-controller="Store" asp-action="Dashboard">Mağazam</a>
+                                            </li>
+                                        }
                                     }
                                     
                                     <li>

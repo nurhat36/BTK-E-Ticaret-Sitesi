@@ -1,7 +1,7 @@
 ﻿using BTKETicaretSitesi.Models;
 using System.Collections.Generic;
 
-namespace BTKETicaretSitesi.ViewModels
+namespace BTKETicaretSitesi.Models.ViewModels
 {
     public class ProductDetailsViewModel
     {
@@ -50,21 +50,35 @@ namespace BTKETicaretSitesi.ViewModels
         public List<Store> Stores { get; set; }
     }
 
+    // ProductImagesViewModel.cs
     public class ProductImagesViewModel
     {
         public int ProductId { get; set; }
+        public string ProductName { get; set; }
         public List<ProductImage> Images { get; set; }
     }
 
+    // ProductAttributesViewModel.cs
     public class ProductAttributesViewModel
     {
         public int ProductId { get; set; }
+        public string ProductName { get; set; }
         public List<ProductAttribute> Attributes { get; set; }
     }
 
+    // ProductVariantsViewModel.cs
+    public class ProductVariantsViewModel
+    {
+        public int ProductId { get; set; }
+        public string ProductName { get; set; }
+        public List<ProductVariant> Variants { get; set; }
+    }
+
+    // ProductReviewsViewModel.cs
     public class ProductReviewsViewModel
     {
         public int ProductId { get; set; }
+        public string ProductName { get; set; }
         public List<ProductReview> Reviews { get; set; }
     }
 }

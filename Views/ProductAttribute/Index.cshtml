@@ -1,0 +1,117 @@
+﻿@model BTKETicaretSitesi.Models.ViewModels.ProductAttributesViewModel
+@{
+    ViewData["Title"] = $"{Model.ProductName} - Özellik Yönetimi";
+    Layout = "_ManagementLayout";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>@Model.ProductName - Özellik Yönetimi</h2>
+        <a asp-controller="Product" asp-action="Edit" asp-route-id="@Model.ProductId" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Ürüne Dön
+        </a>
+    </div>
+
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Yeni Özellik Ekle</h5>
+        </div>
+        <div class="card-body">
+            <form id="addAttributeForm">
+                <div class="row">
+                    <div class="col-md-5">
+                        <input type="text" class="form-control" name="Key" placeholder="Özellik Adı (Örn: Renk)" required>
+                    </div>
+                    <div class="col-md-5">
+                        <input type="text" class="form-control" name="Value" placeholder="Özellik Değeri (Örn: Kırmızı)" required>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-success w-100">
+                            <i class="fas fa-plus"></i> Ekle
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card shadow mt-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Ürün Özellikleri</h5>
+        </div>
+        <div class="card-body">
+            <div id="attributesList">
+                @foreach (var attr in Model.Attributes)
+                {
+                    <div class="row mb-3 attribute-item" data-id="@attr.Id">
+                        <div class="col-md-5">
+                            <input type="text" class="form-control" value="@attr.Key" disabled>
+                        </div>
+                        <div class="col-md-5">
+                            <input type="text" class="form-control" value="@attr.Value" disabled>
+                        </div>
+                        <div class="col-md-2">
+                            <button class="btn btn-outline-danger delete-attr-btn w-100">
+                                <i class="fas fa-trash"></i> Sil
+                            </button>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Yeni özellik ekleme
+            $('#addAttributeForm').on('submit', function (e) {
+                e.preventDefault();
+
+                var formData = $(this).serialize();
+
+                $.post('/admin/products/@Model.ProductId/attributes', formData)
+                    .done(function (response) {
+                        $('#attributesList').append(`
+                                    <div class="row mb-3 attribute-item" data-id="${response.id}">
+                                        <div class="col-md-5">
+                                            <input type="text" class="form-control" value="${response.key}" disabled>
+                                        </div>
+                                        <div class="col-md-5">
+                                            <input type="text" class="form-control" value="${response.value}" disabled>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <button class="btn btn-outline-danger delete-attr-btn w-100">
+                                                <i class="fas fa-trash"></i> Sil
+                                            </button>
+                                        </div>
+                                    </div>
+                                `);
+                        $('#addAttributeForm')[0].reset();
+                    })
+                    .fail(function (xhr) {
+                        alert(xhr.responseText);
+                    });
+            });
+
+            // Özellik silme
+            $(document).on('click', '.delete-attr-btn', function () {
+                if (!confirm('Bu özelliği silmek istediğinize emin misiniz?')) return;
+
+                var attrId = $(this).closest('.attribute-item').data('id');
+
+                $.ajax({
+                    url: '/admin/products/@Model.ProductId/attributes/' + attrId,
+                    type: 'DELETE',
+                    success: function () {
+                        $(`[data-id="${attrId}"]`).remove();
+                    },
+                    error: function (xhr) {
+                        alert(xhr.responseText);
+                    }
+                });
+            });
+        });
+    </script>
+}

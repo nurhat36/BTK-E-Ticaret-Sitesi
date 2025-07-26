@@ -1,7 +1,8 @@
-﻿@model BTKETicaretSitesi.ViewModels.ProductEditViewModel
+﻿@model BTKETicaretSitesi.Models.ViewModels.ProductEditViewModel
 
 @{
     ViewData["Title"] = "Ürün Düzenle";
+    Layout = "_ManagementLayout";
 }
 
 <h1>Ürün Düzenle</h1>
@@ -113,16 +114,20 @@
                 <h5 class="card-title">Hızlı İşlemler</h5>
             </div>
             <div class="card-body">
-                <a asp-action="ManageImages" asp-route-productId="@Model.Id" class="btn btn-outline-primary btn-block mb-2">
+                <a asp-controller="ProductImage" asp-action="Index" asp-route-productId="@Model.Id"
+                   class="btn btn-outline-primary btn-block mb-2">
                     <i class="fas fa-images"></i> Resimleri Yönet
                 </a>
-                <a asp-action="ManageAttributes" asp-route-productId="@Model.Id" class="btn btn-outline-primary btn-block mb-2">
+                <a asp-controller="ProductAttribute" asp-action="Index" asp-route-productId="@Model.Id"
+                   class="btn btn-outline-primary btn-block mb-2">
                     <i class="fas fa-list"></i> Özellikleri Yönet
                 </a>
-                <a asp-action="ManageVariants" asp-route-productId="@Model.Id" class="btn btn-outline-primary btn-block mb-2">
+                <a asp-controller="ProductVariant" asp-action="Index" asp-route-productId="@Model.Id"
+                   class="btn btn-outline-primary btn-block mb-2">
                     <i class="fas fa-layer-group"></i> Varyantları Yönet
                 </a>
-                <a asp-action="ManageReviews" asp-route-productId="@Model.Id" class="btn btn-outline-primary btn-block">
+                <a asp-controller="ProductReview" asp-action="Index" asp-route-productId="@Model.Id"
+                   class="btn btn-outline-primary btn-block">
                     <i class="fas fa-comments"></i> Yorumları Yönet
                 </a>
             </div>

@@ -1,8 +1,134 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model BTKETicaretSitesi.Models.ViewModels.HomeIndexViewModel
+@{
+    ViewData["Title"] = "Ana Sayfa";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<!-- Hero Banner -->
+<div class="hero-banner bg-dark text-white py-5 mb-4">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold">Alışverişin Yeni Adresi</h1>
+                <p class="lead">Onaylı mağazalardan binlerce kaliteli ürün bir tık uzağınızda</p>
+                <a href="#featured-products" class="btn btn-primary btn-lg">Hemen Keşfet</a>
+            </div>
+            <div class="col-lg-6">
+                <img src="https://via.placeholder.com/600x400" alt="Alışveriş" class="img-fluid rounded">
+            </div>
+        </div>
+    </div>
 </div>
+
+<!-- Kategoriler -->
+<div class="container mb-5">
+    <h2 class="text-center mb-4">Kategoriler</h2>
+    <div class="row">
+        @foreach (var category in Model.Categories)
+        {
+            <div class="col-6 col-md-3 mb-3">
+                <a asp-controller="Category" asp-action="Details" asp-route-id="@category.Id" class="text-decoration-none">
+                    <div class="card category-card h-100 hover-shadow">
+                        
+                        <div class="card-body text-center">
+                            <h5 class="card-title">@category.Name</h5>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        }
+    </div>
+    <div class="text-center mt-3">
+        <a asp-controller="Category" asp-action="Index" class="btn btn-outline-primary">Tüm Kategoriler</a>
+    </div>
+</div>
+
+<!-- Öne Çıkan Ürünler -->
+<div class="container mb-5" id="featured-products">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Öne Çıkan Ürünler</h2>
+        <a asp-controller="Product" asp-action="Index" class="btn btn-outline-primary">Tüm Ürünler</a>
+    </div>
+
+    <div class="row">
+        @foreach (var product in Model.FeaturedProducts)
+        {
+            <div class="col-6 col-md-4 col-lg-3 mb-4">
+                <div class="card product-card h-100 hover-shadow">
+                    <a asp-controller="Product" asp-action="Details" asp-route-id="@product.Id">
+                        @{
+                            var mainImage = product.Images.FirstOrDefault(pi => pi.IsMainImage);
+                            var imageUrl = mainImage != null ? mainImage.ImageUrl : "https://via.placeholder.com/300";
+                        }
+                        <img src="@imageUrl" class="card-img-top product-image" alt="@product.Name">
+                    </a>
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <a asp-controller="Product" asp-action="Details" asp-route-id="@product.Id" class="text-decoration-none text-dark">
+                                @product.Name
+                            </a>
+                        </h5>
+                        <!-- Diğer ürün bilgileri -->
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .hero-banner {
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://via.placeholder.com/1920x600');
+            background-size: cover;
+            background-position: center;
+            border-radius: 10px;
+        }
+
+        .product-card, .category-card {
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: none;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .hover-shadow:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        .product-image {
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .category-card img {
+            height: 150px;
+            object-fit: cover;
+        }
+
+        .price {
+            color: #0d6efd;
+            font-size: 1.1rem;
+        }
+    </style>
+}
+
+@section Scripts {
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <script>
+        // Sepete ekleme fonksiyonu
+        $(document).ready(function () {
+            $('.add-to-cart').click(function () {
+                var productId = $(this).data('product-id');
+                // AJAX ile sepete ekleme işlemi
+                $.post('/Cart/Add', { productId: productId, quantity: 1 }, function (data) {
+                    toastr.success('Ürün sepete eklendi');
+                    // Sepet sayacını güncelle
+                    $('#cart-count').text(data.cartItemCount);
+                }).fail(function () {
+                    toastr.error('Bir hata oluştu');
+                });
+            });
+        });
+    </script>
+}
