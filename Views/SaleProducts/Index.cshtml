@@ -1,0 +1,160 @@
+﻿@model IEnumerable<Product>
+@{
+    ViewData["Title"] = "Ürünler";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <!-- Filtreleme Sidebar -->
+        <div class="col-md-3">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5>Filtreler</h5>
+                </div>
+                <div class="card-body">
+                    <form id="filterForm">
+                        <!-- Kategori Filtresi -->
+                        <div class="mb-3">
+                            <label class="form-label">Kategoriler</label>
+                            <select class="form-select" name="categoryId" 
+                                    onchange="document.getElementById('filterForm').submit()">
+                                <option value="">Tüm Kategoriler</option>
+                                @foreach (var category in ViewBag.Categories)
+                                {
+                                    <option value="@category.Id" 
+                                            selected="@(ViewBag.CurrentCategory?.Id == category.Id)">
+                                        @category.Name
+                                    </option>
+                                }
+                            </select>
+                        </div>
+
+                        <!-- Fiyat Aralığı -->
+                        <div class="mb-3">
+                            <label class="form-label">Fiyat Aralığı</label>
+                            <div class="d-flex justify-content-between">
+                                <input type="number" class="form-control me-2" placeholder="Min" name="minPrice">
+                                <input type="number" class="form-control" placeholder="Max" name="maxPrice">
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100">Filtrele</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ürün Listesi -->
+        <div class="col-md-9">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>@(ViewBag.CurrentCategory?.Name ?? "Tüm Ürünler")</h2>
+                <div>
+                    <select class="form-select" onchange="window.location.href=this.value">
+                        <option value="@Url.Action("Index", new { sortBy = "newest" })" 
+                                selected="@(ViewBag.SortBy == "newest")">Yeni Ürünler</option>
+                        <option value="@Url.Action("Index", new { sortBy = "price_asc" })"
+                                selected="@(ViewBag.SortBy == "price_asc")">Fiyat (Artan)</option>
+                        <option value="@Url.Action("Index", new { sortBy = "price_desc" })"
+                                selected="@(ViewBag.SortBy == "price_desc")">Fiyat (Azalan)</option>
+                        <option value="@Url.Action("Index", new { sortBy = "popular" })"
+                                selected="@(ViewBag.SortBy == "popular")">Popüler</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Ürün Grid -->
+            <div class="row">
+                @foreach (var product in Model)
+                {
+                    <div class="col-6 col-md-4 col-lg-3 mb-4">
+                        <div class="card product-card h-100">
+                            <div class="badges">
+                                
+                                @if (product.DiscountPrice.HasValue)
+                                {
+                                    <span class="badge bg-danger">
+                                        %@((int)((1 - product.Price / product.DiscountPrice.Value) * 100)) İndirim
+                                    </span>
+                                }
+                            </div>
+                            <a asp-action="Details" asp-route-id="@product.Id" asp-route-slug="@product.Slug">
+                                <img src="@(product.Images.FirstOrDefault()?.ImageUrl ?? "/images/no-image.png")" 
+                                     class="card-img-top" alt="@product.Name">
+                            </a>
+                            <div class="card-body">
+                                <h5 class="card-title">
+                                    <a asp-action="Details" asp-route-id="@product.Id" asp-route-slug="@product.Slug" 
+                                       class="text-decoration-none text-dark">
+                                        @product.Name
+                                    </a>
+                                </h5>
+                                <p class="text-muted small">@product.Store.Name</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <span class="price">@product.Price.ToString("C")</span>
+                                        @if (product.DiscountPrice.HasValue)
+                                        {
+                                            <del class="text-muted small">@product.DiscountPrice.Value.ToString("C")</del>
+                                        }
+                                    </div>
+                                    <button class="btn btn-sm btn-outline-primary quick-view-btn" 
+                                            data-id="@product.Id">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-footer bg-white">
+                                <form asp-controller="Cart" asp-action="Add" method="post">
+                                    <input type="hidden" name="productId" value="@product.Id">
+                                    <button type="submit" class="btn btn-primary w-100">
+                                        <i class="fas fa-shopping-cart"></i> Sepete Ekle
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- Sayfalama -->
+            @if (ViewBag.TotalPages > 1)
+            {
+                <nav aria-label="Page navigation">
+                    <ul class="pagination justify-content-center">
+                        @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                        {
+                            <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                                <a class="page-link" 
+                                   href="@Url.Action("Index", new { page = i, pageSize = ViewBag.PageSize })">
+                                    @i
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </nav>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Quick View Modal -->
+<div class="modal fade" id="quickViewModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-body" id="quickViewContent">
+                <!-- Partial view buraya yüklenecek -->
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Hızlı görünüm modal
+        $(document).on('click', '.quick-view-btn', function() {
+            var productId = $(this).data('id');
+            $('#quickViewContent').load('@Url.Action("QuickView")/' + productId);
+            $('#quickViewModal').modal('show');
+        });
+    </script>
+}

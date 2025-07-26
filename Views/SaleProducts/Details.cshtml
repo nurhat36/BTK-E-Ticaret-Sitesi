@@ -1,0 +1,260 @@
+﻿@model Product
+@{
+    ViewData["Title"] = Model.Name;
+}
+
+<div class="container mt-5">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-action="Index">Ürünler</a></li>
+            <li class="breadcrumb-item"><a asp-action="Index" asp-route-categoryId="@Model.CategoryId">@Model.Category.Name</a></li>
+            <li class="breadcrumb-item active" aria-current="page">@Model.Name</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <!-- Ürün Görselleri -->
+        <div class="col-md-6">
+            <div class="product-gallery">
+                <div class="main-image mb-3">
+                    <img src="@(Model.Images.FirstOrDefault()?.ImageUrl ?? "/images/no-image.png")"
+                         class="img-fluid rounded" alt="@Model.Name" id="mainImage">
+                </div>
+                <div class="thumbnail-container d-flex">
+                    @foreach (var image in Model.Images)
+                    {
+                        <div class="thumbnail mr-2">
+                            <img src="@image.ImageUrl" class="img-thumbnail"
+                                 style="width: 80px; cursor: pointer;"
+                                 onclick="document.getElementById('mainImage').src = this.src">
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Ürün Bilgileri -->
+        <div class="col-md-6">
+            <h1>@Model.Name</h1>
+            <p class="text-muted">Satıcı: <a asp-controller="Store" asp-action="Details" asp-route-id="@Model.Store.Id">@Model.Store.Name</a></p>
+
+            <!-- Fiyat ve Stok Durumu -->
+            <div class="price-section mb-3">
+                <h3 class="text-primary">@Model.Price.ToString("C")</h3>
+                @if (Model.DiscountPrice.HasValue)
+                {
+                    <del class="text-muted">@Model.DiscountPrice.Value.ToString("C")</del>
+                    <span class="badge bg-danger">%@Math.Round((1 - Model.Price / Model.DiscountPrice.Value) * 100) İNDİRİM</span>
+                }
+                <div class="mt-2">
+                    @if (Model.StockQuantity > 0)
+                    {
+                        <span class="text-success"><i class="fas fa-check-circle"></i> Stokta</span>
+                    }
+                    else
+                    {
+                        <span class="text-danger"><i class="fas fa-times-circle"></i> Tükendi</span>
+                    }
+                </div>
+            </div>
+
+            <!-- Varyant Seçimi -->
+            @if (Model.Variants.Any())
+            {
+                <div class="variants mb-4">
+                    <h5>Varyantlar</h5>
+                    <div class="btn-group" role="group">
+                        @foreach (var variant in Model.Variants)
+                        {
+                            <button type="button" class="btn btn-outline-secondary variant-btn"
+                                    data-variant-id="@variant.Id"
+                                    data-price="@variant.VariantValue">
+                                @variant.VariantType
+                            </button>
+                        }
+                    </div>
+                </div>
+            }
+
+            <!-- Sepete Ekleme Formu -->
+            <form asp-controller="Cart" asp-action="Add" method="post" class="mb-4">
+                <input type="hidden" name="productId" value="@Model.Id">
+                @if (Model.Variants.Any())
+                {
+                    <input type="hidden" name="variantId" id="selectedVariant" value="">
+                }
+                <div class="row">
+                    <div class="col-3">
+                        <input type="number" name="quantity" value="1" min="1"
+                               max="@Model.StockQuantity" class="form-control" id="quantityInput">
+                    </div>
+                    <div class="col-9">
+                        <button type="submit" class="btn btn-primary btn-lg w-100"
+                        @(Model.StockQuantity <= 0 ? "disabled" : "")>
+                            <i class="fas fa-shopping-cart"></i> Sepete Ekle
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Özellikler -->
+            @if (Model.Attributes.Any())
+            {
+                <div class="attributes mb-4">
+                    <h5>Özellikler</h5>
+                    <ul class="list-group">
+                        @foreach (var attr in Model.Attributes)
+                        {
+                            <li class="list-group-item">
+                                <strong>@attr.Key:</strong> @attr.Value
+                            </li>
+                        }
+                    </ul>
+                </div>
+            }
+
+            <!-- Ürün Açıklaması -->
+            <div class="description mb-4">
+                <h5>Açıklama</h5>
+                <div class="card card-body">
+                    @Html.Raw(Model.Description)
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Benzer Ürünler -->
+    @if (ViewBag.RelatedProducts != null && ((List<Product>)ViewBag.RelatedProducts).Count > 0)
+    {
+        <div class="row mt-5">
+            <div class="col-12">
+                <h3>Benzer Ürünler</h3>
+                <div class="row">
+                    @foreach (var product in (List<Product>)ViewBag.RelatedProducts)
+                    {
+                        <div class="col-6 col-md-3 mb-4">
+                            <div class="card product-card h-100">
+                                <a asp-action="Details" asp-route-id="@product.Id" asp-route-slug="@product.Slug">
+                                    <img src="@(product.Images.FirstOrDefault()?.ImageUrl ?? "/images/no-image.png")"
+                                         class="card-img-top" alt="@product.Name">
+                                </a>
+                                <div class="card-body">
+                                    <h5 class="card-title">
+                                        <a asp-action="Details" asp-route-id="@product.Id" asp-route-slug="@product.Slug"
+                                           class="text-decoration-none text-dark">
+                                            @product.Name
+                                        </a>
+                                    </h5>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="price">@product.Price.ToString("C")</span>
+                                        <button class="btn btn-sm btn-outline-primary quick-view-btn"
+                                                data-id="@product.Id">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Yorumlar Bölümü -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <h3>Müşteri Yorumları</h3>
+
+            @if (Model.Reviews.Any())
+            {
+                foreach (var review in Model.Reviews)
+                {
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <h5>@review.User.UserName</h5>
+                                <div class="rating">
+                                    @for (int i = 1; i <= 5; i++)
+                                    {
+                                        <i class="fas fa-star @(i <= review.Rating ? "text-warning" : "text-secondary")"></i>
+                                    }
+                                </div>
+                            </div>
+                            <p class="text-muted small">@review.ReviewDate.ToString("dd MMMM yyyy")</p>
+                            <p>@review.Comment</p>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="alert alert-info">
+                    Bu ürün için henüz yorum yapılmamış.
+                </div>
+            }
+
+            <!-- Yorum Ekleme Formu -->
+            @if (User.Identity.IsAuthenticated)
+            {
+                <div class="mt-4">
+                    <h4>Yorum Yap</h4>
+                    <form asp-controller="Review" asp-action="Create" method="post">
+                        <input type="hidden" name="productId" value="@Model.Id">
+                        <div class="form-group mb-3">
+                            <label>Puan</label>
+                            <select name="rating" class="form-control">
+                                <option value="5">5 Yıldız</option>
+                                <option value="4">4 Yıldız</option>
+                                <option value="3">3 Yıldız</option>
+                                <option value="2">2 Yıldız</option>
+                                <option value="1">1 Yıldız</option>
+                            </select>
+                        </div>
+                        <div class="form-group mb-3">
+                            <textarea name="comment" class="form-control" rows="3"
+                                      placeholder="Yorumunuz..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Gönder</button>
+                    </form>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-warning">
+                    Yorum yapmak için <a asp-controller="Account" asp-action="Login">giriş yapın</a>.
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Varyant seçimi
+        document.querySelectorAll('.variant-btn').forEach(btn => {
+            btn.addEventListener('click', function (e) {
+                e.preventDefault();
+
+                // Tüm varyant butonlarından active classını kaldır
+                document.querySelectorAll('.variant-btn').forEach(b => {
+                    b.classList.remove('active', 'btn-primary');
+                    b.classList.add('btn-outline-secondary');
+                });
+
+                // Tıklanan butonu aktif yap
+                this.classList.remove('btn-outline-secondary');
+                this.classList.add('active', 'btn-primary');
+
+                // Fiyatı güncelle
+                const newPrice = parseFloat(this.dataset.price);
+                document.querySelector('.price-section h3').textContent =
+                    new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(newPrice);
+
+                // Ürün ID'sini formda güncelle
+                document.querySelector('#selectedVariant').value = this.dataset.variantId;
+            });
+        });
+    </script>
+}

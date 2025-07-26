@@ -1,11 +1,14 @@
-﻿using BTKETicaretSitesi.Data;
+﻿using BTKETicaretSitesi.Attributes;
+using BTKETicaretSitesi.Data;
 using BTKETicaretSitesi.Models;
 using BTKETicaretSitesi.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using BTKETicaretSitesi.Attributes;
 
 namespace BTKETicaretSitesi.Controllers
 {
+    
     [Route("products/{productId}/attributes")]
     public class ProductAttributeController : Controller
     {
@@ -32,7 +35,7 @@ namespace BTKETicaretSitesi.Controllers
                 Attributes = product.Attributes.ToList()
             });
         }
-
+        
         [HttpPost]
         public async Task<IActionResult> Create(int productId, [FromForm] ProductAttribute attribute)
         {
@@ -48,7 +51,7 @@ namespace BTKETicaretSitesi.Controllers
 
             return PartialView("_AttributeItem", attribute);
         }
-
+        
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int productId, int id, [FromForm] ProductAttribute attribute)
         {
@@ -66,7 +69,7 @@ namespace BTKETicaretSitesi.Controllers
             await _context.SaveChangesAsync();
             return Ok(existing);
         }
-
+        
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int productId, int id)
         {

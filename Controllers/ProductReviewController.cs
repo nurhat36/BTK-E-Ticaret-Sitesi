@@ -1,10 +1,12 @@
-﻿using BTKETicaretSitesi.Data;
+﻿using BTKETicaretSitesi.Attributes;
+using BTKETicaretSitesi.Data;
 using BTKETicaretSitesi.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace BTKETicaretSitesi.Controllers
 {
+    
     [Route("products/{productId}/reviews")]
     public class ProductReviewController : Controller
     {
@@ -34,6 +36,8 @@ namespace BTKETicaretSitesi.Controllers
         }
 
         [HttpPost("approve/{id}")]
+        
+
         public async Task<IActionResult> Approve(int productId, int id)
         {
             var review = await _context.ProductReviews
@@ -48,6 +52,7 @@ namespace BTKETicaretSitesi.Controllers
         }
 
         [HttpPost("reject/{id}")]
+
         public async Task<IActionResult> Reject(int productId, int id)
         {
             var review = await _context.ProductReviews
@@ -62,6 +67,8 @@ namespace BTKETicaretSitesi.Controllers
         }
 
         [HttpDelete("{id}")]
+        
+
         public async Task<IActionResult> Delete(int productId, int id)
         {
             var review = await _context.ProductReviews

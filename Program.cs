@@ -53,10 +53,16 @@ using (var scope = app.Services.CreateScope())
 }
 
 // HTTP pipeline yapılandırması
-if (!app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Home/Error");
-    app.UseHsts();
+    app.UseDeveloperExceptionPage();
+}
+else
+{
+    // Production ortamında özel hata sayfaları
+    app.UseExceptionHandler("/Error");
+    app.UseStatusCodePagesWithReExecute("/Error/{0}");
+    app.UseHsts(); // HTTP Strict Transport Security Protocol
 }
 
 app.UseHttpsRedirection();

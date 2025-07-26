@@ -1,4 +1,5 @@
-﻿using BTKETicaretSitesi.Data;
+﻿using BTKETicaretSitesi.Attributes;
+using BTKETicaretSitesi.Data;
 using BTKETicaretSitesi.Models;
 using BTKETicaretSitesi.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc;
@@ -6,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BTKETicaretSitesi.Controllers
 {
+    
     [Route("products/{productId}/variants")]
     public class ProductVariantController : Controller
     {
@@ -70,6 +72,8 @@ namespace BTKETicaretSitesi.Controllers
         }
 
         [HttpDelete("{id}")]
+        
+
         public async Task<IActionResult> Delete(int productId, int id)
         {
             var variant = await _context.ProductVariants

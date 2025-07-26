@@ -1,4 +1,5 @@
-﻿using BTKETicaretSitesi.Data;
+﻿using BTKETicaretSitesi.Attributes;
+using BTKETicaretSitesi.Data;
 using BTKETicaretSitesi.Models;
 using BTKETicaretSitesi.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc;
@@ -6,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BTKETicaretSitesi.Controllers
 {
+    
     [Route("products/{productId}/images")]
     public class ProductImageController : Controller
     {
@@ -34,7 +36,7 @@ namespace BTKETicaretSitesi.Controllers
                 Images = product.Images.OrderBy(i => i.DisplayOrder).ToList()
             });
         }
-
+        
         [HttpPost("upload")]
         public async Task<IActionResult> Upload(int productId, IFormFile file)
         {
@@ -86,6 +88,8 @@ namespace BTKETicaretSitesi.Controllers
         }
 
         [HttpPost("set-main")]
+       
+
         public async Task<IActionResult> SetMain(int productId, int imageId)
         {
             var image = await _context.ProductImages
@@ -113,6 +117,8 @@ namespace BTKETicaretSitesi.Controllers
         }
 
         [HttpPost("delete")]
+        
+
         public async Task<IActionResult> Delete(int productId, int imageId)
         {
             var image = await _context.ProductImages
@@ -139,6 +145,8 @@ namespace BTKETicaretSitesi.Controllers
         }
 
         [HttpPost("reorder")]
+        
+
         public async Task<IActionResult> Reorder(int productId, [FromBody] int[] imageIds)
         {
             try

@@ -1,0 +1,22 @@
+﻿@{
+    ViewData["Title"] = "Sayfa Bulunamadı";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center">
+            <h1 class="display-1 text-warning">404</h1>
+            <h2 class="text-warning">Sayfa Bulunamadı</h2>
+            <p class="lead mt-4">Aradığınız sayfa taşınmış veya silinmiş olabilir.</p>
+
+            <div class="mt-4">
+                <a asp-controller="Home" asp-action="Index" class="btn btn-primary">
+                    <i class="fas fa-home"></i> Ana Sayfaya Dön
+                </a>
+                <button onclick="history.back()" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Bir Önceki Sayfa
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

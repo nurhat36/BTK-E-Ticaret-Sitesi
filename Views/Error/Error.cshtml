@@ -1,0 +1,29 @@
+﻿@{
+    ViewData["Title"] = "Hata Oluştu";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center">
+            <h1 class="display-1 text-danger">500</h1>
+            <h2 class="text-danger">Bir hata oluştu</h2>
+
+            @if (ViewBag.ErrorMessage != null)
+            {
+                <div class="alert alert-danger mt-4">
+                    <p>@ViewBag.ErrorMessage</p>
+                    @if (ViewBag.Path != null)
+                    {
+                        <p><strong>Path:</strong> @ViewBag.Path</p>
+                    }
+                </div>
+            }
+
+            <p class="lead mt-4">Üzgünüz, işleminiz sırasında bir hata oluştu. Lütfen daha sonra tekrar deneyiniz.</p>
+
+            <a asp-controller="Home" asp-action="Index" class="btn btn-primary mt-3">
+                <i class="fas fa-home"></i> Ana Sayfaya Dön
+            </a>
+        </div>
+    </div>
+</div>
