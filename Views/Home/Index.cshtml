@@ -54,7 +54,7 @@
         {
             <div class="col-6 col-md-4 col-lg-3 mb-4">
                 <div class="card product-card h-100 hover-shadow">
-                    <a asp-controller="Product" asp-action="Details" asp-route-id="@product.Id">
+                    <a asp-controller="SaleProducts" asp-action="Details" asp-route-id="@product.Id">
                         @{
                             var mainImage = product.Images.FirstOrDefault(pi => pi.IsMainImage);
                             var imageUrl = mainImage != null ? mainImage.ImageUrl : "https://via.placeholder.com/300";

@@ -5,6 +5,7 @@ using BTKETicaretSitesi.Models;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using BTKETicaretSitesi.Models.ViewModels;
 namespace BTKETicaretSitesi.Controllers { 
 [AllowAnonymous]
 [Route("Urunler")]
@@ -79,9 +80,84 @@ public class SaleProductsController : Controller
 
         return View(products);
     }
+        [HttpGet("Search")] // veya [HttpGet("Search")] query string için
+        public async Task<IActionResult> Search(string query, int? categoryId, int page = 1)
+        {
+            const int pageSize = 12;
 
-    // Ürün detay sayfası
-    [HttpGet("{id}/{slug?}")]
+            var productsQuery = _context.Products
+                .Include(p => p.Images)
+                .Include(p => p.Store)
+                .Where(p => p.IsActive && p.Store.IsApproved);
+
+            // Arama sorgusu varsa filtrele
+            if (!string.IsNullOrEmpty(query))
+            {
+                productsQuery = productsQuery.Where(p =>
+                    p.Name.Contains(query) ||
+                    p.Description.Contains(query) ||
+                    p.Store.Name.Contains(query));
+            }
+            ViewBag.Categoryes= await _context.Categories.ToListAsync();
+
+            // Kategori filtresi
+            if (categoryId.HasValue)
+            {
+                productsQuery = productsQuery.Where(p => p.CategoryId == categoryId.Value);
+            }
+
+            var totalItems = await productsQuery.CountAsync();
+            var products = await productsQuery
+                .OrderByDescending(p => p.CreatedAt)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(p => new ProductSearchViewModel
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Slug = p.Slug,
+                    Price = p.Price,
+                    DiscountPrice = p.DiscountPrice,
+                    ImageUrl = p.Images.FirstOrDefault().ImageUrl,
+                    StoreName = p.Store.Name,
+                    StoreSlug = p.Store.Slug,
+                    CategoryId = p.CategoryId,
+                    CategoryName = p.Category.Name
+                })
+                .ToListAsync();
+
+            var model = new ProductSearchResultViewModel
+            {
+                Query = query,
+                Products = products,
+                Pagination = new PaginationViewModel
+                {
+                    CurrentPage = page,
+                    ItemsPerPage = pageSize,
+                    TotalItems = totalItems
+                },
+                CategoryId = categoryId
+            };
+
+            return View(model);
+        }
+
+        [HttpGet("category/{slug}")]
+        public async Task<IActionResult> Category(string slug, int page = 1)
+        {
+            var category = await _context.Categories
+                .FirstOrDefaultAsync(c => c.Slug == slug);
+
+            if (category == null)
+            {
+                return NotFound();
+            }
+
+            return RedirectToAction("Search", new { categoryId = category.Id, page });
+        }
+
+        // Ürün detay sayfası
+        [HttpGet("{id}/{slug?}")]
     public async Task<IActionResult> Details(int id, string slug = null)
     {
         var product = await _context.Products

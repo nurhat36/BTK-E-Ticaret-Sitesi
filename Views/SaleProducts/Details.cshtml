@@ -37,7 +37,7 @@
         <!-- Ürün Bilgileri -->
         <div class="col-md-6">
             <h1>@Model.Name</h1>
-            <p class="text-muted">Satıcı: <a asp-controller="Store" asp-action="Details" asp-route-id="@Model.Store.Id">@Model.Store.Name</a></p>
+            <p class="text-muted">Satıcı: <a asp-controller="Store" asp-action="Details" asp-route-slug="@Model.Store.Slug">@Model.Store.Name</a></p>
 
             <!-- Fiyat ve Stok Durumu -->
             <div class="price-section mb-3">

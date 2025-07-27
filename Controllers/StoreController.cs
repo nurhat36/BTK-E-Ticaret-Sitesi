@@ -38,6 +38,37 @@ namespace BTKETicaretSitesi.Controllers
 
             return View(store);
         }
+        [HttpGet("{slug}")]
+        public async Task<IActionResult> Details(string slug)
+        {
+            var store = await _context.Stores
+                .Include(s => s.Owner)
+                .Include(s => s.Products)
+                    .ThenInclude(p => p.Images)
+                .Include(s => s.Products)
+                    .ThenInclude(p => p.Category)
+                .FirstOrDefaultAsync(s => s.Slug == slug && s.IsApproved);
+
+            if (store == null)
+            {
+                return NotFound();
+            }
+
+            // Popüler ürünleri getir (en çok satan veya en çok görüntülenen)
+            var popularProducts = store.Products
+                .OrderByDescending(p => p.CreatedAt)
+                .Take(4)
+                .ToList();
+
+            var model = new StoreDetailsViewModel
+            {
+                Store = store,
+                PopularProducts = popularProducts,
+                AllProductsCount = store.Products.Count
+            };
+
+            return View(model);
+        }
 
         // GET: Mağaza Oluşturma Sayfası
         public IActionResult Create()

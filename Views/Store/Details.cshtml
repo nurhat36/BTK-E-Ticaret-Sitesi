@@ -1,0 +1,151 @@
+﻿@model BTKETicaretSitesi.Models.ViewModels.StoreDetailsViewModel
+@{
+    ViewData["Title"] = Model.Store.Name;
+}
+
+<div class="store-details-page">
+    <!-- Mağaza Başlık ve Banner -->
+    <div class="store-header mb-5">
+        <div class="store-banner" style="background-image: url('@(Model.Store.BannerUrl ?? "/images/default-store-banner.jpg")');">
+            <div class="container py-5">
+                <div class="row align-items-center">
+                    <div class="col-md-2">
+                        <img src="@(Model.Store.LogoUrl ?? "/images/default-store.png")"
+                             alt="@Model.Store.Name Logo"
+                             class="img-fluid rounded-circle store-logo shadow">
+                    </div>
+                    <div class="col-md-10 text-white">
+                        <h1 class="display-4">@Model.Store.Name</h1>
+                        <p class="lead">@Model.Store.Description</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Popüler Ürünler -->
+        <section class="mb-5">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>Popüler Ürünler</h2>
+                <a asp-controller="Product" asp-action="StoreProducts" asp-route-storeSlug="@Model.Store.Slug"
+                   class="btn btn-outline-primary">
+                    Tüm Ürünleri Gör (@Model.AllProductsCount)
+                </a>
+            </div>
+
+            <div class="row">
+                @foreach (var product in Model.PopularProducts)
+                {
+                    <div class="col-md-3 mb-4">
+                        <div class="card product-card h-100">
+                            <a asp-controller="Product" asp-action="Details" asp-route-slug="@product.Slug">
+                                <img src="@(product.Images.FirstOrDefault()?.ImageUrl ?? "/images/default-product.png")"
+                                     class="card-img-top" alt="@product.Name">
+                            </a>
+                            <div class="card-body">
+                                <h5 class="card-title">
+                                    <a asp-controller="SaleProducts" asp-action="Details" asp-route-id="@product.Id" asp-route-slug="@product.Slug">@product.Name</a>
+                                </h5>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="price">@product.Price.ToString("C")</span>
+                                    @if (product.DiscountPrice.HasValue)
+                                    {
+                                        <span class="text-danger">@product.DiscountPrice.Value.ToString("C")</span>
+                                    }
+                                </div>
+                            </div>
+                            <div class="card-footer bg-transparent">
+                                <a asp-controller="Cart" asp-action="AddToCart" asp-route-productId="@product.Id"
+                                   class="btn btn-primary btn-sm w-100">
+                                    <i class="fas fa-shopping-cart"></i> Sepete Ekle
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </section>
+
+        <!-- Mağaza Hakkında -->
+        <section class="mb-5">
+            <h2 class="mb-4">Mağaza Hakkında</h2>
+            <div class="card">
+                <div class="card-body">
+                    <p>@Model.Store.Description</p>
+
+                    <div class="store-info mt-4">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5><i class="fas fa-info-circle"></i> Mağaza Bilgileri</h5>
+                                <ul class="list-unstyled">
+                                    <li><strong>Oluşturulma Tarihi:</strong> @Model.Store.CreatedAt.ToString("dd.MM.yyyy")</li>
+                                    <li><strong>Toplam Ürün:</strong> @Model.AllProductsCount</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h5><i class="fas fa-user"></i> Mağaza Sahibi</h5>
+                                <p>@Model.Store.Owner.UserName</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .store-banner {
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            min-height: 250px;
+        }
+
+            .store-banner::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.5);
+            }
+
+        .store-header .container {
+            position: relative;
+            z-index: 1;
+        }
+
+        .store-logo {
+            width: 120px;
+            height: 120px;
+            object-fit: cover;
+            border: 3px solid white;
+        }
+
+        .product-card {
+            transition: transform 0.3s ease;
+        }
+
+            .product-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            }
+
+            .product-card img {
+                height: 200px;
+                object-fit: contain;
+                padding: 10px;
+            }
+
+        .price {
+            font-weight: bold;
+            color: #333;
+        }
+    </style>
+}
