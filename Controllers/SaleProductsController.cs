@@ -88,6 +88,7 @@ public class SaleProductsController : Controller
             var productsQuery = _context.Products
                 .Include(p => p.Images)
                 .Include(p => p.Store)
+                .Include(p => p.Category)
                 .Where(p => p.IsActive && p.Store.IsApproved);
 
             // Arama sorgusu varsa filtrele
@@ -96,6 +97,7 @@ public class SaleProductsController : Controller
                 productsQuery = productsQuery.Where(p =>
                     p.Name.Contains(query) ||
                     p.Description.Contains(query) ||
+                    p.Category.Name.Contains(query) ||
                     p.Store.Name.Contains(query));
             }
             ViewBag.Categoryes= await _context.Categories.ToListAsync();
@@ -153,7 +155,7 @@ public class SaleProductsController : Controller
                 return NotFound();
             }
 
-            return RedirectToAction("Search", new { categoryId = category.Id, page });
+            return RedirectToAction("Search","Urunler", new {query=category.Name, categoryId = category.Id, page });
         }
 
         // Ürün detay sayfası

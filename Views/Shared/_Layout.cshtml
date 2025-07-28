@@ -423,19 +423,22 @@
                 }
 
                 let html = '<ul class="category-tree">';
+                // Backend'den base URL'yi alın (View'da)
+                const baseUrl = '@Url.Content("~/")';
+
                 categories.forEach(category => {
                     html += `
-                                        <li class="category-item">
-                                            <a href="/Product/Category/${category.slug}" class="dropdown-item d-flex justify-content-between align-items-center">
-                                                ${category.name}
-                                                ${category.subCategories && category.subCategories.length > 0 ?
+                <li class="category-item">
+                            <a href="${baseUrl}Urunler/category/${category.slug}" class="dropdown-item d-flex justify-content-between align-items-center">
+                        ${category.name}
+                        ${category.subCategories && category.subCategories.length > 0 ?
                             '<span class="toggle-subcategories"><i class="fas fa-chevron-right"></i></span>' : ''}
-                                            </a>
-                                            ${category.subCategories && category.subCategories.length > 0 ?
+                    </a>
+                    ${category.subCategories && category.subCategories.length > 0 ?
                             `<ul class="sub-categories">
-                                                    ${renderCategoryTree(category.subCategories)}
-                                                </ul>` : ''}
-                                        </li>`;
+                            ${renderCategoryTree(category.subCategories)}
+                        </ul>` : ''}
+                </li>`;
                 });
                 html += '</ul>';
                 return html;
