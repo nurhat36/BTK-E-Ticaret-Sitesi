@@ -78,7 +78,7 @@
             }
 
             <!-- Sepete Ekleme Formu -->
-            <form asp-controller="Cart" asp-action="Add" method="post" class="mb-4">
+            <form asp-controller="ShoppingCart" asp-action="AddToCart" method="post" class="mb-4">
                 <input type="hidden" name="productId" value="@Model.Id">
                 @if (Model.Variants.Any())
                 {

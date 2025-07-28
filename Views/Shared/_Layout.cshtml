@@ -15,15 +15,12 @@
     <title>@ViewData["Title"] - BTK E-Ticaret</title>
     <link rel="icon" type="image/x-icon" href="~/images/yonetim_sende_logo3.ico" />
 
-    <!-- CSS Libraries -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
     <link href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" rel="stylesheet" />
 
-    <!-- Site CSS -->
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 
-    <!-- Animation Libraries -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
 
     @RenderSection("Styles", required: false)
@@ -228,7 +225,6 @@
     </style>
 </head>
 <body class="@(ViewBag.DarkMode == "enabled" ? "dark-mode" : "")">
-    <!-- Header -->
     <header>
         <nav class="navbar navbar-expand-lg navbar-light">
             <div class="container-fluid">
@@ -236,7 +232,6 @@
                     <img src="~/images/yonetim-sende-logo.png" alt="BTK E-Ticaret">
                 </a>
 
-                <!-- Search Form -->
                 <form class="d-flex search-box" asp-controller="SaleProducts" asp-action="Search" method="get">
                     <div class="input-group">
                         <input type="text" class="form-control" name="query" placeholder="Ürün veya mağaza ara...">
@@ -251,7 +246,6 @@
                 </button>
 
                 <div class="collapse navbar-collapse" id="navbarContent">
-                    <!-- Categories Dropdown -->
                     <ul class="navbar-nav me-auto">
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="categoriesDropdown" role="button" data-bs-toggle="dropdown">
@@ -263,10 +257,23 @@
                         </li>
                     </ul>
 
-                    <!-- User Menu -->
                     <ul class="navbar-nav ms-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="ShoppingCart" asp-action="Index">
+                                <i class="fas fa-shopping-cart"></i> Sepet
+                                @if (User.Identity.IsAuthenticated)
+                                {
+                                    <span>@await Component.InvokeAsync("CartSummary")</span>
+                                }
+                                else
+                                {
+                                    <span class="badge badge-light">0</span>
+                                }
+                            </a>
+                        </li>
                         @if (SignInManager.IsSignedIn(User))
                         {
+                            
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" data-bs-toggle="dropdown">
                                     <img src="@profilePic" class="profile-img me-2" alt="Profil">
@@ -305,6 +312,16 @@
                                         </li>
                                     }
                                     <li>
+                                        <a class="dropdown-item" asp-controller="Address" asp-action="Index">
+                                            <i class="fas fa-map-marked-alt me-2"></i> Adreslerim
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="Order" asp-action="Index">
+                                            <i class="fas fa-order me-2"></i> Siparişlerim
+                                        </a>
+                                    </li>
+                                    <li>
                                         <button id="darkModeToggle" class="dropdown-item dark-mode-toggle">
                                             <i class="fas fa-moon me-2"></i> Koyu Mod
                                         </button>
@@ -339,20 +356,20 @@
             </div>
         </nav>
     </header>
-
-    <!-- Main Content -->
+   
     <main class="container main-container">
         @RenderBody()
     </main>
+    <div class="chat-container">
+        @await Component.InvokeAsync("Chatbot")
+    </div>
 
-    <!-- Footer -->
     <footer class="footer mt-auto">
         <div class="container text-center">
             <p class="mb-0">&copy; @DateTime.Now.Year - BTK E-Ticaret. Tüm hakları saklıdır.</p>
         </div>
     </footer>
 
-    <!-- JavaScript Libraries -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
@@ -408,17 +425,17 @@
                 let html = '<ul class="category-tree">';
                 categories.forEach(category => {
                     html += `
-                                <li class="category-item">
-                                    <a href="/Product/Category/${category.slug}" class="dropdown-item d-flex justify-content-between align-items-center">
-                                        ${category.name}
-                                        ${category.subCategories && category.subCategories.length > 0 ?
+                                        <li class="category-item">
+                                            <a href="/Product/Category/${category.slug}" class="dropdown-item d-flex justify-content-between align-items-center">
+                                                ${category.name}
+                                                ${category.subCategories && category.subCategories.length > 0 ?
                             '<span class="toggle-subcategories"><i class="fas fa-chevron-right"></i></span>' : ''}
-                                    </a>
-                                    ${category.subCategories && category.subCategories.length > 0 ?
+                                            </a>
+                                            ${category.subCategories && category.subCategories.length > 0 ?
                             `<ul class="sub-categories">
-                                            ${renderCategoryTree(category.subCategories)}
-                                        </ul>` : ''}
-                                </li>`;
+                                                    ${renderCategoryTree(category.subCategories)}
+                                                </ul>` : ''}
+                                        </li>`;
                 });
                 html += '</ul>';
                 return html;
@@ -460,13 +477,17 @@
             };
 
             // Add animations to elements
-            gsap.from(".navbar", {
-                duration: 0.8,
-                y: -50,
-                opacity: 0,
-                ease: "power2.out",
-                delay: 0.2
-            });
+
+            // --- DÜZENLEME BAŞLANGICI ---
+            // AŞAĞIDAKİ ANİMASYON, SAYFA YÜKLENİRKEN HEADER'DA TİTREMEYE NEDEN OLDUĞU İÇİN KALDIRILDI.
+            // gsap.from(".navbar", {
+            //     duration: 0.8,
+            //     y: -50,
+            //     opacity: 0,
+            //     ease: "power2.out",
+            //     delay: 0.2
+            // });
+            // --- DÜZENLEME SONU ---
 
             gsap.from(".main-container", {
                 duration: 0.8,

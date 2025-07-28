@@ -40,12 +40,12 @@
             {
                 <div class="col-md-3 mb-4">
                     <div class="card h-100 product-card">
-                        <a asp-controller="Product" asp-action="Details" asp-route-slug="@product.Slug">
+                        <a asp-controller="SaleProducts" asp-action="Details" asp-route-id="@product.Id">
                             <img src="@product.ImageUrl" class="card-img-top" alt="@product.Name">
                         </a>
                         <div class="card-body">
                             <h5 class="card-title">
-                                <a asp-controller="Product" asp-action="Details" asp-route-slug="@product.Slug">@product.Name</a>
+                                <a asp-controller="SaleProducts" asp-action="Details" asp-route-id="@product.Id">@product.Name</a>
                             </h5>
                             <p class="card-text text-muted small">@product.StoreName</p>
                             <div class="d-flex justify-content-between align-items-center">

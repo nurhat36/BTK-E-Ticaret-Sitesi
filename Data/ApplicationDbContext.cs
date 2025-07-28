@@ -15,7 +15,7 @@ namespace BTKETicaretSitesi.Data
         }
 
         // Tablolar
-
+        public DbSet<Address> Addresses { get; set; }
         public DbSet<Store> Stores { get; set; }
         public DbSet<StoreStaff> StoreStaff { get; set; }
 
@@ -67,6 +67,25 @@ namespace BTKETicaretSitesi.Data
                     .HasForeignKey(ss => ss.UserId)
                     .OnDelete(DeleteBehavior.ClientCascade); // veya DeleteBehavior.NoAction
             });
+            builder.Entity<Address>()
+        .HasOne(a => a.User)
+        .WithMany(u => u.Addresses)
+        .HasForeignKey(a => a.UserId)
+        .OnDelete(DeleteBehavior.Cascade);
+
+            // Configure default shipping address relationship
+            builder.Entity<ApplicationUser>()
+                .HasOne(u => u.DefaultShippingAddress)
+                .WithMany()
+                .HasForeignKey(u => u.DefaultShippingAddressId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Configure default billing address relationship
+            builder.Entity<ApplicationUser>()
+                .HasOne(u => u.DefaultBillingAddress)
+                .WithMany()
+                .HasForeignKey(u => u.DefaultBillingAddressId)
+                .OnDelete(DeleteBehavior.Restrict);
             // Category self-referencing ilişki
             builder.Entity<Category>()
                 .HasOne(c => c.ParentCategory)

@@ -1,0 +1,252 @@
+﻿@model BTKETicaretSitesi.Models.ViewModels.CheckoutViewModel
+
+@{
+    ViewData["Title"] = "Ödeme Sayfası";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <h2>Ödeme Bilgileri</h2>
+            <form asp-action="Checkout" method="post" id="checkoutForm">
+                <div class="card mb-4">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">Teslimat Bilgileri</h5>
+                    </div>
+                    <div class="card-body">
+                        @if (Model.UserAddresses != null && Model.UserAddresses.Any())
+                        {
+                            <div class="mb-4">
+                                <h6>Kayıtlı Adreslerim</h6>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h6 class="text-muted">Teslimat Adresi Seçin</h6>
+                                        <div class="list-group mb-3">
+                                            @foreach (var address in Model.UserAddresses.Where(a => a.AddressType == AddressType.Shipping || a.AddressType == AddressType.Both))
+                                            {
+                                                <div class="list-group-item list-group-item-action address-item @(address.IsDefault ? "active" : "")"
+                                                     data-address-id="@address.Id" data-address-type="shipping">
+                                                    <div class="d-flex w-100 justify-content-between">
+                                                        <h6 class="mb-1">@address.Title</h6>
+                                                        @if (address.IsDefault)
+                                                        {
+                                                            <small class="text-primary">Varsayılan</small>
+                                                        }
+                                                    </div>
+                                                    <p class="mb-1">@address.FirstName @address.LastName</p>
+                                                    <small class="text-muted">@address.Neighborhood Mah. @address.StreetAddress, @address.District/@address.City</small>
+                                                </div>
+                                            }
+                                        </div>
+                                        <input type="hidden" asp-for="SelectedShippingAddressId" id="selectedShippingAddressId" />
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <h6 class="text-muted">Fatura Adresi Seçin</h6>
+                                        <div class="list-group mb-3">
+                                            @foreach (var address in Model.UserAddresses.Where(a => a.AddressType == AddressType.Billing || a.AddressType == AddressType.Both))
+                                            {
+                                                <div class="list-group-item list-group-item-action address-item @(address.IsDefault ? "active" : "")"
+                                                     data-address-id="@address.Id" data-address-type="billing">
+                                                    <div class="d-flex w-100 justify-content-between">
+                                                        <h6 class="mb-1">@address.Title</h6>
+                                                        @if (address.IsDefault)
+                                                        {
+                                                            <small class="text-primary">Varsayılan</small>
+                                                        }
+                                                    </div>
+                                                    <p class="mb-1">@address.FirstName @address.LastName</p>
+                                                    <small class="text-muted">@address.Neighborhood Mah. @address.StreetAddress, @address.District/@address.City</small>
+                                                </div>
+                                            }
+                                        </div>
+                                        <input type="hidden" asp-for="SelectedBillingAddressId" id="selectedBillingAddressId" />
+
+                                        <div class="form-check mb-3">
+                                            <input class="form-check-input" type="checkbox" id="useSameAddress" checked>
+                                            <label class="form-check-label" for="useSameAddress">
+                                                Fatura adresi teslimat adresi ile aynı
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="text-center mb-3">
+                                    <button type="button" class="btn btn-outline-primary" data-toggle="collapse" data-target="#newAddressForm">
+                                        <i class="fas fa-plus"></i> Yeni Adres Ekle
+                                    </button>
+                                </div>
+
+                                <div class="collapse" id="newAddressForm">
+                                    <div class="card card-body mb-3">
+                                        <h5>Yeni Adres Ekle</h5>
+                                        <partial name="_AddressFormPartial" model="Model.NewAddress ?? new Address()" />
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                        <div id="manualAddressForm" class="@(Model.UserAddresses != null && Model.UserAddresses.Any() ? "d-none" : "")">
+                            <div class="form-group">
+                                <label asp-for="ShippingAddress">Teslimat Adresi*</label>
+                                <textarea asp-for="ShippingAddress" class="form-control" rows="3" required></textarea>
+                                <span asp-validation-for="ShippingAddress" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group" id="billingAddressGroup">
+                                <label asp-for="BillingAddress">Fatura Adresi*</label>
+                                <textarea asp-for="BillingAddress" class="form-control" rows="3"></textarea>
+                                <span asp-validation-for="BillingAddress" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group col-md-6">
+                                    <label asp-for="PhoneNumber">Telefon*</label>
+                                    <input asp-for="PhoneNumber" class="form-control" required />
+                                    <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label asp-for="Email">E-posta*</label>
+                                    <input asp-for="Email" class="form-control" required />
+                                    <span asp-validation-for="Email" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">Ödeme Yöntemi</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" asp-for="PaymentMethod" id="creditCard" value="Kredi Kartı" checked>
+                                <label class="form-check-label" for="creditCard">
+                                    Kredi Kartı
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" asp-for="PaymentMethod" id="bankTransfer" value="Banka Havalesi">
+                                <label class="form-check-label" for="bankTransfer">
+                                    Banka Havalesi
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" asp-for="PaymentMethod" id="payAtDoor" value="Kapıda Ödeme">
+                                <label class="form-check-label" for="payAtDoor">
+                                    Kapıda Ödeme
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-lg btn-block">
+                    <i class="fas fa-shopping-bag"></i> Siparişi Tamamla
+                </button>
+            </form>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Sipariş Özeti</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        @foreach (var item in Model.Cart.Items)
+                        {
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    @item.Product.Name
+                                    @if (item.Variant != null)
+                                    {
+                                        <br />
+
+                                        <small>@item.Variant.VariantType</small>
+                                    }
+                                </div>
+                                <span>@item.Quantity x @((item.Variant?.PriceDifference ?? item.Product.Price).ToString("C"))</span>
+                            </li>
+                        }
+                        <li class="list-group-item d-flex justify-content-between">
+                            <strong>Toplam:</strong>
+                            <strong>@Model.Cart.Items.Sum(i => (i.Variant?.PriceDifference ?? i.Product.Price) * i.Quantity).ToString("C")</strong>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        $(document).ready(function () {
+            // Handle address selection
+            $('.address-item').click(function () {
+                var addressType = $(this).data('address-type');
+                var addressId = $(this).data('address-id');
+
+                // Remove active class from all items of this type
+                $(`.address-item[data-address-type="${addressType}"]`).removeClass('active');
+
+                // Add active class to selected item
+                $(this).addClass('active');
+
+                // Update hidden input
+                $(`#selected${capitalizeFirstLetter(addressType)}AddressId`).val(addressId);
+
+                // If using same address and this is shipping, update billing
+                if ($('#useSameAddress').is(':checked') && addressType === 'shipping') {
+                    $(`#selectedBillingAddressId`).val(addressId);
+                    $(`.address-item[data-address-type="billing"]`).removeClass('active');
+                    $(`.address-item[data-address-id="${addressId}"][data-address-type="billing"]`).addClass('active');
+                }
+            });
+
+            // Handle same address checkbox
+            $('#useSameAddress').change(function () {
+                if ($(this).is(':checked')) {
+                    var shippingAddressId = $('#selectedShippingAddressId').val();
+                    $('#selectedBillingAddressId').val(shippingAddressId);
+
+                    // Update UI
+                    $(`.address-item[data-address-type="billing"]`).removeClass('active');
+                    $(`.address-item[data-address-id="${shippingAddressId}"][data-address-type="billing"]`).addClass('active');
+                }
+            });
+
+            function capitalizeFirstLetter(string) {
+                return string.charAt(0).toUpperCase() + string.slice(1);
+            }
+
+            // Handle form submission
+            $('#checkoutForm').submit(function () {
+                // If using saved addresses, populate the text fields
+                if ($('#manualAddressForm').hasClass('d-none')) {
+                    var shippingAddressId = $('#selectedShippingAddressId').val();
+                    var billingAddressId = $('#selectedBillingAddressId').val();
+
+                    if (!shippingAddressId) {
+                        alert('Lütfen bir teslimat adresi seçin');
+                        return false;
+                    }
+
+                    if (!billingAddressId) {
+                        alert('Lütfen bir fatura adresi seçin');
+                        return false;
+                    }
+
+                    // In a real app, you would AJAX fetch the addresses and populate the fields
+                    // For now, we'll just ensure the IDs are submitted
+                }
+            });
+        });
+    </script>
+}

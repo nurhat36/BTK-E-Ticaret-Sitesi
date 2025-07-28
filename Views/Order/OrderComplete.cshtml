@@ -1,0 +1,157 @@
+﻿@model BTKETicaretSitesi.Models.Order
+
+@{
+    ViewData["Title"] = "Sipariş Tamamlandı";
+    Layout = "_Layout";
+}
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-success shadow">
+                <div class="card-header bg-success text-white">
+                    <h2 class="text-center mb-0">
+                        <i class="fas fa-check-circle me-2"></i> Siparişiniz Alındı!
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-box-open fa-5x text-success mb-3"></i>
+                        <h3 class="text-success">Teşekkür Ederiz!</h3>
+                        <p>Siparişiniz başarıyla oluşturuldu. Sipariş detaylarını aşağıda görebilirsiniz.</p>
+                    </div>
+
+                    <div class="order-summary mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h4 class="mb-0">Sipariş Özeti</h4>
+                            <span class="badge bg-primary">@Model.OrderNumber</span>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Ürün</th>
+                                        <th class="text-end">Adet</th>
+                                        <th class="text-end">Tutar</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model.Items)
+                                    {
+                                        <tr>
+                                            <td>
+                                                @item.Product.Name
+                                                @if (item.Variant != null)
+                                                {
+                                                    <br />
+
+                                                    <small class="text-muted">@item.Variant.VariantType</small>
+                                                }
+                                            </td>
+                                            <td class="text-end">@item.Quantity</td>
+                                            <td class="text-end">@item.TotalPrice.ToString("C")</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                                <tfoot class="table-light">
+                                    <tr>
+                                        <th colspan="2" class="text-end">Ara Toplam:</th>
+                                        <th class="text-end">@Model.OrderTotal.ToString("C")</th>
+                                    </tr>
+                                    <tr>
+                                        <th colspan="2" class="text-end">Kargo:</th>
+                                        <th class="text-end">@Model.ShippingFee.ToString("C")</th>
+                                    </tr>
+                                    <tr>
+                                        <th colspan="2" class="text-end">Vergi:</th>
+                                        <th class="text-end">@Model.TaxAmount.ToString("C")</th>
+                                    </tr>
+                                    <tr class="table-active">
+                                        <th colspan="2" class="text-end">Genel Toplam:</th>
+                                        <th class="text-end">@((Model.OrderTotal + Model.ShippingFee + Model.TaxAmount).ToString("C"))</th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <div class="card h-100">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">Teslimat Bilgileri</h5>
+                                </div>
+                                <div class="card-body">
+                                    <address>
+                                        @Html.Raw(Model.ShippingAddress.Replace("\n", "<br />"))
+                                    </address>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-4">
+                            <div class="card h-100">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">Fatura Bilgileri</h5>
+                                </div>
+                                <div class="card-body">
+                                    <address>
+                                        @Html.Raw(Model.BillingAddress.Replace("\n", "<br />"))
+                                    </address>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mb-4">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">Ödeme Bilgileri</h5>
+                        </div>
+                        <div class="card-body">
+                            <dl class="row">
+                                <dt class="col-sm-4">Ödeme Yöntemi:</dt>
+                                <dd class="col-sm-8">@Model.PaymentMethod</dd>
+
+                                <dt class="col-sm-4">Sipariş Tarihi:</dt>
+                                <dd class="col-sm-8">@Model.OrderDate.ToString("f")</dd>
+
+                                <dt class="col-sm-4">Sipariş Durumu:</dt>
+                                <dd class="col-sm-8">
+                                    <span class="badge @GetStatusBadgeClass(Model.Status)">
+                                        @Model.Status
+                                    </span>
+                                </dd>
+                            </dl>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-center mt-4">
+                        <a asp-controller="Order" asp-action="Details" asp-route-orderNumber="@Model.OrderNumber"
+                           class="btn btn-primary me-md-2">
+                            <i class="fas fa-file-invoice me-2"></i> Sipariş Detayları
+                        </a>
+                        <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="fas fa-home me-2"></i> Ana Sayfaya Dön
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    string GetStatusBadgeClass(OrderStatus status)
+    {
+        return status switch
+        {
+            OrderStatus.Pending => "badge-secondary",
+            OrderStatus.Processing => "badge-info",
+            OrderStatus.Shipped => "badge-warning",
+            OrderStatus.Delivered => "badge-success",
+            OrderStatus.Cancelled => "badge-danger",
+            OrderStatus.Refunded => "badge-dark",
+            _ => "badge-light"
+        };
+    }
+}

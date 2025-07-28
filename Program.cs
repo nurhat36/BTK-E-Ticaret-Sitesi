@@ -30,6 +30,15 @@ builder.Services.AddHttpContextAccessor(); // Email veya kullanıcı bilgilerine
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 
+// SADECE BU İŞ İÇİN EKLENMESİ GEREKENLER: Session servislerini ekle
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30); // Oturumun ne kadar süreyle aktif kalacağı
+    options.Cookie.HttpOnly = true; // JavaScript'ten çerezlere erişimi engeller (güvenlik)
+    options.Cookie.IsEssential = true; // GDPR uyumluluğu için gerekli çerez olduğunu işaretler
+});
+
+
 var app = builder.Build();
 
 // Seed işlemi (rol ve kullanıcı ekleme)
@@ -38,7 +47,7 @@ using (var scope = app.Services.CreateScope())
     var services = scope.ServiceProvider;
     try
     {
-        
+
         var context = services.GetRequiredService<ApplicationDbContext>();
         var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
         var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
@@ -69,6 +78,10 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+
+// SADECE BU İŞ İÇİN EKLENMESİ GEREKENLER: Session middleware'ini etkinleştir
+// app.UseRouting() sonrası ve app.UseAuthentication() öncesi olmalı
+app.UseSession();
 
 app.UseAuthentication(); // <-- Bu şart
 app.UseAuthorization();

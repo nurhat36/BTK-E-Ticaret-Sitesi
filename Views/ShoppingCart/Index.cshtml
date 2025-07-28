@@ -1,0 +1,104 @@
+﻿@model BTKETicaretSitesi.Models.ShoppingCart
+
+@{
+    ViewData["Title"] = "Alışveriş Sepeti";
+}
+
+<div class="container mt-4">
+    <h2>Alışveriş Sepetiniz</h2>
+
+    @if (Model.Items == null || !Model.Items.Any())
+    {
+        <div class="alert alert-info">
+            Sepetiniz boş. <a href="@Url.Action("Index", "Home")">Alışverişe devam etmek için tıklayın.</a>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead class="thead-light">
+                    <tr>
+                        <th>Ürün</th>
+                        <th>Varyant</th>
+                        <th>Fiyat</th>
+                        <th>Adet</th>
+                        <th>Toplam</th>
+                        <th>İşlemler</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Items)
+                    {
+                        <tr>
+                            <td>
+                                <img src="@item.Product.Images" alt="@item.Product.Name" width="50" class="mr-2">
+                                @item.Product.Name
+                            </td>
+                            <td>
+                                @if (item.Variant != null)
+                                {
+                                    @item.Variant.PriceDifference
+                                }
+                                else
+                                {
+                                    <span>-</span>
+                                }
+                            </td>
+                            <td>
+                                @{
+                                    var price = item.Variant?.PriceDifference ?? item.Product.Price;
+                                }
+                                @price.ToString("C")
+                            </td>
+                            <td>
+                                <form asp-action="UpdateQuantity" method="post" class="form-inline">
+                                    <input type="hidden" name="itemId" value="@item.Id" />
+                                    <input type="number" name="newQuantity" value="@item.Quantity" min="1" class="form-control form-control-sm" style="width: 70px;" />
+                                    <button type="submit" class="btn btn-sm btn-outline-primary ml-2">Güncelle</button>
+                                </form>
+                            </td>
+                            <td>
+                                @{
+                                    var totalPrice = (item.Variant?.PriceDifference ?? item.Product.Price) * item.Quantity;
+                                }
+                                @totalPrice.ToString("C")
+                            </td>
+                            <td>
+                                <form asp-action="RemoveFromCart" method="post">
+                                    <input type="hidden" name="itemId" value="@item.Id" />
+                                    <button type="submit" class="btn btn-sm btn-danger">Kaldır</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="4" class="text-right"><strong>Toplam:</strong></td>
+                        <td><strong>@Model.Items.Sum(i => (i.Variant?.PriceDifference ?? i.Product.Price) * i.Quantity).ToString("C")</strong></td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <a href="@Url.Action("Index", "Products")" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> Alışverişe Devam Et
+                </a>
+            </div>
+            <div class="col-md-6 text-right">
+                <form asp-action="ClearCart" method="post" class="d-inline">
+                    <button type="submit" class="btn btn-outline-danger mr-2">
+                        <i class="fas fa-trash"></i> Sepeti Temizle
+                    </button>
+                </form>
+                <a href="@Url.Action("Checkout", "Order")" class="btn btn-primary">
+                    <i class="fas fa-shopping-bag"></i> Ödemeye Geç
+                </a>
+            </div>
+        </div>
+    }
+</div>

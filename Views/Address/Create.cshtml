@@ -1,0 +1,119 @@
+﻿@model BTKETicaretSitesi.Models.Address
+
+@{
+    ViewData["Title"] = "Yeni Adres Ekle";
+}
+
+<div class="container mt-4">
+    <h2>@ViewData["Title"]</h2>
+    <hr />
+
+    <div class="row">
+        <div class="col-md-8">
+            <form asp-action="Create">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="form-group">
+                    <label asp-for="Title" class="control-label">Adres Başlığı*</label>
+                    <input asp-for="Title" class="form-control" placeholder="Ör: Ev Adresi, İş Adresi" />
+                    <span asp-validation-for="Title" class="text-danger"></span>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="FirstName" class="control-label">Ad*</label>
+                            <input asp-for="FirstName" class="form-control" />
+                            <span asp-validation-for="FirstName" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="LastName" class="control-label">Soyad*</label>
+                            <input asp-for="LastName" class="form-control" />
+                            <span asp-validation-for="LastName" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="PhoneNumber" class="control-label">Telefon*</label>
+                    <input asp-for="PhoneNumber" class="form-control" />
+                    <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="City" class="control-label">İl*</label>
+                            <input asp-for="City" class="form-control" />
+                            <span asp-validation-for="City" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="District" class="control-label">İlçe*</label>
+                            <input asp-for="District" class="form-control" />
+                            <span asp-validation-for="District" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="Neighborhood" class="control-label">Mahalle*</label>
+                            <input asp-for="Neighborhood" class="form-control" />
+                            <span asp-validation-for="Neighborhood" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="ZipCode" class="control-label">Posta Kodu</label>
+                            <input asp-for="ZipCode" class="form-control" />
+                            <span asp-validation-for="ZipCode" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="StreetAddress" class="control-label">Sokak, cadde, apartman, daire, vb.*</label>
+                    <textarea asp-for="StreetAddress" class="form-control" rows="3"></textarea>
+                    <span asp-validation-for="StreetAddress" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="AddressType" class="control-label">Adres Tipi*</label>
+                    <select asp-for="AddressType" class="form-control">
+                        <option value="@AddressType.Shipping">Teslimat Adresi</option>
+                        <option value="@AddressType.Billing">Fatura Adresi</option>
+                        <option value="@AddressType.Both">Her İkisi</option>
+                    </select>
+                    <span asp-validation-for="AddressType" class="text-danger"></span>
+                </div>
+
+                <div class="form-group form-check">
+                    <input class="form-check-input" asp-for="IsDefault" />
+                    <label class="form-check-label" asp-for="IsDefault">Varsayılan adres olarak ayarla</label>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="AdditionalInfo" class="control-label">Ek Bilgiler</label>
+                    <textarea asp-for="AdditionalInfo" class="form-control" rows="2"></textarea>
+                    <span asp-validation-for="AdditionalInfo" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">Kaydet</button>
+                    <a asp-action="Index" class="btn btn-secondary">İptal</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
