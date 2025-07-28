@@ -26,9 +26,9 @@
         @foreach (var category in Model.Categories)
         {
             <div class="col-6 col-md-3 mb-3">
-                <a asp-controller="Category" asp-action="Details" asp-route-id="@category.Id" class="text-decoration-none">
+                <a href="Urunler/category/@category.Slug" class="text-decoration-none">
                     <div class="card category-card h-100 hover-shadow">
-                        
+                       
                         <div class="card-body text-center">
                             <h5 class="card-title">@category.Name</h5>
                         </div>

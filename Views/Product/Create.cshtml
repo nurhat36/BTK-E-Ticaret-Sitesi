@@ -40,7 +40,7 @@
 
                     <div class="form-group">
                         <label asp-for="Description" class="control-label"></label>
-                        <textarea asp-for="Description" class="form-control" rows="5" id="descriptionEditor"></textarea>
+                        <textarea asp-for="Description" class="form-control" rows="5" id="descriptionTextarea"></textarea>
                         <span asp-validation-for="Description" class="text-danger"></span>
                     </div>
 
@@ -276,12 +276,7 @@
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
 
-    <script src="https://cdn.ckeditor.com/4.25.1/standard/ckeditor.js"></script>
-
     <script>
-        // CKEditor başlatma
-        CKEDITOR.replace('descriptionEditor');
-
         // Slug oluşturma
         document.getElementById('generateSlug').addEventListener('click', function () {
             const name = document.getElementById('Name').value;
@@ -294,7 +289,7 @@
             }
         });
 
-        // Resim önizleme (mevcut kodunuz)
+        // Resim önizleme
         document.querySelector('input[name="productImages"]').addEventListener('change', function (e) {
             const container = document.getElementById('imagePreviewContainer');
             container.innerHTML = '';
@@ -305,113 +300,107 @@
                     const previewDiv = document.createElement('div');
                     previewDiv.className = 'col-md-3 image-preview';
                     previewDiv.innerHTML = `
-                                        <img src="${event.target.result}" alt="Preview" />
-                                        <span class="remove-image" data-index="${index}">×</span>
-                                        <input type="hidden" name="UploadedImages[${index}]" value="${event.target.result}" />
-                                    `;
+                                                <img src="${event.target.result}" alt="Preview" />
+                                                <span class="remove-image" data-index="${index}">×</span>
+                                                <input type="hidden" name="UploadedImages[${index}]" value="${event.target.result}" />
+                                            `;
                     container.appendChild(previewDiv);
                 };
                 reader.readAsDataURL(file);
             });
         });
 
-        // Resim silme (mevcut kodunuz)
+        // Resim silme
         document.getElementById('imagePreviewContainer').addEventListener('click', function (e) {
             if (e.target.classList.contains('remove-image')) {
                 e.target.parentElement.remove();
             }
         });
 
-        // Özellik ekleme (mevcut kodunuz)
+        // Özellik ekleme
         let attributeIndex = 1;
         document.getElementById('addAttribute').addEventListener('click', function () {
             const container = document.getElementById('attributesContainer');
             const newAttribute = document.createElement('div');
             newAttribute.className = 'attribute-group mb-3';
             newAttribute.innerHTML = `
-                                        <div class="row">
-                                            <div class="col-md-5">
-                                                <input type="text" name="Attributes[${attributeIndex}].Key" class="form-control" placeholder="Özellik Adı" />
-                                            </div>
-                                            <div class="col-md-5">
-                                                <input type="text" name="Attributes[${attributeIndex}].Value" class="form-control" placeholder="Özellik Değeri" />
-                                            </div>
-                                            <div class="col-md-2">
-                                                <button type="button" class="btn btn-danger remove-attribute">Sil</button>
-                                            </div>
-                                        </div>
-                                    `;
+                                                <div class="row">
+                                                    <div class="col-md-5">
+                                                        <input type="text" name="Attributes[${attributeIndex}].Key" class="form-control" placeholder="Özellik Adı" />
+                                                    </div>
+                                                    <div class="col-md-5">
+                                                        <input type="text" name="Attributes[${attributeIndex}].Value" class="form-control" placeholder="Özellik Değeri" />
+                                                    </div>
+                                                    <div class="col-md-2">
+                                                        <button type="button" class="btn btn-danger remove-attribute">Sil</button>
+                                                    </div>
+                                                </div>
+                                            `;
             container.appendChild(newAttribute);
             attributeIndex++;
         });
 
-        // Özellik silme (mevcut kodunuz)
+        // Özellik silme
         document.getElementById('attributesContainer').addEventListener('click', function (e) {
             if (e.target.classList.contains('remove-attribute')) {
                 e.target.closest('.attribute-group').remove();
             }
         });
 
-        // Varyant ekleme (mevcut kodunuz)
+        // Varyant ekleme
         let variantIndex = 1;
         document.getElementById('addVariant').addEventListener('click', function () {
             const container = document.getElementById('variantsContainer');
             const newVariant = document.createElement('div');
             newVariant.className = 'variant-group mb-3 border p-3';
             newVariant.innerHTML = `
-                                        <div class="row">
-                                            <div class="col-md-4">
-                                                <div class="form-group">
-                                                    <label>Varyant Adı</label>
-                                                    <input type="text" name="Variants[${variantIndex}].Name" class="form-control" placeholder="Örn: XL, Kırmızı" />
-                                                </div>
-                                            </div>
-                                            <div class="col-md-3">
-                                                <div class="form-group">
-                                                    <label>Fiyat</label>
-                                                    <div class="input-group">
-                                                        <input type="number" name="Variants[${variantIndex}].Price" class="form-control" placeholder="Fiyat" step="0.01" />
-                                                        <span class="input-group-text">₺</span>
+                                                <div class="row">
+                                                    <div class="col-md-4">
+                                                        <div class="form-group">
+                                                            <label>Varyant Adı</label>
+                                                            <input type="text" name="Variants[${variantIndex}].Name" class="form-control" placeholder="Örn: XL, Kırmızı" />
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <div class="form-group">
+                                                            <label>Fiyat</label>
+                                                            <div class="input-group">
+                                                                <input type="number" name="Variants[${variantIndex}].Price" class="form-control" placeholder="Fiyat" step="0.01" />
+                                                                <span class="input-group-text">₺</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <div class="form-group">
+                                                            <label>Stok Adedi</label>
+                                                            <input type="number" name="Variants[${variantIndex}].StockQuantity" class="form-control" placeholder="Stok" min="0" />
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-2 d-flex align-items-end">
+                                                        <button type="button" class="btn btn-danger remove-variant">Sil</button>
                                                     </div>
                                                 </div>
-                                            </div>
-                                            <div class="col-md-3">
-                                                <div class="form-group">
-                                                    <label>Stok Adedi</label>
-                                                    <input type="number" name="Variants[${variantIndex}].StockQuantity" class="form-control" placeholder="Stok" min="0" />
+                                                <div class="row mt-2">
+                                                    <div class="col-md-12">
+                                                        <div class="form-group">
+                                                            <label>SKU</label>
+                                                            <input type="text" name="Variants[${variantIndex}].SKU" class="form-control" placeholder="Varyant SKU" />
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div class="col-md-2 d-flex align-items-end">
-                                                <button type="button" class="btn btn-danger remove-variant">Sil</button>
-                                            </div>
-                                        </div>
-                                        <div class="row mt-2">
-                                            <div class="col-md-12">
-                                                <div class="form-group">
-                                                    <label>SKU</label>
-                                                    <input type="text" name="Variants[${variantIndex}].SKU" class="form-control" placeholder="Varyant SKU" />
-                                                </div>
-                                            </div>
-                                        </div>
-                                    `;
+                                            `;
             container.appendChild(newVariant);
             variantIndex++;
         });
 
-        // Varyant silme (mevcut kodunuz)
+        // Varyant silme
         document.getElementById('variantsContainer').addEventListener('click', function (e) {
             if (e.target.classList.contains('remove-variant')) {
                 e.target.closest('.variant-group').remove();
             }
         });
 
-        // Form gönderilmeden önce CKEditor içeriğini al (mevcut kodunuz)
-        document.getElementById('productForm').addEventListener('submit', function () {
-            document.getElementById('Description').value = CKEDITOR.instances.descriptionEditor.getData();
-        });
-
-        // --- YENİ EKLENECEK KODLAR BURADAN BAŞLAR ---
-
+        // Yapay Zeka ile tanım oluşturma
         document.getElementById('generateAIDescription').addEventListener('click', async function () {
             // Butonu devre dışı bırak ve yükleniyor ikonu göster
             const generateButton = this;
@@ -462,7 +451,6 @@
                 }
             }
 
-
             const productData = {
                 name: productName,
                 categoryName: categoryName,
@@ -474,12 +462,10 @@
             };
 
             try {
-                // Bu URL'i kendi controller'ınızın yoluna göre ayarlayın
                 const response = await fetch('/Product/GenerateDescription', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        // Anti-forgery token'ı güvenlik için ekliyoruz
                         'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
                     },
                     body: JSON.stringify(productData)
@@ -488,7 +474,7 @@
                 if (response.ok) {
                     const data = await response.json();
                     if (data.description) {
-                        CKEDITOR.instances.descriptionEditor.setData(data.description); // CKEditor'a AI tarafından oluşturulan metni ata
+                        document.getElementById('descriptionTextarea').value = data.description;
                     } else {
                         alert('Yapay zeka tanımı oluşturulamadı.');
                     }
@@ -505,6 +491,5 @@
                 generateButton.innerHTML = '<i class="fas fa-robot"></i> Ürün Tanımını Yapay Zeka Oluştursun';
             }
         });
-        // --- YENİ EKLENECEK KODLAR BURADA SONA ERER ---
     </script>
 }

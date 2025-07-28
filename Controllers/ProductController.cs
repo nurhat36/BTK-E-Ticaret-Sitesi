@@ -19,7 +19,7 @@ using Microsoft.AspNetCore.Authorization; // Bu yeni using ifadesi
 
 namespace BTKETicaretSitesi.Controllers
 {
-    
+    [Route("Product")]
     public class ProductController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -34,6 +34,7 @@ namespace BTKETicaretSitesi.Controllers
 
         // GET: Product
         [Authorize]
+        [HttpGet("Index")]
         public async Task<IActionResult> Index()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -59,7 +60,7 @@ namespace BTKETicaretSitesi.Controllers
         }
 
         // GET: Product/Details/5
-
+        [HttpGet("Details/{id}")]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -95,7 +96,7 @@ namespace BTKETicaretSitesi.Controllers
         }
 
         // GET: Product/Create
-        
+        [HttpGet("Create")]
         public IActionResult Create()
         {
             var viewModel = new ProductCreateViewModel
@@ -107,7 +108,7 @@ namespace BTKETicaretSitesi.Controllers
         }
 
         // POST: Product/Create
-        [HttpPost]
+        [HttpPost("Create")]
         [ValidateAntiForgeryToken]
         
         public async Task<IActionResult> Create(ProductCreateViewModel viewModel,
@@ -256,7 +257,7 @@ namespace BTKETicaretSitesi.Controllers
             return "/uploads/products/" + uniqueFileName;
         }
         // GET: Product/Edit/5
-        
+        [HttpGet("Edit/{id?}")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -293,7 +294,7 @@ namespace BTKETicaretSitesi.Controllers
 
         // POST: Product/Edit/5
         
-        [HttpPost]
+        [HttpPost("Edit/{id?}")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, ProductEditViewModel viewModel)
         {
@@ -348,7 +349,7 @@ namespace BTKETicaretSitesi.Controllers
         }
 
         // GET: Product/Delete/5
-        
+        [HttpGet("Delete/{id?}")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -388,8 +389,8 @@ namespace BTKETicaretSitesi.Controllers
         }
 
         // Ürün görselleri için action'lar
-        
 
+        [HttpGet("ManageImages/{productId}")]
         public async Task<IActionResult> ManageImages(int productId)
         {
             var product = await _context.Products
@@ -411,6 +412,7 @@ namespace BTKETicaretSitesi.Controllers
         }
 
         // Ürün özellikleri için action'lar
+        [HttpGet("ManageAttributes/{productId}")]
         public async Task<IActionResult> ManageAttributes(int productId)
         {
             var product = await _context.Products
@@ -432,6 +434,7 @@ namespace BTKETicaretSitesi.Controllers
         }
 
         // Ürün yorumları için action'lar
+        [HttpGet("ManageReviews/{productId}")]
         public async Task<IActionResult> ManageReviews(int productId)
         {
             var product = await _context.Products
@@ -456,7 +459,7 @@ namespace BTKETicaretSitesi.Controllers
 
 
 
-        [HttpPost]
+        [HttpPost("GenerateDescription")]
         [ValidateAntiForgeryToken] // Cross-Site Request Forgery'ye karşı koruma
         public async Task<IActionResult> GenerateDescription([FromBody] ProductAIDescriptionRequest request)
         {
