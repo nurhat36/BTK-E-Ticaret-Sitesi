@@ -6,10 +6,16 @@
     var maxActivity = Model.SalesActivities?.Any() == true ?
         Model.SalesActivities.Max(a => a.OrderCount) : 1;
 
-    // Haftanın günleri için etiketler
+    // Haftanın günleri için etiketler (Pazar günü ile başlayacak şekilde)
     var dayLabels = new[] { "Paz", "Pzt", "Sal", "Çar", "Per", "Cum", "Cmt" };
-}
 
+    // Tarih hesaplamaları
+    var today = DateTime.Today;
+    var startDate = today.AddDays(-363); // Tam 52 hafta (364 gün) ama başlangıç günü dahil
+    var totalDays = (today - startDate).Days + 1;
+    var fullWeeks = totalDays / 7;
+    var remainingDays = totalDays % 7;
+}
 <div class="container mt-4">
     <!-- Diğer istatistik kartları aynı şekilde kalıyor... -->
     <!-- Yatay Heatmap -->
@@ -67,37 +73,54 @@
                 <!-- Heatmap grid -->
                 <div class="horizontal-heatmap">
                     @{
-                        var currentDate = DateTime.Now.Date;
-                        var startDate = currentDate.AddYears(-1);
-                        var today = DateTime.Today;
-
-                        // 52 hafta (1 yıl) için sütunlar
-                        for (int week = 0; week < 52; week++)
+                        // Tam haftalar
+                        for (int week = 0; week < fullWeeks; week++)
                         {
                             <div class="week-column">
-                                @{
-                                    var weekStart = startDate.AddDays(week * 7);
-                                    // Haftanın 7 günü için
-                                    for (int dayOfWeek = 0; dayOfWeek < 7; dayOfWeek++)
-                                    {
-                                        var date = weekStart.AddDays(dayOfWeek);
-                                        if (date > currentDate) continue;
+                                @for (int dayOfWeek = 0; dayOfWeek < 7; dayOfWeek++)
+                                {
+                                    var date = startDate.AddDays(week * 7 + dayOfWeek);
+                                    var activity = Model.SalesActivities.FirstOrDefault(a => a.Date.Date == date.Date);
+                                    var intensity = activity != null ?
+                                    (int)Math.Ceiling((double)activity.OrderCount / maxActivity * 4) : 0;
+                                    var isToday = date.Date == today ? "today-cell" : "";
 
+                                    <div class="day-cell @isToday activity-level-@intensity"
+                                         data-toggle="tooltip"
+                                         title="@date.ToString("dd.MM.yyyy") - @(activity?.OrderCount ?? 0) sipariş">
+                                    </div>
+                                }
+                            </div>
+                        }
+
+                        // Kalan günler (tam olmayan son hafta)
+                        if (remainingDays > 0)
+                        {
+                            <div class="week-column">
+                                @for (int dayOfWeek = 0; dayOfWeek < 7; dayOfWeek++)
+                                {
+                                    if (dayOfWeek < remainingDays)
+                                    {
+                                        var date = startDate.AddDays(fullWeeks * 7 + dayOfWeek);
                                         var activity = Model.SalesActivities.FirstOrDefault(a => a.Date.Date == date.Date);
                                         var intensity = activity != null ?
                                         (int)Math.Ceiling((double)activity.OrderCount / maxActivity * 4) : 0;
-                                        var isToday = date.Date == today.Date ? "today-cell" : "";
+                                        var isToday = date.Date == today ? "today-cell" : "";
 
                                         <div class="day-cell @isToday activity-level-@intensity"
                                              data-toggle="tooltip"
-                                             title="@date.ToShortDateString() - @(activity?.OrderCount ?? 0) sipariş">
+                                             title="@date.ToString("dd.MM.yyyy") - @(activity?.OrderCount ?? 0) sipariş">
                                         </div>
+                                    }
+                                    else
+                                    {
+                                        <!-- Boş hücreler -->
+                                        <div class="day-cell empty-cell"></div>
                                     }
                                 }
                             </div>
                         }
                     }
-                    <!-- Bugünün karesi en sağda olacak -->
                 </div>
             </div>
 
@@ -148,90 +171,94 @@
 
 @section Styles {
     <style>
-        /* Yatay heatmap stilleri */
-        .horizontal-heatmap-container {
-            display: flex;
-            overflow-x: auto;
-            padding-left: 40px; /* Gün etiketleri için boşluk */
-        }
+            /* Yatay heatmap stilleri */
+            .horizontal-heatmap-container {
+                display: flex;
+                overflow-x: auto;
+                padding-left: 40px; /* Gün etiketleri için boşluk */
+            }
 
-        .day-labels {
-            display: flex;
-            flex-direction: column;
-            margin-right: 5px;
-            position: absolute;
-            left: 15px;
-        }
+            .day-labels {
+                display: flex;
+                flex-direction: column;
+                margin-right: 5px;
+                position: absolute;
+                left: 15px;
+            }
 
-        .day-label {
-            height: 15px;
-            width: 30px;
-            margin: 1px 0;
-            font-size: 10px;
-            text-align: right;
-            padding-right: 5px;
-        }
+            .day-label {
+                height: 15px;
+                width: 30px;
+                margin: 1px 0;
+                font-size: 10px;
+                text-align: right;
+                padding-right: 5px;
+            }
 
-        .horizontal-heatmap {
-            display: flex;
-        }
+            .horizontal-heatmap {
+                display: flex;
+            }
 
-        .week-column {
-            display: flex;
-            flex-direction: column;
-            margin-right: 2px;
-        }
+            .week-column {
+                display: flex;
+                flex-direction: column;
+                margin-right: 2px;
+            }
 
-        .day-cell {
-            width: 15px;
-            height: 15px;
-            margin: 1px;
-            border-radius: 2px;
-            background-color: #ebedf0;
-        }
+            .day-cell {
+                width: 15px;
+                height: 15px;
+                margin: 1px;
+                border-radius: 2px;
+                background-color: #ebedf0;
+            }
 
-        .today-cell {
-            border: 1px solid #000;
-            box-sizing: border-box;
-        }
+            .empty-cell {
+                visibility: hidden;
+            }
 
-        /* Aktivite seviyeleri */
-        .activity-level-1 {
-            background-color: #9be9a8;
-        }
+            .today-cell {
+                border: 1px solid #000;
+                box-sizing: border-box;
+            }
 
-        .activity-level-2 {
-            background-color: #40c463;
-        }
+            /* Aktivite seviyeleri */
+            .activity-level-1 {
+                background-color: #9be9a8;
+            }
 
-        .activity-level-3 {
-            background-color: #30a14e;
-        }
+            .activity-level-2 {
+                background-color: #40c463;
+            }
 
-        .activity-level-4 {
-            background-color: #216e39;
-        }
+            .activity-level-3 {
+                background-color: #30a14e;
+            }
 
-        /* Legend stilleri aynı kalıyor */
-        .heatmap-legend {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            color: #666;
-        }
+            .activity-level-4 {
+                background-color: #216e39;
+            }
 
-        .legend-cells {
-            display: flex;
-            margin: 0 5px;
-        }
+            /* Legend stilleri */
+            .heatmap-legend {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 12px;
+                color: #666;
+            }
 
-        .legend-cell {
-            width: 12px;
-            height: 12px;
-            margin: 0 1px;
-            border-radius: 2px;
-        }
+            .legend-cells {
+                display: flex;
+                margin: 0 5px;
+            }
+
+            .legend-cell {
+                width: 12px;
+                height: 12px;
+                margin: 0 1px;
+                border-radius: 2px;
+            }
     </style>
 }
 
