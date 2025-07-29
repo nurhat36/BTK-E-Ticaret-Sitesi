@@ -165,28 +165,84 @@
     <!-- Yorumlar Bölümü -->
     <div class="row mt-5">
         <div class="col-12">
-            <h3>Müşteri Yorumları</h3>
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="mb-0">Müşteri Yorumları</h3>
+                @if (Model.Reviews.Any())
+                {
+                    <div class="d-flex align-items-center">
+                        <div class="rating-average me-2">
+                            @{
+                                var averageRating = Model.Reviews.Average(r => r.Rating);
+                                var reviewCount = Model.Reviews.Count;
+                            }
+                            <div class="stars d-inline-block">
+                                @for (int i = 1; i <= 5; i++)
+                                {
+                                    <i class="fas fa-star @(i <= averageRating ? "text-warning" : "text-secondary")"></i>
+                                }
+                            </div>
+                            <span class="ms-1">@averageRating.ToString("0.0")</span>
+                        </div>
+                        <span class="text-muted">(@reviewCount yorum)</span>
+                    </div>
+                }
+            </div>
 
             @if (Model.Reviews.Any())
             {
-                foreach (var review in Model.Reviews)
-                {
-                    <div class="card mb-3">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between">
-                                <h5>@review.User.UserName</h5>
-                                <div class="rating">
-                                    @for (int i = 1; i <= 5; i++)
-                                    {
-                                        <i class="fas fa-star @(i <= review.Rating ? "text-warning" : "text-secondary")"></i>
-                                    }
+                <!-- Yorum Kartları (Yatay Kaydırma) -->
+                <div class="reviews-scrollable mb-4">
+                    <div class="row flex-nowrap overflow-auto pb-3" style="scrollbar-width: thin;">
+                        @foreach (var review in Model.Reviews.Take(5))
+                        {
+                            <div class="col-md-4 col-lg-3">
+                                <div class="card h-100">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between">
+                                            <h6 class="card-title">@review.User.UserName</h6>
+                                            <div class="rating">
+                                                @for (int i = 1; i <= 5; i++)
+                                                {
+                                                    <i class="fas fa-star @(i <= review.Rating ? "text-warning" : "text-secondary")" style="font-size: 0.8rem;"></i>
+                                                }
+                                            </div>
+                                        </div>
+                                        <p class="text-muted small mb-2">@review.ReviewDate.ToString("dd MMMM yyyy")</p>
+                                        <h6 class="text-truncate">@review.Title</h6>
+                                        <p class="card-text review-text">@(review.Comment.Length > 100 ? review.Comment.Substring(0, 100) + "..." : review.Comment)</p>
+                                    </div>
                                 </div>
                             </div>
-                            <p class="text-muted small">@review.ReviewDate.ToString("dd MMMM yyyy")</p>
-                            <p>@review.Comment</p>
-                        </div>
+                        }
                     </div>
-                }
+                </div>
+
+                <!-- Tüm Yorumları Göster/Gizle -->
+                <div class="all-reviews" style="display: none;">
+                    @foreach (var review in Model.Reviews.Skip(5))
+                    {
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <h5>@review.User.UserName</h5>
+                                    <div class="rating">
+                                        @for (int i = 1; i <= 5; i++)
+                                        {
+                                            <i class="fas fa-star @(i <= review.Rating ? "text-warning" : "text-secondary")"></i>
+                                        }
+                                    </div>
+                                </div>
+                                <p class="text-muted small">@review.ReviewDate.ToString("dd MMMM yyyy")</p>
+                                <h6>@review.Title</h6>
+                                <p>@review.Comment</p>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <button id="toggleReviewsBtn" class="btn btn-outline-primary btn-sm">
+                    <i class="fas fa-chevron-down"></i> Tüm Yorumları Gör (@Model.Reviews.Count)
+                </button>
             }
             else
             {
@@ -200,11 +256,13 @@
             {
                 <div class="mt-4">
                     <h4>Yorum Yap</h4>
-                    <form asp-controller="Review" asp-action="Create" method="post">
+                    <form asp-action="CreateReview" asp-route-productId="@Model.Id" asp-route-slug="@Model.Slug" method="post">
+                        @Html.AntiForgeryToken()
                         <input type="hidden" name="productId" value="@Model.Id">
                         <div class="form-group mb-3">
                             <label>Puan</label>
-                            <select name="rating" class="form-control">
+                            <select name="rating" class="form-control" required>
+                                <option value="">Puan Seçiniz</option>
                                 <option value="5">5 Yıldız</option>
                                 <option value="4">4 Yıldız</option>
                                 <option value="3">3 Yıldız</option>
@@ -213,8 +271,13 @@
                             </select>
                         </div>
                         <div class="form-group mb-3">
+                            <label>Başlık</label>
+                            <input type="text" name="title" class="form-control" placeholder="Yorum başlığı" required maxlength="100">
+                        </div>
+                        <div class="form-group mb-3">
+                            <label>Yorum</label>
                             <textarea name="comment" class="form-control" rows="3"
-                                      placeholder="Yorumunuz..."></textarea>
+                                      placeholder="Yorumunuz..." required></textarea>
                         </div>
                         <button type="submit" class="btn btn-primary">Gönder</button>
                     </form>
@@ -256,5 +319,52 @@
                 document.querySelector('#selectedVariant').value = this.dataset.variantId;
             });
         });
+
+        // Tüm yorumları göster/gizle
+        document.getElementById('toggleReviewsBtn')?.addEventListener('click', function () {
+            const allReviews = document.querySelector('.all-reviews');
+            const icon = this.querySelector('i');
+
+            if (allReviews.style.display === 'none') {
+                allReviews.style.display = 'block';
+                icon.classList.remove('fa-chevron-down');
+                icon.classList.add('fa-chevron-up');
+                this.textContent = ' Yorumları Gizle';
+                this.prepend(icon);
+            } else {
+                allReviews.style.display = 'none';
+                icon.classList.remove('fa-chevron-up');
+                icon.classList.add('fa-chevron-down');
+                this.textContent = ' Tüm Yorumları Gör (@Model.Reviews.Count)';
+                this.prepend(icon);
+            }
+        });
     </script>
+
+    <style>
+        .reviews-scrollable .row {
+            overflow-x: auto;
+            white-space: nowrap;
+            flex-wrap: nowrap;
+        }
+
+        .reviews-scrollable .col-md-4,
+        .reviews-scrollable .col-lg-3 {
+            display: inline-block;
+            float: none;
+            white-space: normal;
+        }
+
+        .review-text {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .rating-average .stars {
+            font-size: 1.2rem;
+        }
+    </style>
 }

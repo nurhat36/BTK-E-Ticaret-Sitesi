@@ -1,6 +1,9 @@
 ﻿using BTKETicaretSitesi.Attributes;
 using BTKETicaretSitesi.Data;
+using BTKETicaretSitesi.Models;
 using BTKETicaretSitesi.Models.ViewModels;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,10 +14,12 @@ namespace BTKETicaretSitesi.Controllers
     public class ProductReviewController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public ProductReviewController(ApplicationDbContext context)
+        public ProductReviewController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         [HttpGet]
@@ -35,9 +40,8 @@ namespace BTKETicaretSitesi.Controllers
             });
         }
 
+       
         [HttpPost("approve/{id}")]
-        
-
         public async Task<IActionResult> Approve(int productId, int id)
         {
             var review = await _context.ProductReviews

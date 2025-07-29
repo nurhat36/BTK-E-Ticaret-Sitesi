@@ -6,20 +6,23 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using BTKETicaretSitesi.Models.ViewModels;
+using Microsoft.AspNetCore.Identity;
 namespace BTKETicaretSitesi.Controllers { 
 [AllowAnonymous]
 [Route("Urunler")]
 public class SaleProductsController : Controller
 {
     private readonly ApplicationDbContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-    public SaleProductsController(ApplicationDbContext context)
-    {
-        _context = context;
-    }
+    public SaleProductsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
+        {
+            _context = context;
+            _userManager = userManager;
+        }
 
-    // Tüm aktif ürünlerin listesi
-    [HttpGet]
+        // Tüm aktif ürünlerin listesi
+        [HttpGet]
     public async Task<IActionResult> Index(
         int? categoryId,
         string search,
@@ -80,6 +83,48 @@ public class SaleProductsController : Controller
 
         return View(products);
     }
+        [HttpPost("CreateReview/{productId}/{slug?}")]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateReview(int? slug,int productId, int rating, string comment, string title)
+        {
+            Console.WriteLine("girdim girdim");
+            if (!ModelState.IsValid)
+            {
+                try
+                {
+                    var user = await _userManager.GetUserAsync(User);
+                    if (user == null)
+                    {
+                        return RedirectToAction("Login", "Account");
+                    }
+
+                    var review = new ProductReview
+                    {
+                        ProductId = productId,
+                        UserId = user.Id,
+                        Rating = rating,
+                        Title = title,
+                        Comment = comment,
+                        ReviewDate = DateTime.Now,
+                        IsApproved = false // Yorumlar admin onayından sonra yayınlansın
+                    };
+
+                    _context.ProductReviews.Add(review);
+                    await _context.SaveChangesAsync();
+
+                    TempData["ReviewMessage"] = "Yorumunuz başarıyla gönderildi. Admin onayından sonra yayınlanacaktır.";
+                    return RedirectToAction("Details", "SaleProducts", new { id = productId });
+                }
+                catch (Exception ex)
+                {
+                    ModelState.AddModelError("", "Yorum eklenirken bir hata oluştu: " + ex.Message);
+                    TempData["ReviewError"] = "Yorum eklenirken bir hata oluştu.";
+                }
+            }
+
+            return RedirectToAction("Details", "SaleProducts", new { id = productId });
+        }
         [HttpGet("Search")] // veya [HttpGet("Search")] query string için
         public async Task<IActionResult> Search(string query, int? categoryId, int page = 1)
         {
