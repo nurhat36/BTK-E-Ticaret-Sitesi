@@ -292,50 +292,81 @@
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
                                         <a class="dropdown-item" asp-area="Identity" asp-page="/Account/Manage/Index">
-                                            <i class="fas fa-user me-2"></i> Profil Bilgilerim
+                                            <i class="fas fa-user-cog me-2 text-primary"></i> Profil Bilgilerim
                                         </a>
                                     </li>
+
                                     @if (User.IsInRole("Admin"))
                                     {
                                         <li>
                                             <a class="dropdown-item" asp-controller="AdminStore" asp-action="Index">
-                                                <i class="fas fa-store me-2"></i> Mağazalar
+                                                <i class="fas fa-store-alt me-2 text-success"></i> Mağazalar Yönetimi
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" asp-controller="Admin" asp-action="Dashboard">
+                                                <i class="fas fa-tachometer-alt me-2 text-info"></i> Admin Paneli
                                             </a>
                                         </li>
                                     }
-                                    else
+                                    else 
                                     {
                                         <li>
                                             <a class="dropdown-item" asp-controller="Store" asp-action="Dashboard">
-                                                <i class="fas fa-store me-2"></i> Mağazam
+                                                <i class="fas fa-store me-2 text-warning"></i> Mağaza Yönetimi
                                             </a>
                                         </li>
                                     }
+
                                     <li>
                                         <a class="dropdown-item" asp-controller="Address" asp-action="Index">
-                                            <i class="fas fa-map-marked-alt me-2"></i> Adreslerim
+                                            <i class="fas fa-map-marker-alt me-2 text-danger"></i> Adreslerim
                                         </a>
                                     </li>
+
                                     <li>
                                         <a class="dropdown-item" asp-controller="Order" asp-action="Index">
-                                            <i class="fas fa-order me-2"></i> Siparişlerim
+                                            <i class="fas fa-shopping-bag me-2 text-purple"></i> Siparişlerim
                                         </a>
                                     </li>
-                                    <!-- Navbar içinde -->
-                                    <li class="nav-item">
-                                        <a class="nav-link" href="@Url.Action("Index", "FavoriteProducts")">
-                                            <i class="fas fa-heart"></i> Favorilerim
+
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="FavoriteProducts" asp-action="Index">
+                                            <i class="fas fa-heart me-2 text-pink"></i> Favorilerim
                                             @if (User.Identity.IsAuthenticated)
                                             {
-                                                <span class="badge bg-danger" id="favorite-count"></span>
+                                                <span class="badge bg-danger rounded-pill ms-1" id="favorite-count"></span>
                                             }
                                         </a>
                                     </li>
+
+                                    <li><hr class="dropdown-divider"></li>
+
                                     <li>
-                                        <button id="darkModeToggle" class="dropdown-item dark-mode-toggle">
-                                            <i class="fas fa-moon me-2"></i> Koyu Mod
+                                        <button id="darkModeToggle" class="dropdown-item">
+                                            <i class="fas fa-moon me-2 text-secondary"></i> Koyu Mod
+                                            <span class="badge bg-dark ms-2 rounded-pill">AÇIK/KAPALI</span>
                                         </button>
                                     </li>
+
+                                    <style>
+                                        .text-purple {
+                                            color: #6f42c1;
+                                        }
+
+                                        .text-pink {
+                                            color: #e83e8c;
+                                        }
+
+                                        .dropdown-item:hover {
+                                            background-color: #f8f9fa;
+                                        }
+
+                                            .dropdown-item:hover i {
+                                                transform: scale(1.1);
+                                                transition: transform 0.2s;
+                                            }
+                                    </style>
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
                                         <form asp-area="Identity" asp-page="/Account/Logout" method="post">
