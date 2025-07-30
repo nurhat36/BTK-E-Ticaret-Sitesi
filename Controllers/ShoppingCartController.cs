@@ -32,6 +32,7 @@ namespace BTKETicaretSitesi.Controllers
             var cart = await _context.ShoppingCarts
                 .Include(c => c.Items)
                 .ThenInclude(i => i.Product)
+                .ThenInclude(p => p.Images) // Ürün varyantlarını da dahil ediyoruz
                 .Include(c => c.Items)
                 .ThenInclude(i => i.Variant)
                 .FirstOrDefaultAsync(c => c.UserId == userId);

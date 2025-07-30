@@ -31,6 +31,9 @@
                         </div>
                     }
                 </div>
+                <button id="favoriteButton" class="btn btn-outline-danger">
+                    <i class="far fa-heart"></i> Favorilere Ekle
+                </button>
             </div>
         </div>
 
@@ -295,6 +298,29 @@
 
 @section Scripts {
     <script>
+        $(document).ready(function () {
+            // Sayfa yüklendiğinde favori durumunu kontrol et
+            $.get('@Url.Action("IsFavorite", "FavoriteProducts")', { productId: @Model.Id }, function (data) {
+                updateFavoriteButton(data.isFavorite);
+            });
+
+            // Buton click eventi
+            $('#favoriteButton').click(function () {
+                $.post('@Url.Action("ToggleFavorite", "FavoriteProducts")', { productId: @Model.Id }, function (data) {
+                    updateFavoriteButton(data.isFavorite);
+                });
+            });
+
+            function updateFavoriteButton(isFavorite) {
+                if (isFavorite) {
+                    $('#favoriteButton').html('<i class="fas fa-heart"></i> Favorilerden Çıkar');
+                    $('#favoriteButton').removeClass('btn-outline-danger').addClass('btn-danger');
+                } else {
+                    $('#favoriteButton').html('<i class="far fa-heart"></i> Favorilere Ekle');
+                    $('#favoriteButton').removeClass('btn-danger').addClass('btn-outline-danger');
+                }
+            }
+        });
         // Varyant seçimi
         document.querySelectorAll('.variant-btn').forEach(btn => {
             btn.addEventListener('click', function (e) {

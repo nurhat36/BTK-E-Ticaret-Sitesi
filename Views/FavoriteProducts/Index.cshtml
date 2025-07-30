@@ -1,0 +1,70 @@
+﻿@model List<Product>
+@{
+    ViewData["Title"] = "Favori Ürünlerim";
+}
+
+<div class="container mt-5">
+    <h2 class="mb-4">@ViewData["Title"]</h2>
+
+    @if (Model.Any())
+    {
+        <div class="row">
+            @foreach (var product in Model)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+
+                        @{
+                            // Ana resmi bul (IsMain=true olan)
+                            var mainImage = product.Images?.FirstOrDefault(img => img.IsMainImage);
+                            var imageUrl = mainImage?.ImageUrl ?? "/images/default-product.png";
+                        }
+                        <img src="@imageUrl" class="card-img-top" alt="@product.Name" style="height: 200px; object-fit: cover;">
+                        <div class="card-body">
+                            <h5 class="card-title">@product.Name</h5>
+                            <p class="card-text text-success fw-bold">@product.Price.ToString("C")</p>
+                            <div class="d-flex justify-content-between">
+                                <a href="@Url.Action("Details", "SaleProducts", new { id = product.Id })" class="btn btn-primary">
+                                    <i class="fas fa-info-circle"></i> Detaylar
+                                </a>
+                                <button class="btn btn-danger remove-favorite" data-product-id="@product.Id">
+                                    <i class="fas fa-heart"></i> Favorilerden Çıkar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i> Henüz favori ürün eklemediniz.
+            <a href="@Url.Action("Index", "Products")" class="alert-link">Ürünlere göz atın</a>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('.remove-favorite').click(function () {
+                var productId = $(this).data('product-id');
+                var button = $(this);
+
+                $.post('@Url.Action("ToggleFavorite", "FavoriteProducts")', { productId: productId }, function (response) {
+                    if (response.success) {
+                        button.closest('.col-md-4').fadeOut(300, function () {
+                            $(this).remove();
+                            // Eğer hiç ürün kalmadıysa mesaj göster
+                            if ($('.remove-favorite').length === 0) {
+                                location.reload(); // Sayfayı yenile
+                            }
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+}
