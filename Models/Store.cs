@@ -40,5 +40,6 @@ namespace BTKETicaretSitesi.Models
 
         // Mağaza ile ilişkili ürünler
         public ICollection<Product> Products { get; set; }
+
     }
 }
