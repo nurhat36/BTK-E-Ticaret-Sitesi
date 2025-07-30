@@ -32,7 +32,12 @@
                     {
                         <tr>
                             <td>
-                                <img src="@item.Product.Images" alt="@item.Product.Name" width="50" class="mr-2">
+                                @{
+                                    // Ana resmi bul (IsMain=true olan)
+                                    var mainImage = item.Product.Images?.FirstOrDefault(img => img.IsMainImage);
+                                    var imageUrl = mainImage?.ImageUrl ?? "/images/default-product.png";
+                                }
+                                <img src="@imageUrl" alt="@item.Product.Name" width="50" class="mr-2">
                                 @item.Product.Name
                             </td>
                             <td>

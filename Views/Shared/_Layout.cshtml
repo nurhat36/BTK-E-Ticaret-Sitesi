@@ -321,6 +321,16 @@
                                             <i class="fas fa-order me-2"></i> Siparişlerim
                                         </a>
                                     </li>
+                                    <!-- Navbar içinde -->
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="@Url.Action("Index", "FavoriteProducts")">
+                                            <i class="fas fa-heart"></i> Favorilerim
+                                            @if (User.Identity.IsAuthenticated)
+                                            {
+                                                <span class="badge bg-danger" id="favorite-count"></span>
+                                            }
+                                        </a>
+                                    </li>
                                     <li>
                                         <button id="darkModeToggle" class="dropdown-item dark-mode-toggle">
                                             <i class="fas fa-moon me-2"></i> Koyu Mod
