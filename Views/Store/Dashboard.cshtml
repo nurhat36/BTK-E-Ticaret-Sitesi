@@ -325,16 +325,84 @@
             grid-template-columns: 1fr;
         }
     }
+    /* Dark Mode Stilleri */
+    body.dark-mode .store-dashboard {
+        background-color: #1a1a1a;
+    }
+
+    body.dark-mode .store-header-container,
+    body.dark-mode .dashboard-card,
+    body.dark-mode .alert-modern {
+        background-color: #2d2d2d;
+        color: #f0f0f0;
+    }
+
+        body.dark-mode .store-title h2,
+        body.dark-mode .dashboard-card h3 {
+            color: #ffffff;
+        }
+
+        body.dark-mode .store-description,
+        body.dark-mode .dashboard-card p {
+            color: #b0b0b0;
+        }
+
+    body.dark-mode .alert-modern {
+        background-color: #2d3a4a;
+        color: #a8d8ff;
+    }
+
+    body.dark-mode .store-status-badge.approved {
+        background-color: rgba(76, 201, 240, 0.2);
+        border-color: #4cc9f0;
+        color: #4cc9f0;
+    }
+
+    body.dark-mode .store-status-badge.pending {
+        background-color: rgba(248, 150, 30, 0.2);
+        border-color: #f8961e;
+        color: #f8961e;
+    }
+
+    /* Kartların üst çizgileri için dark mode ayarı */
+    body.dark-mode .dashboard-card::before {
+        opacity: 0.8;
+    }
+
+    /* Butonlar için dark mode ayarları */
+    body.dark-mode .modern-button {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
 </style>
 
 <!-- Font Awesome for icons -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
 <script>
-    document.querySelector('.close-alert')?.addEventListener('click', function() {
-        this.parentElement.style.opacity = '0';
-        setTimeout(() => {
-            this.parentElement.remove();
-        }, 300);
+    // Dark mode kontrolü
+    document.addEventListener('DOMContentLoaded', function () {
+        // Sayfa yüklendiğinde dark mode durumunu kontrol et
+        if (localStorage.getItem("darkMode") === "enabled") {
+            document.body.classList.add("dark-mode");
+        }
+
+        // Alert kapatma butonu
+        document.querySelector('.close-alert')?.addEventListener('click', function () {
+            this.parentElement.style.opacity = '0';
+            setTimeout(() => {
+                this.parentElement.remove();
+            }, 300);
+        });
+
+        // Dark mode değişikliklerini dinle (diğer sekmelerden)
+        window.addEventListener('storage', function (event) {
+            if (event.key === 'darkMode') {
+                if (event.newValue === 'enabled') {
+                    document.body.classList.add('dark-mode');
+                } else {
+                    document.body.classList.remove('dark-mode');
+                }
+            }
+        });
     });
 </script>

@@ -164,6 +164,48 @@
             </div>
         </div>
     }
+    @if (Model.ReviewAnalysis != null)
+    {
+        <div class="ai-review-analysis">
+            <div class="ai-header">
+                <i class="fas fa-robot ai-icon"></i>
+                <h3 class="ai-title">Yapay Zeka Yorum Analizi</h3>
+            </div>
+
+            <div class="ai-rating">
+                <div class="score-circle @GetScoreClass(Model.ReviewAnalysis.QualityScore)">
+                    <span class="score-value">@Model.ReviewAnalysis.QualityScore</span>
+                    <span class="score-total">/10</span>
+                </div>
+                <span class="sentiment-tag @GetSentimentClass(Model.ReviewAnalysis.SentimentAnalysisResult)">
+                    @Model.ReviewAnalysis.SentimentAnalysisResult
+                </span>
+            </div>
+
+            <div class="ai-insights">
+                <h4 class="insights-title">
+                    <i class="fas fa-lightbulb"></i> Öne Çıkan Öngörüler
+                </h4>
+                <div class="insights-content">
+                    @Html.Raw(Model.ReviewAnalysis.SummaryInsights.Replace("\n", "<br/>"))
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="ai-review-analysis empty-state">
+            <div class="ai-header">
+                <i class="fas fa-robot ai-icon"></i>
+                <h3 class="ai-title">Yapay Zeka Analizi</h3>
+            </div>
+            <div class="empty-content">
+                <i class="far fa-clock"></i>
+                <p>Bu ürün için yapay zeka analizi henüz tamamlanmadı.</p>
+            </div>
+        </div>
+    }
+
 
     <!-- Yorumlar Bölümü -->
     <div class="row mt-5">
@@ -298,6 +340,21 @@
 
 @section Scripts {
     <script>
+        @functions {
+        string GetScoreClass(double score)
+        {
+            if (score >= 7) return "score-high";
+            if (score >= 4) return "score-medium";
+            return "score-low";
+        }
+
+        string GetSentimentClass(string sentiment)
+        {
+            if (sentiment.Contains("Olumlu")) return "sentiment-positive";
+            if (sentiment.Contains("Nötr")) return "sentiment-neutral";
+            return "sentiment-negative";
+        }
+    }
         $(document).ready(function () {
             // Sayfa yüklendiğinde favori durumunu kontrol et
             $.get('@Url.Action("IsFavorite", "FavoriteProducts")', { productId: @Model.Id }, function (data) {
@@ -368,6 +425,142 @@
     </script>
 
     <style>
+        .ai-review-analysis {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            font-family: 'Segoe UI', sans-serif;
+            border: 1px solid #eaeaea;
+        }
+
+        .ai-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .ai-icon {
+            color: #6c5ce7;
+            font-size: 24px;
+            margin-right: 10px;
+        }
+
+        .ai-title {
+            margin: 0;
+            color: #333;
+            font-size: 18px;
+        }
+
+        .ai-rating {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .score-circle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin-right: 15px;
+            background: #6c5ce7;
+            color: white;
+            font-weight: bold;
+        }
+
+        .score-value {
+            font-size: 22px;
+            line-height: 1;
+        }
+
+        .score-total {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .sentiment-tag {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .ai-insights {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #6c5ce7;
+        }
+
+        .insights-title {
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: #555;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+            .insights-title i {
+                margin-right: 8px;
+                color: #6c5ce7;
+            }
+
+        .insights-content {
+            font-size: 14px;
+            line-height: 1.5;
+            color: #444;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 30px 20px;
+        }
+
+        .empty-content {
+            color: #777;
+        }
+
+            .empty-content i {
+                font-size: 30px;
+                margin-bottom: 10px;
+                color: #ddd;
+            }
+
+        /* Skor renkleri */
+        .score-high {
+            background: #00b894;
+        }
+
+        .score-medium {
+            background: #fdcb6e;
+            color: #333;
+        }
+
+        .score-low {
+            background: #ff7675;
+        }
+
+        /* Sentiment renkleri */
+        .sentiment-positive {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .sentiment-neutral {
+            background: #e5e7eb;
+            color: #1f2937;
+        }
+
+        .sentiment-negative {
+            background: #fee2e2;
+            color: #991b1b;
+        }
         .reviews-scrollable .row {
             overflow-x: auto;
             white-space: nowrap;

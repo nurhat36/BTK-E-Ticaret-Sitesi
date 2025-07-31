@@ -24,6 +24,9 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("SmtpSettings"));
 builder.Services.AddTransient<IEmailSender, SmtpEmailSender>();
 builder.Services.AddScoped<IFavoriteProductService, FavoriteProductService>();
+builder.Services.AddScoped<ReviewAnalysisService>();
+// Google AI servisi için yapılandırma
+builder.Services.AddTransient<GeminiApiService>();
 
 builder.Services.AddHttpContextAccessor(); // Email veya kullanıcı bilgilerine ulaşmak için gerekli
 

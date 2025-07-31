@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using BTKETicaretSitesi.Models.ViewModels;
 using Microsoft.AspNetCore.Identity;
+using BTKETicaretSitesi.Services;
 namespace BTKETicaretSitesi.Controllers { 
 [AllowAnonymous]
 [Route("Urunler")]
@@ -14,11 +15,13 @@ public class SaleProductsController : Controller
 {
     private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ReviewAnalysisService _reviewAnalysisService;
 
-    public SaleProductsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
+        public SaleProductsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, ReviewAnalysisService reviewAnalysisService)
         {
             _context = context;
             _userManager = userManager;
+            _reviewAnalysisService = reviewAnalysisService;
         }
 
         // Tüm aktif ürünlerin listesi
@@ -107,11 +110,13 @@ public class SaleProductsController : Controller
                         Title = title,
                         Comment = comment,
                         ReviewDate = DateTime.Now,
-                        IsApproved = false // Yorumlar admin onayından sonra yayınlansın
+                        IsApproved = true // Yorumlar admin onayından sonra yayınlansın
                     };
 
                     _context.ProductReviews.Add(review);
                     await _context.SaveChangesAsync();
+                    //yorumu analize gönderiyoruz 30 yorum olmadan çalışmayacak
+                    await _reviewAnalysisService.AnalyzeReviewsIfNeeded(review.ProductId);
 
                     TempData["ReviewMessage"] = "Yorumunuz başarıyla gönderildi. Admin onayından sonra yayınlanacaktır.";
                     return RedirectToAction("Details", "SaleProducts", new { id = productId });
@@ -213,9 +218,11 @@ public class SaleProductsController : Controller
             .Include(p => p.Images)
             .Include(p => p.Variants)
             .Include(p => p.Attributes)
+            .Include(p => p.ReviewAnalysis)
             .Include(p => p.Reviews)
                 .ThenInclude(r => r.User)
             .FirstOrDefaultAsync(p => p.Id == id && p.IsActive && p.StockQuantity > 0 && p.Store.IsApproved);
+
 
         if (product == null)
         {
