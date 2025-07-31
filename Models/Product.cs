@@ -37,5 +37,6 @@ namespace BTKETicaretSitesi.Models
         // Ürün yorumları
         public ICollection<ProductReview> Reviews { get; set; }
         public ProductReviewAnalysis ReviewAnalysis { get; set; }
+        public ICollection<ProductQuestion> Questions { get; set; }
     }
 }
