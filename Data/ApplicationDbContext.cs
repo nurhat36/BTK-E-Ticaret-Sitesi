@@ -27,6 +27,7 @@ namespace BTKETicaretSitesi.Data
         public DbSet<ProductVariant> ProductVariants { get; set; }
         public DbSet<ProductReview> ProductReviews { get; set; }
         public DbSet<ProductReviewAnalysis> ProductReviewAnalyses { get; set; }
+        public DbSet<ProductQuestion> ProductQuestions { get; set; }
 
         // Alışveriş sepeti
         public DbSet<ShoppingCart> ShoppingCarts { get; set; }
@@ -47,7 +48,11 @@ namespace BTKETicaretSitesi.Data
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
-
+            builder.Entity<ProductQuestion>()
+        .HasOne(q => q.Product)
+        .WithMany(p => p.Questions) // Eğer Product modelinde Questions koleksiyonu varsa
+        .HasForeignKey(q => q.ProductId)
+        .OnDelete(DeleteBehavior.Restrict);
             // StoreStaff için composite primary key
             builder.Entity<StoreStaff>(entity =>
             {
