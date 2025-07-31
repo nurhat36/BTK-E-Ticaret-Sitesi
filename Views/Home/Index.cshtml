@@ -3,132 +3,854 @@
     ViewData["Title"] = "Ana Sayfa";
 }
 
-<!-- Hero Banner -->
-<div class="hero-banner bg-dark text-white py-5 mb-4">
-    <div class="container">
-        <div class="row align-items-center">
-            <div class="col-lg-6">
-                <h1 class="display-4 fw-bold">Alışverişin Yeni Adresi</h1>
-                <p class="lead">Onaylı mağazalardan binlerce kaliteli ürün bir tık uzağınızda</p>
-                <a href="#featured-products" class="btn btn-primary btn-lg">Hemen Keşfet</a>
-            </div>
-            <div class="col-lg-6">
-                <img src="https://via.placeholder.com/600x400" alt="Alışveriş" class="img-fluid rounded">
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Kategoriler -->
-<div class="container mb-5">
-    <h2 class="text-center mb-4">Kategoriler</h2>
-    <div class="row">
-        @foreach (var category in Model.Categories)
-        {
-            <div class="col-6 col-md-3 mb-3">
-                <a href="Urunler/category/@category.Slug" class="text-decoration-none">
-                    <div class="card category-card h-100 hover-shadow">
-                       
-                        <div class="card-body text-center">
-                            <h5 class="card-title">@category.Name</h5>
+<!-- Hero Section with Parallax Effect -->
+<section class="hero-section">
+    <div class="hero-content">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6 order-lg-1 order-2">
+                    <div class="hero-text">
+                        <span class="hero-badge">YENİ KOLEKSİYON</span>
+                        <h1 class="hero-title">Alışverişin Yeni Adresi</h1>
+                        <p class="hero-subtitle">Onaylı mağazalardan binlerce kaliteli ürün bir tık uzağınızda</p>
+                        <div class="hero-buttons">
+                            <a href="#featured-products" class="btn btn-primary btn-lg btn-shine">
+                                <i class="fas fa-chevron-right me-2"></i> Hemen Keşfet
+                            </a>
+                            <a href="#" class="btn btn-outline-light btn-lg">
+                                <i class="fas fa-tag me-2"></i> Kampanyalar
+                            </a>
                         </div>
                     </div>
-                </a>
-            </div>
-        }
-    </div>
-    <div class="text-center mt-3">
-        <a asp-controller="Category" asp-action="Index" class="btn btn-outline-primary">Tüm Kategoriler</a>
-    </div>
-</div>
-
-<!-- Öne Çıkan Ürünler -->
-<div class="container mb-5" id="featured-products">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="mb-0">Öne Çıkan Ürünler</h2>
-        <a asp-controller="Product" asp-action="Index" class="btn btn-outline-primary">Tüm Ürünler</a>
-    </div>
-
-    <div class="row">
-        @foreach (var product in Model.FeaturedProducts)
-        {
-            <div class="col-6 col-md-4 col-lg-3 mb-4">
-                <div class="card product-card h-100 hover-shadow">
-                    <a asp-controller="SaleProducts" asp-action="Details" asp-route-id="@product.Id">
-                        @{
-                            var mainImage = product.Images.FirstOrDefault(pi => pi.IsMainImage);
-                            var imageUrl = mainImage != null ? mainImage.ImageUrl : "https://via.placeholder.com/300";
-                        }
-                        <img src="@imageUrl" class="card-img-top product-image" alt="@product.Name">
-                    </a>
-                    <div class="card-body">
-                        <h5 class="card-title">
-                            <a asp-controller="SaleProducts" asp-action="Details" asp-route-id="@product.Id" class="text-decoration-none text-dark">
-                                @product.Name
-                            </a>
-                        </h5>
-                        <!-- Diğer ürün bilgileri -->
+                </div>
+                <div class="col-lg-6 order-lg-2 order-1">
+                    <div class="hero-image-container">
+                        <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1099&q=80"
+                             alt="Alışveriş"
+                             class="hero-main-img floating-animation">
+                        <img src="https://images.unsplash.com/photo-1546868871-7041f2a55e12?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=764&q=80"
+                             alt="Alışveriş"
+                             class="hero-secondary-img floating-animation-delay">
                     </div>
                 </div>
             </div>
-        }
+        </div>
     </div>
-</div>
+    <div class="hero-wave">
+        <svg viewBox="0 0 1200 120" preserveAspectRatio="none">
+            <path d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z"
+                  opacity=".25"
+                  class="fill-white"></path>
+            <path d="M0,0V15.81C13,36.92,27.64,56.86,47.69,72.05,99.41,111.27,165,111,224.58,91.58c31.15-10.15,60.09-26.07,89.67-39.8,40.92-19,84.73-46,130.83-49.67,36.26-2.85,70.9,9.42,98.6,31.56,31.77,25.39,62.32,62,103.63,73,40.44,10.79,81.35-6.69,119.13-24.28s75.16-39,116.92-43.05c59.73-5.85,113.28,22.88,168.9,38.84,30.2,8.66,59,6.17,87.09-7.5,22.43-10.89,48-26.93,60.65-49.24V0Z"
+                  opacity=".5"
+                  class="fill-white"></path>
+            <path d="M0,0V5.63C149.93,59,314.09,71.32,475.83,42.57c43-7.64,84.23-20.12,127.61-26.46,59-8.63,112.48,12.24,165.56,35.4C827.93,77.22,886,95.24,951.2,90c86.53-7,172.46-45.71,248.8-84.81V0Z"
+                  class="fill-white"></path>
+        </svg>
+    </div>
+</section>
+
+<!-- Categories Section -->
+<section class="categories-section py-5">
+    <div class="container">
+        <div class="section-header text-center mb-5">
+            <h2 class="section-title">Kategoriler</h2>
+            <p class="section-subtitle">Binlerce ürünü keşfetmek için kategorileri inceleyin</p>
+        </div>
+
+        <div class="row g-4">
+            @foreach (var category in Model.Categories)
+            {
+                <div class="col-6 col-md-4 col-lg-3">
+                    <a href="Urunler/category/@category.Slug" class="category-card">
+                        <div class="category-icon">
+                            <i class="fas fa-@(GetCategoryIcon(category.Name))"></i>
+                        </div>
+                        <h3 class="category-title">@category.Name</h3>
+                        <span class="category-count">@(new Random().Next(50, 500)) ürün</span>
+                    </a>
+                </div>
+            }
+        </div>
+
+        <div class="text-center mt-5">
+            <a asp-controller="Category" asp-action="Index" class="btn btn-outline-primary btn-lg">
+                <i class="fas fa-list me-2"></i> Tüm Kategoriler
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Products Section -->
+<section class="featured-products-section py-5 bg-light" id="featured-products">
+    <div class="container">
+        <div class="section-header d-flex justify-content-between align-items-center mb-5">
+            <div>
+                <h2 class="section-title">Öne Çıkan Ürünler</h2>
+                <p class="section-subtitle">En çok beğenilen ve satılan ürünler</p>
+            </div>
+            <a asp-controller="Product" asp-action="Index" class="btn btn-outline-primary">
+                Tüm Ürünler <i class="fas fa-arrow-right ms-2"></i>
+            </a>
+        </div>
+
+        <div class="row g-4">
+            @foreach (var product in Model.FeaturedProducts)
+            {
+               
+                        <div class="product-image-container">
+                            <a asp-controller="SaleProducts" asp-action="Details" asp-route-id="@product.Id">
+                                @{
+                                    var mainImage = product.Images.FirstOrDefault(pi => pi.IsMainImage);
+                                    var imageUrl = mainImage != null ? mainImage.ImageUrl : "https://via.placeholder.com/300";
+                                }
+                                <img src="@imageUrl" class="product-image" alt="@product.Name">
+                            </a>
+                            <div class="product-actions">
+                                <button class="btn-action add-to-cart" data-product-id="@product.Id" title="Sepete Ekle">
+                                    <i class="fas fa-shopping-cart"></i>
+                                </button>
+                                <button class="btn-action" title="Favorilere Ekle">
+                                    <i class="far fa-heart"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="product-info">
+                           
+                            </div>
+                            <h3 class="product-title">
+                                <a asp-controller="SaleProducts" asp-action="Details" asp-route-id="@product.Id">@product.Name</a>
+                            </h3>
+                            <div class="product-price">
+                              
+                            </div>
+                    
+            }
+        </div>
+    </div>
+</section>
+
+<!-- Campaign Banner -->
+<section class="campaign-banner py-5">
+    <div class="container">
+        <div class="campaign-card bg-gradient text-white rounded-4 overflow-hidden">
+            <div class="row align-items-center">
+                <div class="col-lg-6 p-4 p-lg-5">
+                    <span class="campaign-tag">SINIRLI SÜRE</span>
+                    <h2 class="campaign-title">Yaz İndirimleri Başladı!</h2>
+                    <p class="campaign-text">Seçili ürünlerde %50'ye varan indirimlerle sınırlı stoklarda</p>
+                    <div class="countdown mb-3">
+                        <div class="countdown-item">
+                            <span class="countdown-number">05</span>
+                            <span class="countdown-label">Gün</span>
+                        </div>
+                        <div class="countdown-item">
+                            <span class="countdown-number">12</span>
+                            <span class="countdown-label">Saat</span>
+                        </div>
+                        <div class="countdown-item">
+                            <span class="countdown-number">45</span>
+                            <span class="countdown-label">Dak</span>
+                        </div>
+                        <div class="countdown-item">
+                            <span class="countdown-number">30</span>
+                            <span class="countdown-label">San</span>
+                        </div>
+                    </div>
+                    <a href="#" class="btn btn-light btn-lg rounded-pill">
+                        <i class="fas fa-chevron-right me-2"></i> Hemen Al
+                    </a>
+                </div>
+                <div class="col-lg-6 d-none d-lg-block">
+                    <img src="https://images.unsplash.com/photo-1523381210434-271e8be1f52b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80"
+                         alt="Kampanya"
+                         class="campaign-image floating-animation">
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Brands Section -->
+<section class="brands-section py-5">
+    <div class="container">
+        <div class="section-header text-center mb-5">
+            <h2 class="section-title">Güvenilen Markalar</h2>
+            <p class="section-subtitle">Dünyaca ünlü markalarla iş birliği içindeyiz</p>
+        </div>
+
+        <div class="brands-slider">
+            <div class="brand-item">
+                <img src="https://via.placeholder.com/150x60?text=BRAND1" alt="Marka">
+            </div>
+            <div class="brand-item">
+                <img src="https://via.placeholder.com/150x60?text=BRAND2" alt="Marka">
+            </div>
+            <div class="brand-item">
+                <img src="https://via.placeholder.com/150x60?text=BRAND3" alt="Marka">
+            </div>
+            <div class="brand-item">
+                <img src="https://via.placeholder.com/150x60?text=BRAND4" alt="Marka">
+            </div>
+            <div class="brand-item">
+                <img src="https://via.placeholder.com/150x60?text=BRAND5" alt="Marka">
+            </div>
+            <div class="brand-item">
+                <img src="https://via.placeholder.com/150x60?text=BRAND6" alt="Marka">
+            </div>
+        </div>
+    </div>
+</section>
 
 @section Styles {
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
     <style>
-        .hero-banner {
-            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://via.placeholder.com/1920x600');
-            background-size: cover;
-            background-position: center;
-            border-radius: 10px;
+        :root {
+            --primary-color: #6c5ce7;
+            --primary-hover: #5649c7;
+            --secondary-color: #a29bfe;
+            --danger-color: #ff7675;
+            --light-color: #f8f9fa;
+            --dark-color: #2d3436;
+            --text-color: #333;
+            --text-muted: #6c757d;
         }
 
-        .product-card, .category-card {
-            transition: transform 0.3s, box-shadow 0.3s;
-            border: none;
-            border-radius: 10px;
+        /* Hero Section */
+        .hero-section {
+            position: relative;
+            background: linear-gradient(135deg, var(--dark-color) 0%, #000 100%);
+            color: white;
+            padding: 5rem 0;
             overflow: hidden;
         }
 
-        .hover-shadow:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            background-color: var(--danger-color);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            animation: pulse 2s infinite;
+        }
+
+        .hero-title {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+        }
+
+        .hero-subtitle {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn-shine {
+            position: relative;
+            overflow: hidden;
+        }
+
+            .btn-shine::after {
+                content: '';
+                position: absolute;
+                top: -50%;
+                left: -50%;
+                width: 200%;
+                height: 200%;
+                background: linear-gradient( to bottom right, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 60% );
+                transform: rotate(30deg);
+                transition: all 0.3s;
+            }
+
+            .btn-shine:hover::after {
+                animation: shine 1.5s infinite;
+            }
+
+        .hero-image-container {
+            position: relative;
+            height: 400px;
+        }
+
+        .hero-main-img {
+            position: absolute;
+            width: 70%;
+            right: 0;
+            top: 0;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            z-index: 2;
+        }
+
+        .hero-secondary-img {
+            position: absolute;
+            width: 60%;
+            left: 0;
+            bottom: 0;
+            border-radius: 15px;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+            z-index: 1;
+        }
+
+        .floating-animation {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .floating-animation-delay {
+            animation: float 6s ease-in-out infinite reverse;
+            animation-delay: 1s;
+        }
+
+        .hero-wave {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+        }
+
+            .hero-wave svg {
+                display: block;
+                width: 100%;
+                height: 60px;
+            }
+
+        .fill-white {
+            fill: #fff;
+        }
+
+        /* Sections */
+        .section-header {
+            margin-bottom: 3rem;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            position: relative;
+            display: inline-block;
+            margin-bottom: 0.5rem;
+        }
+
+            .section-title::after {
+                content: '';
+                position: absolute;
+                bottom: -10px;
+                left: 0;
+                width: 50px;
+                height: 4px;
+                background: var(--primary-color);
+                border-radius: 2px;
+            }
+
+        .section-subtitle {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        /* Category Cards */
+        .category-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem 1rem;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: var(--text-color);
+            height: 100%;
+        }
+
+            .category-card:hover {
+                transform: translateY(-10px);
+                box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+            }
+
+        .category-icon {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            color: white;
+            font-size: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .category-card:hover .category-icon {
+            transform: rotate(15deg) scale(1.1);
+        }
+
+        .category-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .category-count {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        /* Product Cards */
+        .product-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            height: 100%;
+        }
+
+            .product-card:hover {
+                transform: translateY(-10px);
+                box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+            }
+
+        .product-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 0.3rem 0.8rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: white;
+            z-index: 2;
+        }
+
+        .product-image-container {
+            position: relative;
+            overflow: hidden;
+            height: 200px;
         }
 
         .product-image {
-            height: 200px;
+            width: 100%;
+            height: 100%;
             object-fit: cover;
+            transition: transform 0.5s ease;
         }
 
-        .category-card img {
-            height: 150px;
-            object-fit: cover;
+        .product-card:hover .product-image {
+            transform: scale(1.05);
         }
 
-        .price {
-            color: #0d6efd;
+        .product-actions {
+            position: absolute;
+            bottom: 20px;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+        }
+
+        .product-card:hover .product-actions {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .btn-action {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            color: var(--primary-color);
+            border: none;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+            .btn-action:hover {
+                background: var(--primary-color);
+                color: white;
+                transform: translateY(-3px);
+            }
+
+        .product-info {
+            padding: 1.5rem;
+        }
+
+        .product-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
+        .product-brand {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .product-rating {
+            color: #ffc107;
+            font-size: 0.8rem;
+        }
+
+        .product-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+            .product-title a {
+                color: var(--text-color);
+                text-decoration: none;
+            }
+
+        .product-price {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .current-price {
             font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .old-price {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            text-decoration: line-through;
+        }
+
+        /* Campaign Banner */
+        .campaign-banner {
+            background: var(--light-color);
+        }
+
+        .campaign-card {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .bg-gradient {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+        }
+
+        .campaign-tag {
+            display: inline-block;
+            background: white;
+            color: var(--primary-color);
+            padding: 0.3rem 1rem;
+            border-radius: 50px;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        .campaign-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .campaign-text {
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+            opacity: 0.9;
+        }
+
+        .campaign-image {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 15px;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+        }
+
+        .countdown {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .countdown-item {
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            padding: 0.5rem;
+            text-align: center;
+            min-width: 60px;
+        }
+
+        .countdown-number {
+            font-size: 1.5rem;
+            font-weight: bold;
+            display: block;
+        }
+
+        .countdown-label {
+            font-size: 0.7rem;
+            opacity: 0.8;
+            display: block;
+        }
+
+        /* Brands Section */
+        .brands-slider {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
+
+        .brand-item {
+            flex: 1;
+            min-width: 150px;
+            max-width: 200px;
+            padding: 1rem;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+
+            .brand-item:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            }
+
+            .brand-item img {
+                width: 100%;
+                height: auto;
+                filter: grayscale(100%);
+                opacity: 0.7;
+                transition: all 0.3s ease;
+            }
+
+            .brand-item:hover img {
+                filter: grayscale(0%);
+                opacity: 1;
+            }
+
+        /* Animations */
+       
+
+        50% {
+            transform: translateY(-20px) rotate(5deg);
+        }
+
+       
+        
+
+        50% {
+            transform: scale(1.05);
+        }
+
+        100% {
+            transform: scale(1);
+        }
+
+        }
+
+      
+
+        100% {
+            transform: rotate(30deg) translate(30%, 30%);
+        }
+
+        }
+
+        /* Responsive Adjustments */
+        @@media (max-width: 992px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+
+            .hero-image-container {
+                height: 300px;
+            }
+        }
+
+        @@media (max-width: 768px) {
+            .hero-section {
+                padding: 3rem 0;
+            }
+
+            .hero-title {
+                font-size: 2rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1rem;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .section-title {
+                font-size: 1.5rem;
+            }
+
+            .section-subtitle {
+                font-size: 1rem;
+            }
+
+            .brand-item {
+                min-width: 120px;
+            }
         }
     </style>
 }
 
 @section Scripts {
-    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
     <script>
-        // Sepete ekleme fonksiyonu
-        $(document).ready(function () {
-            $('.add-to-cart').click(function () {
+        // Hero section animations
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animate hero elements on load
+            gsap.from('.hero-badge', {
+                duration: 1,
+                y: -20,
+                opacity: 0,
+                ease: 'back.out'
+            });
+
+            gsap.from('.hero-title', {
+                duration: 1,
+                y: 30,
+                opacity: 0,
+                delay: 0.2,
+                ease: 'power3.out'
+            });
+
+            gsap.from('.hero-subtitle', {
+                duration: 1,
+                y: 30,
+                opacity: 0,
+                delay: 0.4,
+                ease: 'power3.out'
+            });
+
+            gsap.from('.hero-buttons', {
+                duration: 1,
+                y: 30,
+                opacity: 0,
+                delay: 0.6,
+                ease: 'power3.out'
+            });
+
+            gsap.from('.hero-main-img', {
+                duration: 1,
+                x: 100,
+                opacity: 0,
+                delay: 0.3,
+                ease: 'back.out'
+            });
+
+            gsap.from('.hero-secondary-img', {
+                duration: 1,
+                x: -100,
+                opacity: 0,
+                delay: 0.5,
+                ease: 'back.out'
+            });
+
+            // Add to cart animation
+            $('.add-to-cart').click(function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+
                 var productId = $(this).data('product-id');
-                // AJAX ile sepete ekleme işlemi
-                $.post('/Cart/Add', { productId: productId, quantity: 1 }, function (data) {
-                    toastr.success('Ürün sepete eklendi');
-                    // Sepet sayacını güncelle
-                    $('#cart-count').text(data.cartItemCount);
-                }).fail(function () {
-                    toastr.error('Bir hata oluştu');
-                });
+                var button = $(this);
+
+                // Add animation class
+                button.addClass('animate__animated animate__pulse');
+
+                // Disable button during request
+                button.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i>');
+
+                // Simulate API call
+                setTimeout(function() {
+                    $.post('/Cart/Add', { productId: productId, quantity: 1 })
+                        .done(function(data) {
+                            // Show success
+                            button.html('<i class="fas fa-check"></i>');
+
+                            // Update cart count
+                            $('#cart-count').text(data.cartItemCount);
+
+                            // Show success notification
+                            toastr.success('Ürün sepete eklendi');
+                        })
+                        .fail(function() {
+                            // Show error
+                            button.html('<i class="fas fa-times"></i>');
+                            toastr.error('Bir hata oluştu');
+                        })
+                        .always(function() {
+                            // Reset button after 2 seconds
+                            setTimeout(function() {
+                                button.prop('disabled', false)
+                                    .html('<i class="fas fa-shopping-cart"></i>')
+                                    .removeClass('animate__animated animate__pulse');
+                            }, 2000);
+                        });
+                }, 800);
+            });
+
+            // Initialize brand slider animation
+            gsap.to('.brands-slider', {
+                duration: 20,
+                x: '-50%',
+                ease: 'none',
+                repeat: -1
             });
         });
     </script>
+}
+
+@functions {
+    public string GetCategoryIcon(string categoryName)
+    {
+        switch (categoryName.ToLower())
+        {
+            case "elektronik":
+                return "laptop";
+            case "giyim":
+                return "tshirt";
+            case "ev":
+                return "home";
+            case "kitap":
+                return "book";
+            case "spor":
+                return "dumbbell";
+            case "kozmetik":
+                return "spa";
+            case "oyuncak":
+                return "gamepad";
+            case "müzik":
+                return "music";
+            default:
+                return "shopping-bag";
+        }
+    }
 }

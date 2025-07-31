@@ -5,39 +5,469 @@
     ViewData["Title"] = "Mağaza Düzenle";
 }
 
-<h2>Mağaza Düzenle</h2>
-
-<form asp-action="Edit" method="post" enctype="multipart/form-data">
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-    <input type="hidden" asp-for="Id" />
-
-    <div class="form-group">
-        <label asp-for="Name" class="control-label"></label>
-        <input asp-for="Name" class="form-control" />
-        <span asp-validation-for="Name" class="text-danger"></span>
+<div class="store-edit-container">
+    <div class="store-edit-header">
+        <h2><i class="fas fa-store"></i> Mağaza Bilgilerini Düzenle</h2>
+        <p class="subtitle">Mağaza profilinizi güncelleyin</p>
     </div>
 
-    <div class="form-group">
-        <label asp-for="Description" class="control-label"></label>
-        <textarea asp-for="Description" class="form-control" rows="5"></textarea>
-        <span asp-validation-for="Description" class="text-danger"></span>
-    </div>
+    <form asp-action="Edit" method="post" enctype="multipart/form-data" class="store-edit-form">
+        <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+        <input type="hidden" asp-for="Id" />
 
-    <div class="form-group">
-        <label asp-for="LogoImage" class="control-label"></label>
-        <input type="file" asp-for="LogoImage" class="form-control-file" />
-        <span asp-validation-for="LogoImage" class="text-danger"></span>
-        @if (!string.IsNullOrEmpty(Model.CurrentLogoUrl))
-        {
-            <div class="mt-2">
-                <img src="@Model.CurrentLogoUrl" width="100" class="img-thumbnail" />
-                <p class="text-muted">Mevcut logo</p>
+        <div class="form-card">
+            <div class="form-group">
+                <label asp-for="Name" class="form-label">
+                    <span>Mağaza Adı</span>
+                    <span class="required">*</span>
+                </label>
+                <div class="input-with-icon">
+                    <i class="fas fa-signature"></i>
+                    <input asp-for="Name" class="form-input" placeholder="Örnek: Trendyol Mağazam" />
+                </div>
+                <span asp-validation-for="Name" class="validation-message"></span>
             </div>
-        }
-    </div>
 
-    <div class="form-group mt-3">
-        <input type="submit" value="Kaydet" class="btn btn-primary" />
-        <a asp-action="Dashboard" class="btn btn-secondary">İptal</a>
-    </div>
-</form>
+            <div class="form-group">
+                <label asp-for="Description" class="form-label">
+                    <span>Mağaza Açıklaması</span>
+                </label>
+                <div class="textarea-with-icon">
+                    <i class="fas fa-align-left"></i>
+                    <textarea asp-for="Description" class="form-textarea" rows="4" placeholder="Mağazanızı tanıtan bir açıklama yazın..."></textarea>
+                </div>
+                <span asp-validation-for="Description" class="validation-message"></span>
+            </div>
+        </div>
+
+        <div class="form-card">
+            <div class="form-group">
+                <label asp-for="LogoImage" class="form-label">
+                    <span>Mağaza Logosu</span>
+                </label>
+
+                <div class="logo-upload-container">
+                    <div class="upload-area" id="uploadArea">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Logo dosyasını sürükleyip bırakın veya</p>
+                        <input type="file" asp-for="LogoImage" class="file-input" id="logoInput" accept="image/*" />
+                        <label for="logoInput" class="browse-btn">Gözat</label>
+                    </div>
+                    <div class="file-info" id="fileInfo">
+                        <i class="fas fa-file-image"></i>
+                        <span>Dosya seçilmedi</span>
+                    </div>
+                </div>
+                <span asp-validation-for="LogoImage" class="validation-message"></span>
+
+                @if (!string.IsNullOrEmpty(Model.CurrentLogoUrl))
+                {
+                    <div class="current-logo">
+                        <p class="current-logo-label">Mevcut Logo:</p>
+                        <div class="logo-preview">
+                            <img src="@Model.CurrentLogoUrl" class="current-logo-img" />
+                            <div class="logo-overlay">
+                                <i class="fas fa-eye"></i>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i> Değişiklikleri Kaydet
+            </button>
+            <a asp-action="Dashboard" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Vazgeç
+            </a>
+        </div>
+    </form>
+</div>
+
+<style>
+    :root {
+        /* Renk Paleti */
+        --primary: #4361ee;
+        --primary-light: #e6e9f9;
+        --secondary: #3a0ca3;
+        --accent: #7209b7;
+        --success: #4cc9f0;
+        --warning: #f8961e;
+        --danger: #f72585;
+        --text: #2b2d42;
+        --text-light: #6c757d;
+        --light-gray: #f8f9fa;
+        --border: #e0e0e0;
+        --white: #ffffff;
+        --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+        --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+        --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+        --radius-sm: 8px;
+        --radius-md: 12px;
+        --radius-lg: 16px;
+    }
+
+    .store-edit-container {
+        max-width: 800px;
+        margin: 2rem auto;
+        padding: 0;
+    }
+
+    .store-edit-header {
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+
+        .store-edit-header h2 {
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+        }
+
+            .store-edit-header h2 i {
+                font-size: 1.5rem;
+            }
+
+    .subtitle {
+        color: var(--text-light);
+        font-size: 1rem;
+        margin-top: 0;
+    }
+
+    .store-edit-form {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .form-card {
+        background: var(--white);
+        border-radius: var(--radius-md);
+        box-shadow: var(--shadow-sm);
+        padding: 1.5rem;
+        border: 1px solid var(--border);
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+
+    .form-label {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: var(--text);
+        font-size: 0.95rem;
+    }
+
+    .required {
+        color: var(--danger);
+        margin-left: 0.25rem;
+    }
+
+    .input-with-icon, .textarea-with-icon {
+        position: relative;
+    }
+
+        .input-with-icon i, .textarea-with-icon i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-light);
+            font-size: 1rem;
+        }
+
+        .textarea-with-icon i {
+            top: 1.25rem;
+            transform: none;
+        }
+
+    .form-input {
+        width: 100%;
+        padding: 0.75rem 1rem 0.75rem 2.5rem;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        font-size: 1rem;
+        transition: all 0.2s ease;
+        background-color: var(--white);
+    }
+
+        .form-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
+            outline: none;
+        }
+
+    .form-textarea {
+        width: 100%;
+        padding: 1rem 1rem 1rem 2.5rem;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        font-size: 1rem;
+        min-height: 120px;
+        resize: vertical;
+        transition: all 0.2s ease;
+        background-color: var(--white);
+    }
+
+        .form-textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
+            outline: none;
+        }
+
+    .logo-upload-container {
+        margin-top: 0.5rem;
+    }
+
+    .upload-area {
+        border: 2px dashed var(--border);
+        border-radius: var(--radius-sm);
+        padding: 2rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        background-color: var(--light-gray);
+    }
+
+        .upload-area:hover {
+            border-color: var(--primary);
+            background-color: rgba(67, 97, 238, 0.05);
+        }
+
+        .upload-area i {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .upload-area p {
+            margin: 0.5rem 0;
+            color: var(--text-light);
+        }
+
+    .file-input {
+        display: none;
+    }
+
+    .browse-btn {
+        display: inline-block;
+        padding: 0.5rem 1.5rem;
+        background-color: var(--primary);
+        color: white;
+        border-radius: var(--radius-sm);
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+        .browse-btn:hover {
+            background-color: var(--secondary);
+            transform: translateY(-1px);
+        }
+
+    .file-info {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-top: 1rem;
+        padding: 0.75rem 1rem;
+        background-color: var(--light-gray);
+        border-radius: var(--radius-sm);
+    }
+
+        .file-info i {
+            color: var(--primary);
+            font-size: 1.25rem;
+        }
+
+        .file-info span {
+            font-size: 0.9rem;
+            color: var(--text);
+        }
+
+    .current-logo {
+        margin-top: 1.5rem;
+    }
+
+    .current-logo-label {
+        font-size: 0.9rem;
+        color: var(--text-light);
+        margin-bottom: 0.75rem;
+    }
+
+    .logo-preview {
+        position: relative;
+        width: 150px;
+        height: 150px;
+        border-radius: var(--radius-sm);
+        overflow: hidden;
+        border: 1px solid var(--border);
+    }
+
+    .current-logo-img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        background-color: var(--light-gray);
+    }
+
+    .logo-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+    }
+
+        .logo-overlay i {
+            color: white;
+            font-size: 1.5rem;
+        }
+
+    .logo-preview:hover .logo-overlay {
+        opacity: 1;
+    }
+
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        border-radius: var(--radius-sm);
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: none;
+        font-size: 0.95rem;
+    }
+
+        .btn i {
+            font-size: 0.9rem;
+        }
+
+    .btn-primary {
+        background-color: var(--primary);
+        color: white;
+    }
+
+        .btn-primary:hover {
+            background-color: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+
+    .btn-secondary {
+        background-color: var(--white);
+        color: var(--text);
+        border: 1px solid var(--border);
+    }
+
+        .btn-secondary:hover {
+            background-color: var(--light-gray);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+
+    .validation-summary {
+        color: var(--danger);
+        padding: 1rem;
+        background-color: rgba(247, 37, 133, 0.05);
+        border-radius: var(--radius-sm);
+        margin-bottom: 1.5rem;
+        border-left: 4px solid var(--danger);
+    }
+
+    .validation-message {
+        color: var(--danger);
+        font-size: 0.85rem;
+        margin-top: 0.25rem;
+    }
+
+    @@media (max-width: 768px) {
+        .store-edit-container {
+            padding: 1rem;
+        }
+
+        .form-card {
+            padding: 1.25rem;
+        }
+
+        .form-actions {
+            flex-direction: column;
+        }
+
+        .btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+
+<script>
+    // Dosya yükleme alanı işlevselliği
+    const logoInput = document.getElementById('logoInput');
+    const uploadArea = document.getElementById('uploadArea');
+    const fileInfo = document.getElementById('fileInfo');
+    const fileNameSpan = fileInfo.querySelector('span');
+
+    // Dosya seçildiğinde
+    logoInput.addEventListener('change', function(e) {
+        if (this.files.length > 0) {
+            fileNameSpan.textContent = this.files[0].name;
+            fileInfo.style.display = 'flex';
+        }
+    });
+
+    // Sürükle bırak efekti
+    uploadArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadArea.style.borderColor = 'var(--primary)';
+        uploadArea.style.backgroundColor = 'rgba(67, 97, 238, 0.1)';
+    });
+
+    uploadArea.addEventListener('dragleave', () => {
+        uploadArea.style.borderColor = 'var(--border)';
+        uploadArea.style.backgroundColor = 'var(--light-gray)';
+    });
+
+    uploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadArea.style.borderColor = 'var(--border)';
+        uploadArea.style.backgroundColor = 'var(--light-gray)';
+
+        if (e.dataTransfer.files.length > 0) {
+            logoInput.files = e.dataTransfer.files;
+            fileNameSpan.textContent = e.dataTransfer.files[0].name;
+            fileInfo.style.display = 'flex';
+        }
+    });
+</script>
+
+<!-- Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">

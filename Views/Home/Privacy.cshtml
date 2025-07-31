@@ -1,6 +1,969 @@
 ﻿@{
-    ViewData["Title"] = "Privacy Policy";
+    ViewData["Title"] = "Gizlilik Politikası";
 }
-<h1>@ViewData["Title"]</h1>
 
-<p>Use this page to detail your site's privacy policy.</p>
+<div class="privacy-policy-page">
+    <!-- Hero Bölümü -->
+    <section class="privacy-hero text-white py-5">
+        <div class="hero-overlay"></div>
+        <div class="container py-5 position-relative z-index-2">
+            <div class="row align-items-center">
+                <div class="col-lg-8 mx-auto text-center">
+                    <h1 class="display-3 fw-bold mb-4 animate__animated animate__fadeInDown">Gizlilik Politikası</h1>
+                    <p class="lead mb-0 animate__animated animate__fadeIn animate__delay-1s">Son güncelleme: @DateTime.Now.ToString("dd MMMM yyyy", new System.Globalization.CultureInfo("tr-TR"))</p>
+                    <div class="mt-4 animate__animated animate__fadeInUp animate__delay-1s">
+                        <a href="#policy-content" class="btn btn-primary btn-lg btn-glow px-4 py-3 rounded-pill me-2">
+                            <i class="fas fa-chevron-down me-2"></i> Politikayı İncele
+                        </a>
+                        <a href="/iletisim" class="btn btn-outline-light btn-lg px-4 py-3 rounded-pill">
+                            <i class="fas fa-headset me-2"></i> Danışmanlık Al
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="hero-wave">
+            <svg viewBox="0 0 1200 120" preserveAspectRatio="none">
+                <path d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z" opacity=".25" class="shape-fill"></path>
+                <path d="M0,0V15.81C13,36.92,27.64,56.86,47.69,72.05,99.41,111.27,165,111,224.58,91.58c31.15-10.15,60.09-26.07,89.67-39.8,40.92-19,84.73-46,130.83-49.67,36.26-2.85,70.9,9.42,98.6,31.56,31.77,25.39,62.32,62,103.63,73,40.44,10.79,81.35-6.69,119.13-24.28s75.16-39,116.92-43.05c59.73-5.85,113.28,22.88,168.9,38.84,30.2,8.66,59,6.17,87.09-7.5,22.43-10.89,48-26.93,60.65-49.24V0Z" opacity=".5" class="shape-fill"></path>
+                <path d="M0,0V5.63C149.93,59,314.09,71.32,475.83,42.57c43-7.64,84.23-20.12,127.61-26.46,59-8.63,112.48,12.24,165.56,35.4C827.93,77.22,886,95.24,951.2,90c86.53-7,172.46-45.71,248.8-84.81V0Z" class="shape-fill"></path>
+            </svg>
+        </div>
+    </section>
+
+    <!-- Ana İçerik -->
+    <section class="privacy-content py-5" id="policy-content">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="privacy-card shadow-lg rounded-4 p-4 p-lg-5 animate__animated animate__fadeIn">
+                        <div class="d-flex align-items-center mb-5">
+                            <div class="privacy-icon bg-primary bg-opacity-10 text-primary rounded-circle p-3 me-4 pulse-animation">
+                                <i class="fas fa-shield-alt fa-2x"></i>
+                            </div>
+                            <div>
+                                <h2 class="h3 mb-2 text-gradient-primary">Gizliliğiniz Bizim İçin Önemli</h2>
+                                <p class="text-muted mb-0">Kişisel bilgilerinizin korunmasına büyük önem veriyoruz</p>
+                            </div>
+                        </div>
+
+                        <div class="privacy-sections">
+                            <!-- Giriş -->
+                            <div class="privacy-section mb-5 animate__animated animate__fadeInUp">
+                                <h3 class="h4 mb-4 d-flex align-items-center">
+                                    <span class="section-number bg-gradient-primary text-white rounded-circle me-3">1</span>
+                                    <span class="text-gradient-primary">Giriş</span>
+                                </h3>
+                                <div class="ps-5">
+                                    <p>@(ViewData["SiteName"] ?? "Firmamız"), gizliliğinize büyük önem vermektedir. Bu Gizlilik Politikası, web sitemizi ziyaret ettiğinizde veya hizmetlerimizi kullandığınızda bilgilerinizi nasıl topladığımızı, kullandığımızı, paylaştığımızı ve koruduğumuzu açıklamaktadır.</p>
+                                    <div class="highlight-box bg-primary bg-opacity-5 p-4 rounded-3 mt-4 border-start border-primary border-4">
+                                        <div class="d-flex">
+                                            <i class="fas fa-info-circle text-primary me-3 mt-1"></i>
+                                            <p class="mb-0">KVKK (Kişisel Verilerin Korunması Kanunu) ve GDPR (Genel Veri Koruma Tüzüğü) uyumlu politika</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Toplanan Bilgiler -->
+                            <div class="privacy-section mb-5 animate__animated animate__fadeInUp">
+                                <h3 class="h4 mb-4 d-flex align-items-center">
+                                    <span class="section-number bg-gradient-primary text-white rounded-circle me-3">2</span>
+                                    <span class="text-gradient-primary">Topladığımız Bilgiler</span>
+                                </h3>
+                                <div class="ps-5">
+                                    <p>Siteye kayıt olduğunuzda, sipariş verdiğinizde, bültenimize abone olduğunuzda veya bir form doldurduğunuzda bize gönüllü olarak sağladığınız kişisel bilgileri toplayabiliriz. Bu bilgiler şunları içerebilir:</p>
+                                    <div class="row g-4 mt-3">
+                                        <div class="col-md-6">
+                                            <div class="info-card bg-white p-4 rounded-4 shadow-sm h-100 hover-scale">
+                                                <div class="d-flex align-items-center mb-3">
+                                                    <div class="icon-circle bg-primary bg-opacity-10 text-primary me-3">
+                                                        <i class="fas fa-user"></i>
+                                                    </div>
+                                                    <h4 class="h6 mb-0">Kimlik Bilgileri</h4>
+                                                </div>
+                                                <ul class="list-unstyled ps-4">
+                                                    <li class="mb-2"><i class="fas fa-circle text-primary me-2" style="font-size: 0.5rem;"></i> Ad ve soyad</li>
+                                                    <li class="mb-2"><i class="fas fa-circle text-primary me-2" style="font-size: 0.5rem;"></i> TCKN (yasal gereklilik durumunda)</li>
+                                                    <li class="mb-2"><i class="fas fa-circle text-primary me-2" style="font-size: 0.5rem;"></i> Doğum tarihi</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="info-card bg-white p-4 rounded-4 shadow-sm h-100 hover-scale">
+                                                <div class="d-flex align-items-center mb-3">
+                                                    <div class="icon-circle bg-success bg-opacity-10 text-success me-3">
+                                                        <i class="fas fa-envelope"></i>
+                                                    </div>
+                                                    <h4 class="h6 mb-0">İletişim Bilgileri</h4>
+                                                </div>
+                                                <ul class="list-unstyled ps-4">
+                                                    <li class="mb-2"><i class="fas fa-circle text-success me-2" style="font-size: 0.5rem;"></i> E-posta adresi</li>
+                                                    <li class="mb-2"><i class="fas fa-circle text-success me-2" style="font-size: 0.5rem;"></i> Telefon numarası</li>
+                                                    <li class="mb-2"><i class="fas fa-circle text-success me-2" style="font-size: 0.5rem;"></i> Adres bilgileri</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="info-card bg-white p-4 rounded-4 shadow-sm h-100 hover-scale">
+                                                <div class="d-flex align-items-center mb-3">
+                                                    <div class="icon-circle bg-info bg-opacity-10 text-info me-3">
+                                                        <i class="fas fa-credit-card"></i>
+                                                    </div>
+                                                    <h4 class="h6 mb-0">Finansal Bilgiler</h4>
+                                                </div>
+                                                <ul class="list-unstyled ps-4">
+                                                    <li class="mb-2"><i class="fas fa-circle text-info me-2" style="font-size: 0.5rem;"></i> Ödeme bilgileri</li>
+                                                    <li class="mb-2"><i class="fas fa-circle text-info me-2" style="font-size: 0.5rem;"></i> Fatura bilgileri</li>
+                                                    <li class="mb-2"><i class="fas fa-circle text-info me-2" style="font-size: 0.5rem;"></i> Kredi kartı bilgileri (şifrelenmiş)</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="info-card bg-white p-4 rounded-4 shadow-sm h-100 hover-scale">
+                                                <div class="d-flex align-items-center mb-3">
+                                                    <div class="icon-circle bg-warning bg-opacity-10 text-warning me-3">
+                                                        <i class="fas fa-laptop"></i>
+                                                    </div>
+                                                    <h4 class="h6 mb-0">Teknik Bilgiler</h4>
+                                                </div>
+                                                <ul class="list-unstyled ps-4">
+                                                    <li class="mb-2"><i class="fas fa-circle text-warning me-2" style="font-size: 0.5rem;"></i> IP adresi</li>
+                                                    <li class="mb-2"><i class="fas fa-circle text-warning me-2" style="font-size: 0.5rem;"></i> Tarayıcı bilgisi</li>
+                                                    <li class="mb-2"><i class="fas fa-circle text-warning me-2" style="font-size: 0.5rem;"></i> Cihaz bilgileri</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Bilgilerin Kullanımı -->
+                            <div class="privacy-section mb-5 animate__animated animate__fadeInUp">
+                                <h3 class="h4 mb-4 d-flex align-items-center">
+                                    <span class="section-number bg-gradient-primary text-white rounded-circle me-3">3</span>
+                                    <span class="text-gradient-primary">Bilgilerinizi Nasıl Kullanıyoruz?</span>
+                                </h3>
+                                <div class="ps-5">
+                                    <p>Topladığımız bilgileri aşağıdaki şekillerde kullanabiliriz:</p>
+                                    <div class="timeline mt-4">
+                                        <div class="timeline-item">
+                                            <div class="timeline-badge bg-primary text-white">
+                                                <i class="fas fa-shopping-cart"></i>
+                                            </div>
+                                            <div class="timeline-panel">
+                                                <h4 class="h6 mb-2">Sipariş İşleme</h4>
+                                                <p class="small text-muted mb-0">Siparişlerinizi ve işlemlerinizi gerçekleştirmek için</p>
+                                            </div>
+                                        </div>
+                                        <div class="timeline-item">
+                                            <div class="timeline-badge bg-success text-white">
+                                                <i class="fas fa-envelope"></i>
+                                            </div>
+                                            <div class="timeline-panel">
+                                                <h4 class="h6 mb-2">Müşteri Hizmetleri</h4>
+                                                <p class="small text-muted mb-0">Soru ve taleplerinize yanıt vermek için</p>
+                                            </div>
+                                        </div>
+                                        <div class="timeline-item">
+                                            <div class="timeline-badge bg-info text-white">
+                                                <i class="fas fa-chart-line"></i>
+                                            </div>
+                                            <div class="timeline-panel">
+                                                <h4 class="h6 mb-2">Analiz ve Geliştirme</h4>
+                                                <p class="small text-muted mb-0">Web sitemizi ve hizmetlerimizi iyileştirmek için</p>
+                                            </div>
+                                        </div>
+                                        <div class="timeline-item">
+                                            <div class="timeline-badge bg-warning text-white">
+                                                <i class="fas fa-bullhorn"></i>
+                                            </div>
+                                            <div class="timeline-panel">
+                                                <h4 class="h6 mb-2">Pazarlama</h4>
+                                                <p class="small text-muted mb-0">İlgili ürün ve hizmetler hakkında bilgilendirme</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="alert alert-primary mt-4" role="alert">
+                                        <div class="d-flex">
+                                            <i class="fas fa-handshake me-3 mt-1"></i>
+                                            <div>
+                                                <h4 class="h6 mb-2">Açık Rıza Prensipleri</h4>
+                                                <p class="mb-0">Pazarlama iletişimleri için sizden açık rıza alınacaktır. Dilediğiniz zaman abonelikten çıkabilirsiniz.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Veri Paylaşımı -->
+                            <div class="privacy-section mb-5 animate__animated animate__fadeInUp">
+                                <h3 class="h4 mb-4 d-flex align-items-center">
+                                    <span class="section-number bg-gradient-primary text-white rounded-circle me-3">4</span>
+                                    <span class="text-gradient-primary">Veri Paylaşımı & Açıklama</span>
+                                </h3>
+                                <div class="ps-5">
+                                    <p>Kişisel olarak tanımlanabilir bilgilerinizi aşağıdaki durumlar dışında üçüncü şahıslara satmayız, takas etmeyiz veya başka şekilde transfer etmeyiz:</p>
+                                    
+                                    <div class="flip-cards mt-4">
+                                        <div class="flip-card">
+                                            <div class="flip-card-inner">
+                                                <div class="flip-card-front bg-primary text-white p-4 rounded-3">
+                                                    <i class="fas fa-users fa-3x mb-3"></i>
+                                                    <h4 class="h5 mb-0">Hizmet Sağlayıcılar</h4>
+                                                </div>
+                                                <div class="flip-card-back bg-white p-4 rounded-3 shadow-sm">
+                                                    <p class="small">Web sitemizi işletmemize, işimizi yürütmemize veya size hizmet sunmamıza yardımcı olan güvenilir üçüncü şahıslarla, bu taraflar bilgilerin gizli tutulmasını kabul ettikleri sürece bilgi paylaşabiliriz.</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="flip-card">
+                                            <div class="flip-card-inner">
+                                                <div class="flip-card-front bg-success text-white p-4 rounded-3">
+                                                    <i class="fas fa-gavel fa-3x mb-3"></i>
+                                                    <h4 class="h5 mb-0">Yasal Zorunluluklar</h4>
+                                                </div>
+                                                <div class="flip-card-back bg-white p-4 rounded-3 shadow-sm">
+                                                    <p class="small">Yasalara uygun olması, site politikalarımızı uygulamamız veya kendi haklarımızı, mülkiyetimizi veya güvenliğimizi korumamız gerektiğinde bilgileri açıklayabiliriz.</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="flip-card">
+                                            <div class="flip-card-inner">
+                                                <div class="flip-card-front bg-info text-white p-4 rounded-3">
+                                                    <i class="fas fa-exchange-alt fa-3x mb-3"></i>
+                                                    <h4 class="h5 mb-0">İş Transferleri</h4>
+                                                </div>
+                                                <div class="flip-card-back bg-white p-4 rounded-3 shadow-sm">
+                                                    <p class="small">Bir birleşme, devralma veya varlıklarımızın tamamının veya bir kısmının satışı durumunda, bilgileriniz bu işlemin bir parçası olarak transfer edilebilir.</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Veri Güvenliği -->
+                            <div class="privacy-section mb-5 animate__animated animate__fadeInUp">
+                                <h3 class="h4 mb-4 d-flex align-items-center">
+                                    <span class="section-number bg-gradient-primary text-white rounded-circle me-3">5</span>
+                                    <span class="text-gradient-primary">Veri Güvenliği</span>
+                                </h3>
+                                <div class="ps-5">
+                                    <div class="security-badge bg-success bg-opacity-10 text-success p-4 rounded-3 mb-4 border-start border-success border-4">
+                                        <div class="d-flex align-items-center">
+                                            <i class="fas fa-lock fa-3x me-4 text-success"></i>
+                                            <div>
+                                                <h4 class="h5 mb-2">Bilgileriniz Güvende</h4>
+                                                <p class="mb-0">Kişisel bilgileriniz güvenli ağlar arkasında saklanır ve yalnızca sınırlı yetkiye sahip personel tarafından erişilebilir.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <p>Kişisel bilgilerinizin güvenliğini sağlamak için çeşitli güvenlik önlemleri uyguluyoruz:</p>
+                                    <div class="security-features mt-4">
+                                        <div class="row g-4">
+                                            <div class="col-md-6">
+                                                <div class="feature-card bg-white p-4 rounded-3 shadow-sm h-100 hover-lift">
+                                                    <div class="d-flex align-items-center mb-3">
+                                                        <div class="feature-icon bg-primary bg-opacity-10 text-primary rounded-circle p-3 me-3">
+                                                            <i class="fas fa-lock"></i>
+                                                        </div>
+                                                        <h4 class="h6 mb-0">SSL Şifreleme</h4>
+                                                    </div>
+                                                    <p class="small text-muted mb-0">Tüm hassas veriler 256-bit SSL şifreleme ile korunmaktadır.</p>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="feature-card bg-white p-4 rounded-3 shadow-sm h-100 hover-lift">
+                                                    <div class="d-flex align-items-center mb-3">
+                                                        <div class="feature-icon bg-success bg-opacity-10 text-success rounded-circle p-3 me-3">
+                                                            <i class="fas fa-shield-alt"></i>
+                                                        </div>
+                                                        <h4 class="h6 mb-0">Güvenlik Duvarları</h4>
+                                                    </div>
+                                                    <p class="small text-muted mb-0">Gelişmiş güvenlik duvarları ile yetkisiz erişim engellenir.</p>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="feature-card bg-white p-4 rounded-3 shadow-sm h-100 hover-lift">
+                                                    <div class="d-flex align-items-center mb-3">
+                                                        <div class="feature-icon bg-info bg-opacity-10 text-info rounded-circle p-3 me-3">
+                                                            <i class="fas fa-user-shield"></i>
+                                                        </div>
+                                                        <h4 class="h6 mb-0">Yetkilendirme</h4>
+                                                    </div>
+                                                    <p class="small text-muted mb-0">Çok faktörlü kimlik doğrulama ile erişim kontrolü sağlanır.</p>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="feature-card bg-white p-4 rounded-3 shadow-sm h-100 hover-lift">
+                                                    <div class="d-flex align-items-center mb-3">
+                                                        <div class="feature-icon bg-warning bg-opacity-10 text-warning rounded-circle p-3 me-3">
+                                                            <i class="fas fa-sync-alt"></i>
+                                                        </div>
+                                                        <h4 class="h6 mb-0">Düzenli Yedekleme</h4>
+                                                    </div>
+                                                    <p class="small text-muted mb-0">Verileriniz düzenli olarak yedeklenir ve güvenli sunucularda saklanır.</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Haklarınız -->
+                            <div class="privacy-section mb-5 animate__animated animate__fadeInUp">
+                                <h3 class="h4 mb-4 d-flex align-items-center">
+                                    <span class="section-number bg-gradient-primary text-white rounded-circle me-3">6</span>
+                                    <span class="text-gradient-primary">Haklarınız</span>
+                                </h3>
+                                <div class="ps-5">
+                                    <p>KVKK ve GDPR kapsamında kişisel verilerinizle ilgili aşağıdaki haklara sahipsiniz:</p>
+                                    
+                                    <div class="rights-slider mt-4">
+                                        <div class="rights-slide bg-primary text-white p-4 rounded-3">
+                                            <div class="d-flex align-items-center mb-3">
+                                                <i class="fas fa-eye fa-2x me-3"></i>
+                                                <h4 class="h5 mb-0">Erişim Hakkı</h4>
+                                            </div>
+                                            <p class="small mb-0">Size ait kişisel verilerin işlenip işlenmediğini öğrenme, işlenmişse buna ilişkin bilgi talep edebilirsiniz.</p>
+                                        </div>
+                                        <div class="rights-slide bg-success text-white p-4 rounded-3">
+                                            <div class="d-flex align-items-center mb-3">
+                                                <i class="fas fa-edit fa-2x me-3"></i>
+                                                <h4 class="h5 mb-0">Düzeltme Hakkı</h4>
+                                            </div>
+                                            <p class="small mb-0">Eksik veya yanlış işlenmiş verilerinizin düzeltilmesini talep edebilirsiniz.</p>
+                                        </div>
+                                        <div class="rights-slide bg-info text-white p-4 rounded-3">
+                                            <div class="d-flex align-items-center mb-3">
+                                                <i class="fas fa-trash-alt fa-2x me-3"></i>
+                                                <h4 class="h5 mb-0">Silme Hakkı</h4>
+                                            </div>
+                                            <p class="small mb-0">Verilerinizin silinmesini isteme hakkına sahipsiniz (Unutulma Hakkı).</p>
+                                        </div>
+                                        <div class="rights-slide bg-warning text-white p-4 rounded-3">
+                                            <div class="d-flex align-items-center mb-3">
+                                                <i class="fas fa-ban fa-2x me-3"></i>
+                                                <h4 class="h5 mb-0">İtiraz Hakkı</h4>
+                                            </div>
+                                            <p class="small mb-0">Kişisel verilerinizin işlenmesine itiraz edebilirsiniz.</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="request-form mt-5 p-4 bg-light rounded-3 border-start border-primary border-4">
+                                        <h4 class="h5 mb-3">Haklarınızı Kullanmak İçin</h4>
+                                        <form>
+                                            <div class="row g-3">
+                                                <div class="col-md-6">
+                                                    <label class="form-label">Adınız Soyadınız</label>
+                                                    <input type="text" class="form-control" placeholder="Ad Soyad">
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label">E-posta Adresiniz</label>
+                                                    <input type="email" class="form-control" placeholder="email@ornek.com">
+                                                </div>
+                                                <div class="col-12">
+                                                    <label class="form-label">Talep Ettiğiniz Hak</label>
+                                                    <select class="form-select">
+                                                        <option selected>Seçiniz...</option>
+                                                        <option>Erişim Hakkı</option>
+                                                        <option>Düzeltme Hakkı</option>
+                                                        <option>Silme Hakkı</option>
+                                                        <option>İtiraz Hakkı</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-12">
+                                                    <label class="form-label">Ek Açıklama</label>
+                                                    <textarea class="form-control" rows="3" placeholder="Eklemek istedikleriniz..."></textarea>
+                                                </div>
+                                                <div class="col-12">
+                                                    <button type="submit" class="btn btn-primary">
+                                                        <i class="fas fa-paper-plane me-2"></i> Talebi Gönder
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Çerezler -->
+                            <div class="privacy-section mb-5 animate__animated animate__fadeInUp">
+                                <h3 class="h4 mb-4 d-flex align-items-center">
+                                    <span class="section-number bg-gradient-primary text-white rounded-circle me-3">7</span>
+                                    <span class="text-gradient-primary">Çerezler & İzleme Teknolojileri</span>
+                                </h3>
+                                <div class="ps-5">
+                                    <div class="cookie-card bg-white p-4 rounded-4 shadow-sm mb-4">
+                                        <div class="d-flex flex-column flex-md-row align-items-center">
+                                            <div class="cookie-icon bg-primary bg-opacity-10 text-primary rounded-circle p-3 me-md-4 mb-3 mb-md-0">
+                                                <i class="fas fa-cookie-bite fa-2x"></i>
+                                            </div>
+                                            <div class="flex-grow-1">
+                                                <h4 class="h5 mb-2">Çerez Kullanımı</h4>
+                                                <p class="mb-0">Web sitemizde kullanıcı deneyimini iyileştirmek, site trafiğini analiz etmek ve reklam kampanyalarımızın performansını ölçmek için çerezler ve benzeri teknolojiler kullanmaktayız.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="cookie-types mt-4">
+                                        <div class="row g-4">
+                                            <div class="col-md-4">
+                                                <div class="cookie-type-card bg-white p-3 rounded-3 h-100 hover-lift">
+                                                    <div class="d-flex align-items-center mb-3">
+                                                        <div class="cookie-badge bg-primary bg-opacity-10 text-primary rounded-circle p-2 me-3">
+                                                            <i class="fas fa-utensils"></i>
+                                                        </div>
+                                                        <h4 class="h6 mb-0">Zorunlu Çerezler</h4>
+                                                    </div>
+                                                    <p class="small text-muted mb-0">Web sitesinin temel işlevlerini çalıştırmak için gereklidir, devre dışı bırakılamaz.</p>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="cookie-type-card bg-white p-3 rounded-3 h-100 hover-lift">
+                                                    <div class="d-flex align-items-center mb-3">
+                                                        <div class="cookie-badge bg-success bg-opacity-10 text-success rounded-circle p-2 me-3">
+                                                            <i class="fas fa-chart-bar"></i>
+                                                        </div>
+                                                        <h4 class="h6 mb-0">Analitik Çerezler</h4>
+                                                    </div>
+                                                    <p class="small text-muted mb-0">Ziyaretçi etkileşimlerini anonim olarak analiz etmemizi sağlar.</p>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="cookie-type-card bg-white p-3 rounded-3 h-100 hover-lift">
+                                                    <div class="d-flex align-items-center mb-3">
+                                                        <div class="cookie-badge bg-warning bg-opacity-10 text-warning rounded-circle p-2 me-3">
+                                                            <i class="fas fa-ad"></i>
+                                                        </div>
+                                                        <h4 class="h6 mb-0">Pazarlama Çerezleri</h4>
+                                                    </div>
+                                                    <p class="small text-muted mb-0">Kullanıcı profili oluşturarak ilgili reklamlar göstermek için kullanılır.</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="cookie-control mt-4">
+                                        <div class="d-flex flex-column flex-md-row align-items-center justify-content-between p-4 bg-light rounded-3">
+                                            <div class="mb-3 mb-md-0">
+                                                <h4 class="h6 mb-2">Çerez Tercihlerinizi Yönetin</h4>
+                                                <p class="small mb-0">Hangi çerez türlerine izin vereceğinizi seçebilirsiniz.</p>
+                                            </div>
+                                            <div>
+                                                <button class="btn btn-outline-primary me-2">Çerez Ayarları</button>
+                                                <button class="btn btn-primary">Tümünü Kabul Et</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Politika Güncellemeleri -->
+                            <div class="privacy-section animate__animated animate__fadeInUp">
+                                <h3 class="h4 mb-4 d-flex align-items-center">
+                                    <span class="section-number bg-gradient-primary text-white rounded-circle me-3">8</span>
+                                    <span class="text-gradient-primary">Politika Güncellemeleri</span>
+                                </h3>
+                                <div class="ps-5">
+                                    <div class="update-timeline">
+                                        <div class="update-item">
+                                            <div class="update-date bg-primary text-white rounded-pill px-3 py-1">
+                                                @DateTime.Now.ToString("dd MMMM yyyy", new System.Globalization.CultureInfo("tr-TR"))
+                                            </div>
+                                            <div class="update-content bg-white p-3 rounded-3 shadow-sm">
+                                                <h4 class="h6 mb-2">Güncel Sürüm</h4>
+                                                <p class="small mb-0">Politikamız en son bu tarihte güncellenmiştir.</p>
+                                            </div>
+                                        </div>
+                                        <div class="update-item">
+                                            <div class="update-date bg-secondary text-white rounded-pill px-3 py-1">
+                                                @DateTime.Now.AddMonths(-6).ToString("dd MMMM yyyy", new System.Globalization.CultureInfo("tr-TR"))
+                                            </div>
+                                            <div class="update-content bg-white p-3 rounded-3 shadow-sm">
+                                                <h4 class="h6 mb-2">Önceki Güncelleme</h4>
+                                                <p class="small mb-0">KVKK uyumluluk gereklilikleri güncellendi.</p>
+                                            </div>
+                                        </div>
+                                        <div class="update-item">
+                                            <div class="update-date bg-secondary text-white rounded-pill px-3 py-1">
+                                                @DateTime.Now.AddYears(-1).ToString("dd MMMM yyyy", new System.Globalization.CultureInfo("tr-TR"))
+                                            </div>
+                                            <div class="update-content bg-white p-3 rounded-3 shadow-sm">
+                                                <h4 class="h6 mb-2">İlk Yayın</h4>
+                                                <p class="small mb-0">Gizlilik politikası ilk kez yayınlandı.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="update-notice bg-primary bg-opacity-5 p-4 rounded-3 mt-4 border-start border-primary border-4">
+                                        <div class="d-flex">
+                                            <i class="fas fa-bell text-primary me-3 mt-1"></i>
+                                            <div>
+                                                <h4 class="h6 mb-2">Değişikliklerden Haberdar Olun</h4>
+                                                <p class="mb-0">Politikamızda yapılan önemli değişikliklerden e-posta yoluyla haberdar olmak için bültenimize abone olabilirsiniz.</p>
+                                                <div class="mt-3">
+                                                    <div class="input-group">
+                                                        <input type="email" class="form-control" placeholder="E-posta adresiniz">
+                                                        <button class="btn btn-primary" type="button">Abone Ol</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- İletişim Bilgileri -->
+                    <div class="contact-card mt-5 p-4 rounded-4 bg-gradient-primary text-white shadow-lg animate__animated animate__fadeInUp">
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <h3 class="h4 mb-2">Gizlilik Politikamız Hakkında Sorularınız mı Var?</h3>
+                                <p class="mb-md-0 opacity-75">Uzman ekibimiz sorularınızı yanıtlamaktan mutluluk duyacaktır.</p>
+                            </div>
+                            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                                <a href="/iletisim" class="btn btn-light btn-lg px-4 rounded-pill">
+                                    <i class="fas fa-headset me-2"></i> İletişime Geç
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+@section Styles {
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+    <style>
+        /* Renk Tanımları */
+        :root {
+            --primary-color: #6c5ce7;
+            --primary-hover: #5649c7;
+            --secondary-color: #a29bfe;
+            --success-color: #00b894;
+            --info-color: #0984e3;
+            --warning-color: #fdcb6e;
+            --danger-color: #d63031;
+            --light-color: #f8f9fa;
+            --dark-color: #2d3436;
+        }
+        
+        /* Hero Bölümü */
+        .privacy-hero {
+            position: relative;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            overflow: hidden;
+        }
+        
+        .hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.3);
+            z-index: 1;
+        }
+        
+        .hero-wave {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            overflow: hidden;
+            line-height: 0;
+            transform: rotate(180deg);
+            z-index: 1;
+        }
+        
+        .hero-wave svg {
+            position: relative;
+            display: block;
+            width: calc(100% + 1.3px);
+            height: 100px;
+        }
+        
+        .hero-wave .shape-fill {
+            fill: #FFFFFF;
+        }
+        
+        .btn-glow {
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+        
+        .btn-glow::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                to bottom right,
+                rgba(255,255,255,0.3) 0%,
+                rgba(255,255,255,0) 60%
+            );
+            transform: rotate(30deg);
+            transition: all 0.3s;
+            z-index: -1;
+        }
+        
+        .btn-glow:hover::before {
+            animation: glow 1.5s infinite;
+        }
+        
+       
+        /* Ana Kart */
+        .privacy-card {
+            background-color: #fff;
+            margin-top: -50px;
+            position: relative;
+            z-index: 2;
+            border: 1px solid rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            background-color: rgba(255,255,255,0.9);
+        }
+        
+        .text-gradient-primary {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-fill-color: transparent;
+        }
+        
+        .bg-gradient-primary {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+        }
+        
+        /* Animasyonlar */
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+       
+        .hover-scale {
+            transition: all 0.3s ease;
+        }
+        
+        .hover-scale:hover {
+            transform: scale(1.02);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important;
+        }
+        
+        .hover-lift {
+            transition: all 0.3s ease;
+        }
+        
+        .hover-lift:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+        }
+        
+        /* Bölüm Stilleri */
+        .section-number {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        
+        .highlight-box {
+            transition: all 0.3s ease;
+        }
+        
+        .highlight-box:hover {
+            background-color: rgba(108, 92, 231, 0.1) !important;
+        }
+        
+        /* Bilgi Kartları */
+        .info-card {
+            transition: all 0.3s ease;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+        
+        .icon-circle {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Zaman Çizelgesi */
+        .timeline {
+            position: relative;
+            padding-left: 50px;
+        }
+        
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 20px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, var(--primary-color), var(--secondary-color));
+        }
+        
+        .timeline-item {
+            position: relative;
+            margin-bottom: 30px;
+        }
+        
+        .timeline-badge {
+            position: absolute;
+            left: -50px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+        }
+        
+        .timeline-panel {
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+        }
+        
+        /* Flip Kartlar */
+        .flip-cards {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+        
+        .flip-card {
+            width: 100%;
+            max-width: 350px;
+            perspective: 1000px;
+        }
+        
+        .flip-card-inner {
+            position: relative;
+            width: 100%;
+            height: 200px;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+        
+        .flip-card:hover .flip-card-inner {
+            transform: rotateY(180deg);
+        }
+        
+        .flip-card-front, .flip-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        
+        .flip-card-back {
+            transform: rotateY(180deg);
+        }
+        
+        /* Haklar Slider */
+        .rights-slider {
+            display: flex;
+            overflow-x: auto;
+            gap: 15px;
+            padding-bottom: 20px;
+            scroll-snap-type: x mandatory;
+        }
+        
+        .rights-slide {
+            min-width: 250px;
+            scroll-snap-align: start;
+        }
+        
+        /* Güncelleme Zaman Çizelgesi */
+        .update-timeline {
+            position: relative;
+            padding-left: 30px;
+        }
+        
+        .update-timeline::before {
+            content: '';
+            position: absolute;
+            left: 10px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, var(--primary-color), var(--secondary-color));
+        }
+        
+        .update-item {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        
+        .update-date {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 10px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        .update-content {
+            transition: all 0.3s ease;
+        }
+        
+        .update-content:hover {
+            transform: translateX(5px);
+        }
+        
+        /* Responsive Düzenlemeler */
+        @@media (max-width: 768px) {
+            .privacy-card {
+                margin-top: -30px;
+                padding: 2rem !important;
+            }
+            
+            .hero-title {
+                font-size: 2.5rem;
+            }
+            
+            .flip-card {
+                max-width: 100%;
+            }
+            
+            .flip-card-inner {
+                height: auto;
+                transform-style: flat;
+            }
+            
+            .flip-card:hover .flip-card-inner {
+                transform: none;
+            }
+            
+            .flip-card-front, .flip-card-back {
+                position: relative;
+                transform: none;
+                backface-visibility: visible;
+            }
+            
+            .flip-card-back {
+                margin-top: 15px;
+            }
+        }
+    </style>
+}
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+    <script>
+        // Sayfa yüklendiğinde animasyonları başlat
+        document.addEventListener('DOMContentLoaded', function() {
+            // Hero bölümü animasyonu
+            gsap.from('.privacy-hero h1', {
+                duration: 1,
+                y: -50,
+                opacity: 0,
+                ease: 'power3.out'
+            });
+            
+            gsap.from('.privacy-hero p', {
+                duration: 1,
+                y: 30,
+                opacity: 0,
+                delay: 0.3,
+                ease: 'power3.out'
+            });
+            
+            gsap.from('.privacy-hero .btn', {
+                duration: 1,
+                y: 30,
+                opacity: 0,
+                delay: 0.6,
+                ease: 'power3.out',
+                stagger: 0.1
+            });
+            
+            // Bölüm animasyonları
+            const sections = document.querySelectorAll('.privacy-section');
+            
+            sections.forEach((section, index) => {
+                gsap.from(section, {
+                    scrollTrigger: {
+                        trigger: section,
+                        start: 'top 80%',
+                        toggleActions: 'play none none none'
+                    },
+                    duration: 0.8,
+                    y: 50,
+                    opacity: 0,
+                    delay: index * 0.1,
+                    ease: 'power3.out'
+                });
+            });
+            
+            // Flip kartlar için hover efekti
+            const flipCards = document.querySelectorAll('.flip-card');
+            
+            flipCards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    if (window.innerWidth > 768) {
+                        this.querySelector('.flip-card-inner').style.transform = 'rotateY(180deg)';
+                    }
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    if (window.innerWidth > 768) {
+                        this.querySelector('.flip-card-inner').style.transform = 'rotateY(0deg)';
+                    }
+                });
+            });
+            
+            // Haklar slider için kaydırma animasyonu
+            const rightsSlider = document.querySelector('.rights-slider');
+            
+            if (rightsSlider) {
+                let isDown = false;
+                let startX;
+                let scrollLeft;
+                
+                rightsSlider.addEventListener('mousedown', (e) => {
+                    isDown = true;
+                    startX = e.pageX - rightsSlider.offsetLeft;
+                    scrollLeft = rightsSlider.scrollLeft;
+                });
+                
+                rightsSlider.addEventListener('mouseleave', () => {
+                    isDown = false;
+                });
+                
+                rightsSlider.addEventListener('mouseup', () => {
+                    isDown = false;
+                });
+                
+                rightsSlider.addEventListener('mousemove', (e) => {
+                    if(!isDown) return;
+                    e.preventDefault();
+                    const x = e.pageX - rightsSlider.offsetLeft;
+                    const walk = (x - startX) * 2;
+                    rightsSlider.scrollLeft = scrollLeft - walk;
+                });
+            }
+        });
+    </script>
+}
