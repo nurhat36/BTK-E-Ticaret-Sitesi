@@ -1,0 +1,167 @@
+﻿@using BTKETicaretSitesi.Controllers
+@model IEnumerable<ProductQuestion>
+@{
+    ViewData["Title"] = "Ürün Soruları";
+    var currentStatus = (BTKETicaretSitesi.Controllers.QuestionStatus)ViewBag.CurrentStatus;
+    Layout = "_ManagementLayout";
+
+    // Sayıları doğru hesapla
+    var unansweredCount = Model.Count(q => string.IsNullOrEmpty(q.AnswerText));
+    var answeredCount = Model.Count(q => q.AnswerText != null && q.AnswerText.Length > 0);
+}
+
+<div class="container-fluid">
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">Ürün Soruları</h6>
+            <div class="btn-group">
+                <a asp-action="Index" asp-route-status="QuestionStatus.Unanswered"
+                   class="btn btn-sm @(currentStatus == QuestionStatus.Unanswered ? "btn-primary" : "btn-outline-primary")">
+                    Cevaplanmamış (@unansweredCount)
+                </a>
+                <a asp-action="Index" asp-route-status="QuestionStatus.Answered"
+                   class="btn btn-sm @(currentStatus == QuestionStatus.Answered ? "btn-primary" : "btn-outline-primary")">
+                    Cevaplanmış (@answeredCount)
+                </a>
+                <a asp-action="Index"
+                   class="btn btn-sm @(currentStatus == QuestionStatus.All ? "btn-primary" : "btn-outline-primary")">
+                    Tümü (@(unansweredCount + answeredCount))
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table id="questionsTable" class="table table-bordered" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Ürün</th>
+                            <th>Soru</th>
+                            <th>Soran</th>
+                            <th>Tarih</th>
+                            <th>Durum</th>
+                            <th>İşlemler</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var question in Model)
+                        {
+                            <tr>
+                                <td>@question.Product?.Name</td>
+                                <td>@question.QuestionText</td>
+                                <td>@question.User?.UserName</td>
+                                <td data-order="@question.QuestionDate.Ticks">@question.QuestionDate.ToString("dd.MM.yyyy HH:mm")</td>
+                                <td>
+                                    @if (string.IsNullOrEmpty(question.AnswerText))
+                                    {
+                                        <span class="badge badge-warning">Cevaplanmadı</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge badge-success">
+                                            Cevaplandı (@question.AnswerDate?.ToString("dd.MM.yyyy HH:mm"))
+                                        </span>
+                                    }
+                                </td>
+                                <td>
+                                    <a asp-action="Details" asp-route-id="@question.Id"
+                                       class="btn btn-sm btn-info">
+                                        <i class="fas fa-eye"></i> Detay
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/2.2.2/css/buttons.bootstrap4.min.css">
+    <style>
+        #questionsTable tbody tr {
+            cursor: pointer;
+        }
+
+        .badge {
+            font-size: 100%;
+        }
+    </style>
+}
+
+@section Scripts {
+    <!-- DataTables JS -->
+    <script type="text/javascript" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap4.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.2.2/js/dataTables.buttons.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.bootstrap4.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.html5.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.print.min.js"></script>
+    <!-- Türkçe Dil Dosyası -->
+    <script type="text/javascript" src="https://cdn.datatables.net/plug-ins/1.11.5/i18n/tr.json"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('#questionsTable').DataTable({
+                dom: '<"top"Bf>rt<"bottom"lip><"clear">',
+                buttons: [
+                    {
+                        extend: 'excel',
+                        text: '<i class="fas fa-file-excel"></i> Excel',
+                        className: 'btn btn-success btn-sm',
+                        title: 'Urun_Sorulari'
+                    },
+                    {
+                        extend: 'print',
+                        text: '<i class="fas fa-print"></i> Yazdır',
+                        className: 'btn btn-info btn-sm',
+                        title: 'Urun_Sorulari',
+                        customize: function (win) {
+                            $(win.document.body).find('h1').css('text-align', 'center');
+                        }
+                    }
+                ],
+                language: {
+                    url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/tr.json'
+                },
+                columnDefs: [
+                    { orderable: true, targets: [0, 2, 3, 4] },
+                    { orderable: false, targets: [1, 5] },
+                    { width: "15%", targets: [0, 2, 3, 4, 5] },
+                    { width: "25%", targets: [1] }
+                ],
+                order: [[3, 'desc']], // Tarihe göre sırala
+                pageLength: 25,
+                responsive: true,
+                initComplete: function () {
+                    // Durum filtreleme butonu
+                    this.api().columns(4).every(function () {
+                        var column = this;
+                        var select = $('<select class="form-control form-control-sm"><option value="">Tüm Durumlar</option><option value="Cevaplanmadı">Cevaplanmadı</option><option value="Cevaplandı">Cevaplandı</option></select>')
+                            .appendTo($(column.header()).empty())
+                            .on('change', function () {
+                                var val = $.fn.dataTable.util.escapeRegex(
+                                    $(this).val()
+                                );
+                                column
+                                    .search(val ? '^' + val + '$' : '', true, false)
+                                    .draw();
+                            });
+                    });
+                }
+            });
+
+            // Satır tıklanabilir yapma (Detay sayfasına yönlendirme)
+            $('#questionsTable tbody').on('click', 'tr', function () {
+                var data = $('#questionsTable').DataTable().row(this).data();
+                if (data) {
+                    var id = $(this).find('a').attr('href').split('/').pop();
+                    window.location.href = 'Details/' + id;
+                }
+            });
+        });
+    </script>
+}

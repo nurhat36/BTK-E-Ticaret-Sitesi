@@ -1,0 +1,210 @@
+﻿@model BTKETicaretSitesi.Models.Order
+
+@{
+    ViewData["Title"] = "Sipariş Detayı";
+    Layout = "_ManagementLayout"; // Varsa mağaza sahibi layout'u
+}
+
+<div class="container-fluid">
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">Sipariş Detayı - @Model.OrderNumber</h6>
+            <div>
+                <span class="badge @GetStatusBadgeClass(Model.Status)">@Model.Status</span>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <h5>Müşteri Bilgileri</h5>
+                    <hr />
+                    <p><strong>Ad:</strong> @Model.Customer?.UserName</p>
+                    <p><strong>Telefon:</strong> @Model.PhoneNumber</p>
+                    <p><strong>Email:</strong> @Model.Email</p>
+                </div>
+                <div class="col-md-6">
+                    <h5>Sipariş Bilgileri</h5>
+                    <hr />
+                    <p><strong>Sipariş Tarihi:</strong> @Model.OrderDate.ToString("dd.MM.yyyy HH:mm")</p>
+                    <p><strong>Ödeme Yöntemi:</strong> @Model.PaymentMethod</p>
+                    <p><strong>Ödeme Durumu:</strong> @Model.PaymentStatus</p>
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <h5>Teslimat Adresi</h5>
+                    <hr />
+                    <address>@Html.Raw(Model.ShippingAddress?.Replace("\n", "<br />"))</address>
+                </div>
+                <div class="col-md-6">
+                    <h5>Fatura Adresi</h5>
+                    <hr />
+                    <address>@Html.Raw(Model.BillingAddress?.Replace("\n", "<br />"))</address>
+                </div>
+            </div>
+
+            <h5>Sipariş Özeti</h5>
+            <hr />
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Ürün</th>
+                            <th>Varyant</th>
+                            <th>Adet</th>
+                            <th>Birim Fiyat</th>
+                            <th>Toplam</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Items)
+                        {
+                            <tr>
+                                <td>@item.Product?.Name</td>
+                                <td>@item.Variant?.VariantType</td>
+                                <td>@item.Quantity</td>
+                                <td>@item.UnitPrice.ToString("C")</td>
+                                <td>@item.TotalPrice.ToString("C")</td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="4" class="text-right"><strong>Ara Toplam:</strong></td>
+                            <td>@Model.Items.Sum(i => i.TotalPrice).ToString("C")</td>
+                        </tr>
+                        <tr>
+                            <td colspan="4" class="text-right"><strong>Kargo Ücreti:</strong></td>
+                            <td>@Model.ShippingFee.ToString("C")</td>
+                        </tr>
+                        <tr>
+                            <td colspan="4" class="text-right"><strong>Vergi:</strong></td>
+                            <td>@Model.TaxAmount.ToString("C")</td>
+                        </tr>
+                        <tr>
+                            <td colspan="4" class="text-right"><strong>Genel Toplam:</strong></td>
+                            <td>@Model.OrderTotal.ToString("C")</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <h5>Durum Geçmişi</h5>
+                    <hr />
+                    <div class="timeline">
+                        @foreach (var history in Model.StatusHistory.OrderByDescending(h => h.ChangedAt))
+                        {
+                            <div class="timeline-item mb-3">
+                                <div class="timeline-badge @GetStatusBadgeClass(history.Status)"></div>
+                                <div class="timeline-panel p-3 bg-light rounded">
+                                    <div class="timeline-heading">
+                                        <h6 class="timeline-title">@history.Status</h6>
+                                        <p class="text-muted small mb-1">
+                                            <i class="far fa-clock"></i> @history.ChangedAt.ToString("dd.MM.yyyy HH:mm") -
+                                            @history.ChangedByUser?.UserName
+                                        </p>
+                                    </div>
+                                    <div class="timeline-body">
+                                        <p>@history.Notes</p>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <h5>Durum Güncelle</h5>
+                    <hr />
+                    <form asp-action="UpdateStatus" method="post">
+                        <input type="hidden" name="orderNumber" value="@Model.OrderNumber" />
+                        <div class="form-group">
+                            <label for="status">Yeni Durum</label>
+                            <select name="status" class="form-control" required>
+                                <option value="">-- Seçiniz --</option>
+                                <option value="@OrderStatus.Pending">Bekliyor</option>
+                                <option value="@OrderStatus.Processing">Hazırlanıyor</option>
+                                <option value="@OrderStatus.Shipped">Kargoya Verildi</option>
+                                <option value="@OrderStatus.Delivered">Teslim Edildi</option>
+                                <option value="@OrderStatus.Cancelled">İptal Edildi</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Durumu Güncelle</button>
+                    </form>
+
+                    @if (Model.Status != OrderStatus.Refunded)
+                    {
+                        <hr />
+                        <h5>İade İşlemi</h5>
+                        <form asp-action="InitiateRefund" method="post">
+                            <input type="hidden" name="orderNumber" value="@Model.OrderNumber" />
+                            <div class="form-group">
+                                <label for="itemId">Ürün Seçin</label>
+                                <select name="itemId" class="form-control" required>
+                                    @foreach (var item in Model.Items)
+                                    {
+                                        <option value="@item.Id">@item.Product?.Name (@item.Variant?.VariantType)</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="reason">İade Sebebi</label>
+                                <textarea name="reason" class="form-control" rows="3" required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-warning">İade Talebi Oluştur</button>
+                        </form>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .timeline {
+        position: relative;
+        padding-left: 50px;
+    }
+
+    .timeline-item {
+        position: relative;
+        margin-bottom: 15px;
+    }
+
+    .timeline-badge {
+        position: absolute;
+        left: -20px;
+        top: 0;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        text-align: center;
+        line-height: 30px;
+        color: white;
+    }
+
+    .timeline-panel {
+        position: relative;
+        background: #fff;
+        border-radius: 3px;
+        padding: 15px;
+    }
+</style>
+
+@functions {
+    string GetStatusBadgeClass(OrderStatus status)
+    {
+        return status switch
+        {
+            OrderStatus.Pending => "badge-warning",
+            OrderStatus.Processing => "badge-info",
+            OrderStatus.Shipped => "badge-primary",
+            OrderStatus.Delivered => "badge-success",
+            OrderStatus.Cancelled => "badge-danger",
+            OrderStatus.Refunded => "badge-secondary",
+            _ => "badge-light"
+        };
+    }
+}

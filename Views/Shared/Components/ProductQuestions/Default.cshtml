@@ -1,0 +1,334 @@
+﻿@model IEnumerable<ProductQuestion>
+
+<div class="product-questions-container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="mb-0"><i class="fas fa-comments text-primary mr-2"></i>Ürün Soru & Cevapları</h4>
+        @if (User.Identity?.IsAuthenticated == true)
+        {
+            <a asp-action="AskQuestion" asp-controller="ProductQuestion"
+               asp-route-productId="@ViewBag.ProductId"
+               class="btn btn-primary">
+                <i class="fas fa-plus mr-2"></i>Yeni Soru Sor
+            </a>
+        }
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="empty-state">
+            <div class="empty-state-icon">
+                <i class="fas fa-question-circle"></i>
+            </div>
+            <h5>Henüz soru sorulmamış</h5>
+            @if (!User.Identity?.IsAuthenticated == true)
+            {
+                <p class="mt-3">
+                    Soru sormak için <a asp-area="Identity" asp-page="/Account/Login" class="text-primary">giriş yapmalısınız</a>.
+                </p>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="qa-thread">
+            @{
+                var visibleQuestions = Model.Take(2).ToList();
+                var remainingQuestions = Model.Skip(2).ToList();
+            }
+
+            @foreach (var question in visibleQuestions)
+            {
+                <div class="qa-item">
+                    <div class="qa-question">
+                        <div class="qa-avatar">
+                            <img src="https://ui-avatars.com/api/?name=@question.User.UserName&background=random" alt="@question.User.UserName">
+                        </div>
+                        <div class="qa-content">
+                            <div class="qa-header">
+                                <strong>@question.User.UserName</strong>
+                                <span class="qa-date">@question.QuestionDate.ToString("dd.MM.yyyy HH:mm")</span>
+                            </div>
+                            <div class="qa-text">
+                                @question.QuestionText
+                            </div>
+                        </div>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(question.AnswerText))
+                    {
+                        <div class="qa-answer">
+                            <div class="qa-avatar">
+                                <img src="https://ui-avatars.com/api/?name=@(question.Seller?.UserName ?? "S")&background=0D8ABC&color=fff" alt="@question.Seller?.UserName">
+                            </div>
+                            <div class="qa-content">
+                                <div class="qa-header">
+                                    <strong>@(question.Seller?.UserName ?? "Satıcı")</strong>
+                                    <span class="qa-date">@question.AnswerDate?.ToString("dd.MM.yyyy HH:mm")</span>
+                                    <span class="badge badge-success ml-2">Satıcı Yanıtı</span>
+                                </div>
+                                <div class="qa-text">
+                                    @question.AnswerText
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    else if (User.IsInRole("StoreOwner"))
+                    {
+                        <div class="qa-pending">
+                            <a asp-controller="StoreProductQuestion" asp-action="Details" asp-route-id="@question.Id"
+                               class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-reply mr-1"></i> Bu Soruyu Yanıtla
+                            </a>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="qa-pending">
+                            <span class="text-muted"><i class="fas fa-clock mr-1"></i>Satıcı yanıtı bekleniyor</span>
+                        </div>
+                    }
+                </div>
+            }
+
+            <div id="remainingQuestions" style="display:none;">
+                @foreach (var question in remainingQuestions)
+                {
+                    <div class="qa-item">
+                        <div class="qa-question">
+                            <div class="qa-avatar">
+                                <img src="https://ui-avatars.com/api/?name=@question.User.UserName&background=random" alt="@question.User.UserName">
+                            </div>
+                            <div class="qa-content">
+                                <div class="qa-header">
+                                    <strong>@question.User.UserName</strong>
+                                    <span class="qa-date">@question.QuestionDate.ToString("dd.MM.yyyy HH:mm")</span>
+                                </div>
+                                <div class="qa-text">
+                                    @question.QuestionText
+                                </div>
+                            </div>
+                        </div>
+
+                        @if (!string.IsNullOrEmpty(question.AnswerText))
+                        {
+                            <div class="qa-answer">
+                                <div class="qa-avatar">
+                                    <img src="https://ui-avatars.com/api/?name=@(question.Seller?.UserName ?? "S")&background=0D8ABC&color=fff" alt="@question.Seller?.UserName">
+                                </div>
+                                <div class="qa-content">
+                                    <div class="qa-header">
+                                        <strong>@(question.Seller?.UserName ?? "Satıcı")</strong>
+                                        <span class="qa-date">@question.AnswerDate?.ToString("dd.MM.yyyy HH:mm")</span>
+                                        <span class="badge badge-success ml-2">Satıcı Yanıtı</span>
+                                    </div>
+                                    <div class="qa-text">
+                                        @question.AnswerText
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+
+            @if (Model.Count() > 2)
+            {
+                <div class="text-center mt-4">
+                    <button id="loadMoreBtn" class="btn btn-outline-primary">
+                        <i class="fas fa-chevron-down mr-2"></i>Daha Fazla Göster (5 Soru Daha)
+                    </button>
+                    <button id="showLessBtn" class="btn btn-outline-secondary ml-2" style="display:none;">
+                        <i class="fas fa-chevron-up mr-2"></i>Daha Az Göster
+                    </button>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<style>
+    .product-questions-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 40px 20px;
+    }
+
+    .empty-state-icon {
+        font-size: 60px;
+        color: #e9ecef;
+        margin-bottom: 20px;
+    }
+
+    .qa-thread {
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .qa-item {
+        margin-bottom: 25px;
+        border-left: 3px solid #f1f1f1;
+        padding-left: 15px;
+    }
+
+    .qa-question, .qa-answer {
+        display: flex;
+        margin-bottom: 10px;
+        padding: 15px;
+        border-radius: 8px;
+        background: #f9f9f9;
+    }
+
+    .qa-answer {
+        background: #f0f7ff;
+        margin-left: 50px;
+        margin-top: 10px;
+    }
+
+    .qa-avatar {
+        margin-right: 15px;
+    }
+
+        .qa-avatar img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+    .qa-content {
+        flex: 1;
+    }
+
+    .qa-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 8px;
+        flex-wrap: wrap;
+    }
+
+        .qa-header strong {
+            margin-right: 10px;
+        }
+
+    .qa-date {
+        font-size: 12px;
+        color: #6c757d;
+    }
+
+    .qa-text {
+        line-height: 1.6;
+    }
+
+    .qa-pending {
+        padding: 10px 15px;
+        background: #fff8e1;
+        border-left: 3px solid #ffc107;
+        margin-left: 50px;
+        border-radius: 0 8px 8px 0;
+    }
+
+    #loadMoreBtn {
+        transition: all 0.3s ease;
+    }
+
+        #loadMoreBtn:hover {
+            transform: translateY(2px);
+        }
+
+        #loadMoreBtn i {
+            transition: transform 0.3s ease;
+        }
+
+        #loadMoreBtn:hover i {
+            transform: translateY(2px);
+        }
+
+    @@media (max-width: 576px) {
+        .qa-question, .qa-answer {
+            flex-direction: column;
+        }
+
+        .qa-avatar {
+            margin-right: 0;
+            margin-bottom: 10px;
+        }
+
+        .qa-answer {
+            margin-left: 20px;
+        }
+    }
+
+    #loadMoreBtn, #showLessBtn {
+        transition: all 0.3s ease;
+        margin: 5px;
+    }
+
+        #loadMoreBtn:hover, #showLessBtn:hover {
+            transform: translateY(2px);
+        }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const loadMoreBtn = document.getElementById('loadMoreBtn');
+        const showLessBtn = document.getElementById('showLessBtn');
+        const initialQuestions = 2;
+        if (loadMoreBtn || showLessBtn) {
+            const remainingQuestionsContainer = document.getElementById('remainingQuestions');
+            const remainingQuestions = remainingQuestionsContainer.querySelectorAll('.qa-item');
+            const allQuestions = document.querySelectorAll('.qa-item');
+            let visibleCount = 0;
+            const loadCount = 5;
+            allQuestions.forEach((question, index) => {
+                question.style.display = index < initialQuestions ? 'block' : 'none';
+            });
+
+            loadMoreBtn.addEventListener('click', function () {
+                // Gizli soruları ana kapsayıcıya taşı
+                remainingQuestionsContainer.style.display = 'block';
+
+                // Gösterilecek soruları seç
+                const endIndex = Math.min(visibleCount + loadCount, remainingQuestions.length);
+
+                for (let i = visibleCount; i < endIndex; i++) {
+                    remainingQuestions[i].style.display = 'block';
+                }
+
+                visibleCount = endIndex;
+
+                // Tüm sorular gösterildiyse butonu gizle
+                if (visibleCount >= remainingQuestions.length) {
+                    loadMoreBtn.style.display = 'none';
+                }
+                // "Daha Az Göster" butonunu göster
+                showLessBtn.style.display = 'inline-block';
+            });
+            showLessBtn.addEventListener('click', function () {
+                // Sadece ilk 2 soruyu göster
+                allQuestions.forEach((question, index) => {
+                    question.style.display = index < initialQuestions ? 'block' : 'none';
+                });
+
+                visibleCount = 0;
+                loadMoreBtn.style.display = 'inline-block';
+                showLessBtn.style.display = 'none';
+            });
+           
+            // İlk yüklemede buton kontrolü
+            if (remainingQuestions.length === 0) {
+                loadMoreBtn.style.display = 'none';
+            }
+        }
+        
+       
+
+    });
+</script>

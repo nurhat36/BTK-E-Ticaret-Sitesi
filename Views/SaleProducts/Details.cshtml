@@ -164,6 +164,51 @@
             </div>
         </div>
     }
+    @if (Model.QuestionAnalysis != null && !string.IsNullOrEmpty(Model.QuestionAnalysis.CommonQuestionsSummary))
+    {
+        <div class="ai-review-analysis mt-4">
+            <div class="ai-header">
+                <i class="fas fa-robot ai-icon"></i>
+                <h3 class="ai-title">Yapay Zeka Soru-Cevap Analizi</h3>
+            </div>
+
+            <div class="ai-insights mb-3">
+                <h4 class="insights-title">
+                    <i class="fas fa-lightbulb"></i> Öne Çıkan Sorular
+                </h4>
+                <div class="insights-content">
+                    @Html.Raw(Model.QuestionAnalysis.CommonQuestionsSummary.Replace("\n", "<br/>"))
+                </div>
+            </div>
+
+            <div class="ai-insights">
+                <h4 class="insights-title">
+                    <i class="fas fa-reply-all"></i> Satıcı Yanıt Örüntüleri
+                </h4>
+                <div class="insights-content">
+                    @Html.Raw(Model.QuestionAnalysis.CommonAnswersSummary.Replace("\n", "<br/>"))
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="ai-review-analysis empty-state mt-4">
+            <div class="ai-header">
+                <i class="fas fa-robot ai-icon"></i>
+                <h3 class="ai-title">Yapay Zeka Soru-Cevap Analizi</h3>
+            </div>
+            <div class="empty-content">
+                <i class="far fa-clock"></i>
+                <p>Bu ürün için soru-cevap analizi henüz tamamlanmadı.</p>
+            </div>
+        </div>
+    }
+       <div class="row mt-5">
+        <div class="col-md-12">
+            @await Component.InvokeAsync("ProductQuestions", new { productId = Model.Id })
+        </div>
+    </div>
     @if (Model.ReviewAnalysis != null)
     {
         <div class="ai-review-analysis">
@@ -205,6 +250,7 @@
             </div>
         </div>
     }
+ 
 
 
     <!-- Yorumlar Bölümü -->

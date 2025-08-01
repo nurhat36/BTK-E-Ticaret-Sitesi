@@ -27,6 +27,10 @@ builder.Services.AddScoped<IFavoriteProductService, FavoriteProductService>();
 builder.Services.AddScoped<ReviewAnalysisService>();
 // Google AI servisi için yapılandırma
 builder.Services.AddTransient<GeminiApiService>();
+builder.Services.AddScoped<GeminiQuestionAnalysisService>();
+builder.Services.AddScoped<QuestionAnalysisService>();
+
+
 
 builder.Services.AddHttpContextAccessor(); // Email veya kullanıcı bilgilerine ulaşmak için gerekli
 

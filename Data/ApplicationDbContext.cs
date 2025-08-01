@@ -28,6 +28,7 @@ namespace BTKETicaretSitesi.Data
         public DbSet<ProductReview> ProductReviews { get; set; }
         public DbSet<ProductReviewAnalysis> ProductReviewAnalyses { get; set; }
         public DbSet<ProductQuestion> ProductQuestions { get; set; }
+        public DbSet<ProductQuestionAnalysis> ProductQuestionAnalyses { get; set; }
 
         // Alışveriş sepeti
         public DbSet<ShoppingCart> ShoppingCarts { get; set; }

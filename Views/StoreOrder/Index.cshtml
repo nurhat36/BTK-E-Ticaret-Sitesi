@@ -1,0 +1,87 @@
+﻿@model IEnumerable<BTKETicaretSitesi.Models.Order>
+
+@{
+    ViewData["Title"] = "Sipariş Yönetimi";
+    Layout = "_ManagementLayout"; // Varsa mağaza sahibi layout'u
+}
+
+<div class="container-fluid">
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">Siparişler</h6>
+            <div class="btn-group">
+                <a asp-action="Index" class="btn btn-sm @(ViewBag.Status == null ? "btn-primary" : "btn-outline-primary")">Tümü</a>
+                <a asp-action="Index" asp-route-status="Pending" class="btn btn-sm @(ViewBag.Status == OrderStatus.Pending ? "btn-primary" : "btn-outline-primary")">Bekleyenler</a>
+                <a asp-action="Index" asp-route-status="Processing" class="btn btn-sm @(ViewBag.Status == OrderStatus.Processing ? "btn-primary" : "btn-outline-primary")">Hazırlanıyor</a>
+                <a asp-action="Index" asp-route-status="Shipped" class="btn btn-sm @(ViewBag.Status == OrderStatus.Shipped ? "btn-primary" : "btn-outline-primary")">Kargoda</a>
+                <a asp-action="Index" asp-route-status="Delivered" class="btn btn-sm @(ViewBag.Status == OrderStatus.Delivered ? "btn-primary" : "btn-outline-primary")">Teslim Edilenler</a>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Sipariş No</th>
+                            <th>Müşteri</th>
+                            <th>Tarih</th>
+                            <th>Toplam</th>
+                            <th>Durum</th>
+                            <th>İşlemler</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var order in Model)
+                        {
+                            <tr>
+                                <td>@order.OrderNumber</td>
+                                <td>@order.Customer?.UserName</td>
+                                <td>@order.OrderDate.ToString("dd.MM.yyyy HH:mm")</td>
+                                <td>@order.OrderTotal.ToString("C")</td>
+                                <td>
+                                    <span class="badge @GetStatusBadgeClass(order.Status)">
+                                        @order.Status
+                                    </span>
+                                </td>
+                                <td>
+                                    <a asp-action="Details" asp-route-orderNumber="@order.OrderNumber" class="btn btn-sm btn-info">
+                                        <i class="fas fa-info-circle"></i> Detay
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // DataTable initialization
+        $(document).ready(function () {
+            $('#dataTable').DataTable({
+                language: {
+                    url: '//cdn.datatables.net/plug-ins/1.10.20/i18n/Turkish.json'
+                }
+            });
+        });
+    </script>
+}
+
+@functions {
+    string GetStatusBadgeClass(OrderStatus status)
+    {
+        return status switch
+        {
+            OrderStatus.Pending => "badge-warning",
+            OrderStatus.Processing => "badge-info",
+            OrderStatus.Shipped => "badge-primary",
+            OrderStatus.Delivered => "badge-success",
+            OrderStatus.Cancelled => "badge-danger",
+            OrderStatus.Refunded => "badge-secondary",
+            _ => "badge-light"
+        };
+    }
+}

@@ -1,11 +1,22 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @using BTKETicaretSitesi.Models
+
+@using BTKETicaretSitesi.Data
+@using Microsoft.EntityFrameworkCore
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
+@inject ApplicationDbContext _context
+
 @{
     var user = await UserManager.GetUserAsync(User);
     var profilePic = user?.ProfileImageUrl ?? "/images/default-profile.png";
     var slug = user?.Slug ?? "default-slug";
+   
+    var unansweredQuestionsCount = await _context.ProductQuestions
+        .Include(q => q.Product)
+        .ThenInclude(p => p.Store)
+        .Where(q => q.Product.Store.OwnerId == user.Id && string.IsNullOrEmpty(q.AnswerText))
+        .CountAsync();
 }
 <!DOCTYPE html>
 <html lang="tr">
@@ -469,32 +480,60 @@
                 </li>
 
                 <!-- Sipariş Yönetimi -->
-                <li class="treeview @(ViewContext.RouteData.Values["Controller"].ToString() == "Order" ? "menu-open" : "")">
+                <li class="treeview @(ViewContext.RouteData.Values["Controller"].ToString() == "StoreOrder" ? "menu-open" : "")">
                     <a href="#">
                         <i class="bi bi-cart-check"></i>
                         <span>Sipariş Yönetimi</span>
                         <i class="bi bi-chevron-down float-right"></i>
                     </a>
                     <ul class="treeview-menu">
-                        <li class="@(ViewContext.RouteData.Values["Action"].ToString() == "Index" && ViewContext.RouteData.Values["Controller"].ToString() == "Order" ? "active" : "")">
-                            <a asp-action="Index" asp-controller="Order">
+                        <li class="@(ViewContext.RouteData.Values["Action"].ToString() == "Index" && ViewContext.RouteData.Values["Controller"].ToString() == "StoreOrder" ? "active" : "")">
+                            <a asp-action="Index" asp-controller="StoreOrder">
                                 <i class="bi bi-list-check"></i>
                                 <span>Tüm Siparişler</span>
                             </a>
                         </li>
-                        <li class="@(ViewContext.RouteData.Values["Action"].ToString() == "Pending" && ViewContext.RouteData.Values["Controller"].ToString() == "Order" ? "active" : "")">
-                            <a asp-action="Pending" asp-controller="Order">
+                        <li class="@(ViewContext.RouteData.Values["Action"].ToString() == "Index" && ViewContext.RouteData.Values["Controller"].ToString() == "StoreOrder" && ViewBag.Status == OrderStatus.Pending ? "active" : "")">
+                            <a asp-action="Index" asp-controller="StoreOrder" asp-route-status="@OrderStatus.Pending">
                                 <i class="bi bi-hourglass"></i>
                                 <span>Bekleyenler</span>
                             </a>
                         </li>
-                        <li class="@(ViewContext.RouteData.Values["Action"].ToString() == "Completed" && ViewContext.RouteData.Values["Controller"].ToString() == "Order" ? "active" : "")">
-                            <a asp-action="Completed" asp-controller="Order">
+                        <li class="@(ViewContext.RouteData.Values["Action"].ToString() == "Index" && ViewContext.RouteData.Values["Controller"].ToString() == "StoreOrder" && ViewBag.Status == OrderStatus.Processing ? "active" : "")">
+                            <a asp-action="Index" asp-controller="StoreOrder" asp-route-status="@OrderStatus.Processing">
+                                <i class="bi bi-gear"></i>
+                                <span>Hazırlananlar</span>
+                            </a>
+                        </li>
+                        <li class="@(ViewContext.RouteData.Values["Action"].ToString() == "Index" && ViewContext.RouteData.Values["Controller"].ToString() == "StoreOrder" && ViewBag.Status == OrderStatus.Shipped ? "active" : "")">
+                            <a asp-action="Index" asp-controller="StoreOrder" asp-route-status="@OrderStatus.Shipped">
+                                <i class="bi bi-truck"></i>
+                                <span>Kargodakiler</span>
+                            </a>
+                        </li>
+                        <li class="@(ViewContext.RouteData.Values["Action"].ToString() == "Index" && ViewContext.RouteData.Values["Controller"].ToString() == "StoreOrder" && ViewBag.Status == OrderStatus.Delivered ? "active" : "")">
+                            <a asp-action="Index" asp-controller="StoreOrder" asp-route-status="@OrderStatus.Delivered">
                                 <i class="bi bi-check-circle"></i>
-                                <span>Tamamlananlar</span>
+                                <span>Teslim Edilenler</span>
+                            </a>
+                        </li>
+                        <li class="@(ViewContext.RouteData.Values["Action"].ToString() == "Index" && ViewContext.RouteData.Values["Controller"].ToString() == "StoreOrder" && ViewBag.Status == OrderStatus.Refunded ? "active" : "")">
+                            <a asp-action="Index" asp-controller="StoreOrder" asp-route-status="@OrderStatus.Refunded">
+                                <i class="bi bi-arrow-return-left"></i>
+                                <span>İadeler</span>
                             </a>
                         </li>
                     </ul>
+                </li>
+                <li class="nav-item @(ViewContext.RouteData.Values["Controller"].ToString() == "StoreProductQuestion" ? "active" : "")">
+                    <a class="nav-link" asp-controller="StoreProductQuestion" asp-action="Index">
+                        <i class="fas fa-question-circle"></i>
+                        <span>Ürün Soruları</span>
+                        @if (unansweredQuestionsCount > 0)
+                        {
+                            <span class="badge badge-danger">@unansweredQuestionsCount</span>
+                        }
+                    </a>
                 </li>
 
                 <!-- Müşteri Yönetimi -->
