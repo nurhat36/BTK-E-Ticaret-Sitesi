@@ -136,6 +136,7 @@ Yorumlar:
 
             result.SummaryInsights = summaryBuilder.ToString().Trim();
             return result;
+
         }
 
     }
