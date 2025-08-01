@@ -38,5 +38,6 @@ namespace BTKETicaretSitesi.Models
         public ICollection<ProductReview> Reviews { get; set; }
         public ProductReviewAnalysis ReviewAnalysis { get; set; }
         public ICollection<ProductQuestion> Questions { get; set; }
+        public ProductQuestionAnalysis QuestionAnalysis { get; set; }
     }
 }

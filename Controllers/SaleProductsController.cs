@@ -219,6 +219,7 @@ public class SaleProductsController : Controller
             .Include(p => p.Variants)
             .Include(p => p.Attributes)
             .Include(p => p.ReviewAnalysis)
+            .Include(p=> p.QuestionAnalysis)
             .Include(p => p.Reviews)
                 .ThenInclude(r => r.User)
             .FirstOrDefaultAsync(p => p.Id == id && p.IsActive && p.StockQuantity > 0 && p.Store.IsApproved);

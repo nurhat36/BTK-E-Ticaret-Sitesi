@@ -1,0 +1,36 @@
+﻿@model BTKETicaretSitesi.Models.ProductQuestion
+
+@{
+    ViewData["Title"] = "Ürüne Soru Sor";
+}
+
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h4>@Model.Product.Name - Soru Sor</h4>
+        </div>
+        <div class="card-body">
+            <form asp-action="AskQuestion" method="post">
+                <input type="hidden" asp-for="ProductId" />
+
+                <div class="form-group">
+                    <label asp-for="QuestionText" class="control-label">Soru</label>
+                    <textarea asp-for="QuestionText" class="form-control" rows="5" required></textarea>
+                    <span asp-validation-for="QuestionText" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mt-3">
+                    <button type="submit" class="btn btn-primary">Gönder</button>
+                    <a asp-action="ProductDetails" asp-controller="Products" asp-route-id="@Model.ProductId"
+                       class="btn btn-secondary">İptal</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

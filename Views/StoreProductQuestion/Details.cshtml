@@ -1,0 +1,69 @@
+﻿@model ProductQuestion
+@{
+    ViewData["Title"] = "Soru Detayı";
+    Layout = "_ManagementLayout";
+}
+
+<div class="container-fluid">
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Soru Detayı</h6>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Ürün Bilgisi</h5>
+                    <hr />
+                    <p><strong>Ürün Adı:</strong> @Model.Product.Name</p>
+                    <p><strong>Ürün Kodu:</strong> @Model.Product.Barcode</p>
+                </div>
+                <div class="col-md-6">
+                    <h5>Soru Bilgisi</h5>
+                    <hr />
+                    <p><strong>Soran:</strong> @Model.User.UserName</p>
+                    <p><strong>Soru Tarihi:</strong> @Model.QuestionDate.ToString("dd.MM.yyyy HH:mm")</p>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-md-12">
+                    <div class="question-box bg-light p-4 rounded">
+                        <h5>Soru:</h5>
+                        <p>@Model.QuestionText</p>
+                    </div>
+                </div>
+            </div>
+
+            @if (!string.IsNullOrEmpty(Model.AnswerText))
+            {
+                <div class="row mt-4">
+                    <div class="col-md-12">
+                        <div class="answer-box bg-white p-4 rounded border">
+                            <h5>Verdiğiniz Yanıt:</h5>
+                            <p>@Model.AnswerText</p>
+                            <small class="text-muted">
+                                Yanıt Tarihi: @Model.AnswerDate?.ToString("dd.MM.yyyy HH:mm")
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <div class="row mt-4">
+                <div class="col-md-12">
+                    <form asp-action="AnswerQuestion" method="post">
+                        <input type="hidden" name="id" value="@Model.Id" />
+                        <div class="form-group">
+                            <label for="answerText">Yanıtınız</label>
+                            <textarea name="answerText" class="form-control" rows="5" required>@Model.AnswerText</textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane"></i> @(string.IsNullOrEmpty(Model.AnswerText) ? "Yanıt Gönder" : "Yanıtı Güncelle")
+                        </button>
+                        <a asp-action="Index" class="btn btn-secondary">Geri Dön</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
