@@ -4,437 +4,172 @@
     ViewData["Title"] = "Alışveriş Sepeti";
 }
 
-<div class="shopping-cart-page">
-    <!-- Hero Section -->
-    <section class="cart-hero bg-light py-5">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-lg-6">
-                    <nav aria-label="breadcrumb">
-                        <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="/">Anasayfa</a></li>
-                            <li class="breadcrumb-item active" aria-current="page">Alışveriş Sepeti</li>
-                        </ol>
-                    </nav>
-                    <h1 class="display-5 fw-bold mb-3">Alışveriş Sepetiniz</h1>
-                    <p class="lead text-muted">Sepetinizdeki ürünleri inceleyebilir, düzenleyebilir veya ödemeye geçebilirsiniz</p>
-                </div>
-                <div class="col-lg-6 text-lg-end">
-                    <img src="/images/cart-hero.svg" alt="Alışveriş Sepeti" class="img-fluid" style="max-height: 200px;">
-                </div>
-            </div>
-        </div>
-    </section>
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <h2 class="fw-bold">
+            <i class="fas fa-shopping-cart text-primary me-2"></i> Alışveriş Sepetiniz
+        </h2>
+        <a href="@Url.Action("Index", "Products")" class="btn btn-outline-primary rounded-pill">
+            <i class="fas fa-arrow-left me-1"></i> Alışverişe Devam Et
+        </a>
+    </div>
 
-    <!-- Cart Content -->
-    <section class="cart-content py-5">
-        <div class="container">
-            @if (Model.Items == null || !Model.Items.Any())
-            {
-                <div class="empty-cart text-center py-5">
-                    <div class="empty-cart-icon mb-4">
-                        <i class="fas fa-shopping-cart fa-4x text-muted"></i>
-                    </div>
-                    <h3 class="h4 mb-3">Sepetiniz Boş</h3>
-                    <p class="text-muted mb-4">Henüz sepetinize ürün eklemediniz. Hemen alışverişe başlayın!</p>
-                    <a href="@Url.Action("Index", "Home")" class="btn btn-primary btn-lg px-4">
-                        <i class="fas fa-arrow-left me-2"></i> Alışverişe Devam Et
-                    </a>
-                </div>
-            }
-            else
-            {
-                <div class="row">
-                    <div class="col-lg-8">
-                        <div class="cart-items card shadow-sm border-0">
-                            <div class="card-header bg-white border-0 py-3">
-                                <h2 class="h5 mb-0">Sepetinizdeki Ürünler (@Model.Items.Count)</h2>
-                            </div>
-                            <div class="card-body p-0">
-                                <div class="list-group list-group-flush">
-                                    @foreach (var item in Model.Items)
-                                    {
-                                        <div class="list-group-item border-0 p-4">
-                                            <div class="row align-items-center">
-                                                <div class="col-md-2">
-                                                    @{
-                                                        var mainImage = item.Product.Images?.FirstOrDefault(img => img.IsMainImage);
-                                                        var imageUrl = mainImage?.ImageUrl ?? "/images/default-product.png";
-                                                    }
-                                                    <img src="@imageUrl" alt="@item.Product.Name" class="img-fluid rounded-3 shadow-sm product-image">
-                                                </div>
-                                               
-                                                <div class="col-md-2 text-center">
-                                                    <div class="price h6 mb-0">
-                                                        @{
-                                                            var price = item.Variant?.PriceDifference ?? item.Product.Price;
-                                                        }
-                                                        @price.ToString("C")
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-2">
-                                                    <div class="quantity-selector">
-                                                        <form asp-action="UpdateQuantity" method="post" class="d-flex align-items-center">
-                                                            <input type="hidden" name="itemId" value="@item.Id" />
-                                                            <button type="button" class="btn btn-sm btn-outline-secondary decrement">-</button>
-                                                           
-                                                            <button type="button" class="btn btn-sm btn-outline-secondary increment">+</button>
-                                                        </form>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-2 text-end">
-                                                    <div class="d-flex flex-column">
-                                                        <div class="item-total h6 mb-2">
-                                                            @{
-                                                                var totalPrice = (item.Variant?.PriceDifference ?? item.Product.Price) * item.Quantity;
-                                                            }
-                                                            @totalPrice.ToString("C")
-                                                        </div>
-                                                        <form asp-action="RemoveFromCart" method="post" class="d-inline">
-                                                            <input type="hidden" name="itemId" value="@item.Id" />
-                                                            <button type="submit" class="btn btn-sm btn-link text-danger p-0">
-                                                                <i class="fas fa-trash-alt me-1"></i> Kaldır
-                                                            </button>
-                                                        </form>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    }
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="continue-shopping mt-4">
-                            <a href="@Url.Action("Index", "Products")" class="btn btn-outline-primary">
-                                <i class="fas fa-arrow-left me-2"></i> Alışverişe Devam Et
-                            </a>
-                            <form asp-action="ClearCart" method="post" class="d-inline ms-2">
-                                <button type="submit" class="btn btn-outline-danger">
-                                    <i class="fas fa-trash me-2"></i> Sepeti Temizle
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-
-                    <div class="col-lg-4 mt-4 mt-lg-0">
-                        <div class="cart-summary card shadow-sm border-0 sticky-top" style="top: 20px;">
-                            <div class="card-header bg-white border-0 py-3">
-                                <h2 class="h5 mb-0">Sipariş Özeti</h2>
-                            </div>
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between mb-2">
-                                    <span class="text-muted">Ara Toplam:</span>
-                                    <span>@Model.Items.Sum(i => (i.Variant?.PriceDifference ?? i.Product.Price) * i.Quantity).ToString("C")</span>
-                                </div>
-                                <div class="d-flex justify-content-between mb-2">
-                                    <span class="text-muted">Kargo:</span>
-                                    <span class="text-success">Ücretsiz</span>
-                                </div>
-                                <div class="d-flex justify-content-between mb-3">
-                                    <span class="text-muted">Vergiler:</span>
-                                    <span>@((Model.Items.Sum(i => (i.Variant?.PriceDifference ?? i.Product.Price) * i.Quantity) * 0.18m).ToString("C"))</span>
-                                </div>
-                                <hr>
-                                <div class="d-flex justify-content-between fw-bold fs-5">
-                                    <span>Toplam:</span>
-                                    <span>@((Model.Items.Sum(i => (i.Variant?.PriceDifference ?? i.Product.Price) * i.Quantity) * 1.18m).ToString("C"))</span>
-                                </div>
-                                <div class="d-grid mt-4">
-                                    <a href="@Url.Action("Checkout", "Order")" class="btn btn-primary btn-lg py-3">
-                                        <i class="fas fa-lock me-2"></i> Güvenli Ödemeye Geç
-                                    </a>
-                                </div>
-                                <div class="mt-3">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="termsCheck" checked>
-                                        <label class="form-check-label small" for="termsCheck">
-                                            <a href="#" class="text-decoration-none">Hüküm ve Koşulları</a> okudum ve kabul ediyorum
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            }
-        </div>
-    </section>
-
-    <!-- Recommended Products -->
-    @if (Model.Items != null && Model.Items.Any())
+    @if (Model.Items == null || !Model.Items.Any())
     {
-        <section class="recommended-products bg-light py-5">
-            <div class="container">
-                <h2 class="h4 mb-4">Bu Ürünler İlginizi Çekebilir</h2>
-                <div class="row">
-                    <!-- Sample recommended products - you would replace this with actual recommended products -->
-                    <div class="col-md-3 mb-4">
-                        <div class="product-card card h-100 border-0 shadow-sm">
-                            <div class="badge bg-danger position-absolute mt-2 ms-2">%15 İndirim</div>
-                            <img src="/images/products/product1.jpg" class="card-img-top" alt="Ürün">
-                            <div class="card-body">
-                                <h5 class="card-title">Wireless Kulaklık</h5>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div class="price">
-                                        <span class="text-muted text-decoration-line-through me-2">₺599</span>
-                                        <span class="fw-bold text-primary">₺509</span>
-                                    </div>
-                                    <button class="btn btn-sm btn-outline-primary">
-                                        <i class="fas fa-plus"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3 mb-4">
-                        <div class="product-card card h-100 border-0 shadow-sm">
-                            <img src="/images/products/product2.jpg" class="card-img-top" alt="Ürün">
-                            <div class="card-body">
-                                <h5 class="card-title">Akıllı Saat</h5>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div class="price">
-                                        <span class="fw-bold text-primary">₺799</span>
-                                    </div>
-                                    <button class="btn btn-sm btn-outline-primary">
-                                        <i class="fas fa-plus"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3 mb-4">
-                        <div class="product-card card h-100 border-0 shadow-sm">
-                            <div class="badge bg-success position-absolute mt-2 ms-2">Yeni</div>
-                            <img src="/images/products/product3.jpg" class="card-img-top" alt="Ürün">
-                            <div class="card-body">
-                                <h5 class="card-title">Taşınabilir Şarj</h5>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div class="price">
-                                        <span class="fw-bold text-primary">₺349</span>
-                                    </div>
-                                    <button class="btn btn-sm btn-outline-primary">
-                                        <i class="fas fa-plus"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3 mb-4">
-                        <div class="product-card card h-100 border-0 shadow-sm">
-                            <img src="/images/products/product4.jpg" class="card-img-top" alt="Ürün">
-                            <div class="card-body">
-                                <h5 class="card-title">Telefon Kılıfı</h5>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div class="price">
-                                        <span class="fw-bold text-primary">₺129</span>
-                                    </div>
-                                    <button class="btn btn-sm btn-outline-primary">
-                                        <i class="fas fa-plus"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        <div class="text-center py-5">
+            <div class="mb-4">
+                <i class="fas fa-shopping-cart text-muted" style="font-size: 5rem;"></i>
             </div>
-        </section>
+            <h4 class="fw-semibold mb-3">Sepetiniz Boş</h4>
+            <p class="text-muted mb-4">Sepetinizde henüz ürün bulunmamaktadır. Hemen alışverişe başlayın!</p>
+            <a href="@Url.Action("Index", "Products")" class="btn btn-primary rounded-pill px-4">
+                <i class="fas fa-store me-1"></i> Ürünleri Keşfet
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="card border-0 shadow-sm rounded-3 overflow-hidden mb-4">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="ps-4 border-0">Ürün</th>
+                            <th class="border-0">Varyant</th>
+                            <th class="border-0">Fiyat</th>
+                            <th class="border-0">Adet</th>
+                            <th class="border-0">Toplam</th>
+                            <th class="pe-4 border-0 text-end">İşlemler</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Items)
+                        {
+                            <tr class="border-top">
+                                <td class="ps-4">
+                                    <div class="d-flex align-items-center">
+                                        @{
+                                            var mainImage = item.Product.Images?.FirstOrDefault(img => img.IsMainImage);
+                                            var imageUrl = mainImage?.ImageUrl ?? "/images/default-product.png";
+                                        }
+                                        <img src="@imageUrl" alt="@item.Product.Name" width="60" class="rounded-2 me-3" style="object-fit: cover; height: 60px;">
+                                        <div>
+                                            <h6 class="mb-0">@item.Product.Name</h6>
+                                            <small class="text-muted">SKU: @item.Product.SKU</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    @if (item.Variant != null)
+                                    {
+                                        <span class="badge bg-primary-soft text-primary">@item.Variant.PriceDifference</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                </td>
+                                <td>
+                                    @{
+                                        var price = item.Variant?.PriceDifference ?? item.Product.Price;
+                                    }
+                                    <span class="fw-bold">@price.ToString("C")</span>
+                                </td>
+                                <td>
+                                    <form asp-action="UpdateQuantity" method="post" class="d-flex align-items-center">
+                                        <input type="hidden" name="itemId" value="@item.Id" />
+                                        <input type="number" name="newQuantity" value="@item.Quantity" min="1"
+                                               class="form-control form-control-sm rounded-pill" style="width: 70px;" />
+                                        <button type="submit" class="btn btn-sm btn-outline-primary ms-2 rounded-pill">
+                                            <i class="fas fa-sync-alt fa-xs"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                                <td>
+                                    @{
+                                        var totalPrice = (item.Variant?.PriceDifference ?? item.Product.Price) * item.Quantity;
+                                    }
+                                    <span class="fw-bold text-primary">@totalPrice.ToString("C")</span>
+                                </td>
+                                <td class="pe-4 text-end">
+                                    <form asp-action="RemoveFromCart" method="post" class="d-inline">
+                                        <input type="hidden" name="itemId" value="@item.Id" />
+                                        <button type="submit" class="btn btn-sm btn-outline-danger rounded-circle"
+                                                data-bs-toggle="tooltip" data-bs-title="Kaldır">
+                                            <i class="fas fa-trash-alt fa-xs"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot class="bg-light">
+                        <tr>
+                            <td colspan="4" class="text-end border-0 fw-bold">Toplam:</td>
+                            <td class="border-0 fw-bold text-primary fs-5">
+                                @Model.Items.Sum(i => (i.Variant?.PriceDifference ?? i.Product.Price) * i.Quantity).ToString("C")
+                            </td>
+                            <td class="pe-4 border-0"></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mt-4">
+            <form asp-action="ClearCart" method="post" class="mb-3 mb-md-0">
+                <button type="submit" class="btn btn-outline-danger rounded-pill px-4">
+                    <i class="fas fa-trash me-1"></i> Sepeti Temizle
+                </button>
+            </form>
+            <a href="@Url.Action("Checkout", "Order")" class="btn btn-primary rounded-pill px-4 py-2">
+                <i class="fas fa-credit-card me-2"></i> Ödemeye Geç (@Model.Items.Sum(i => (i.Variant?.PriceDifference ?? i.Product.Price) * i.Quantity).ToString("C"))
+            </a>
+        </div>
     }
 </div>
 
 @section Styles {
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
     <style>
-        :root {
-            --primary-color: #6c5ce7;
-            --primary-hover: #5649c7;
-            --secondary-color: #a29bfe;
-            --light-color: #f8f9fa;
-            --dark-color: #2d3436;
+        .bg-primary-soft {
+            background-color: rgba(13, 110, 253, 0.1) !important;
         }
 
-        /* Hero Section */
-        .cart-hero {
-            background-color: #f8f9fa;
-            background-image: linear-gradient(to bottom, rgba(255,255,255,0.9), rgba(248,249,250,1)), url('/images/cart-pattern.png');
-            background-size: cover;
-            background-position: center;
-        }
-
-        /* Cart Items */
-        .cart-items {
-            border-radius: 12px;
-            overflow: hidden;
-        }
-
-        .list-group-item {
-            transition: all 0.3s ease;
-        }
-
-            .list-group-item:hover {
-                background-color: rgba(108, 92, 231, 0.05);
-            }
-
-        .product-image {
-            transition: transform 0.3s ease;
-        }
-
-            .product-image:hover {
-                transform: scale(1.05);
-            }
-
-        .variant-badge {
-            transition: all 0.3s ease;
-            border: 1px solid #dee2e6;
-        }
-
-        /* Quantity Selector */
-        .quantity-selector {
-            display: flex;
-            align-items: center;
-        }
-
-            .quantity-selector .btn {
-                width: 32px;
-                height: 32px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                padding: 0;
-            }
-
-        .quantity-input {
-            width: 50px;
-            margin: 0 5px;
-            -moz-appearance: textfield;
-        }
-
-            .quantity-input::-webkit-outer-spin-button,
-            .quantity-input::-webkit-inner-spin-button {
-                -webkit-appearance: none;
-                margin: 0;
-            }
-
-        /* Cart Summary */
-        .cart-summary {
-            border-radius: 12px;
-            overflow: hidden;
-        }
-
-        /* Recommended Products */
-        .product-card {
-            transition: all 0.3s ease;
-            border-radius: 10px;
-            overflow: hidden;
-        }
-
-            .product-card:hover {
-                transform: translateY(-5px);
-                box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
-            }
-
-        .badge {
-            font-size: 0.75rem;
+        .table th {
             font-weight: 600;
-            padding: 0.35em 0.65em;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+            color: #6c757d;
+            border-bottom-width: 1px;
         }
 
-        /* Responsive Adjustments */
-        @@media (max-width: 768px) {
-            .cart-hero {
-                text-align: center;
-                padding: 2rem 0;
-            }
-
-                .cart-hero img {
-                    display: none;
-                }
-
-            .quantity-selector {
-                justify-content: center;
-            }
-
-            .list-group-item {
-                padding: 1.5rem;
-            }
-
-            .product-image {
-                margin-bottom: 1rem;
-            }
+        tr:hover {
+            background-color: #f8f9fa !important;
         }
 
-        /* Animations */
-       
-        .animate-fade-in {
-            animation: fadeIn 0.6s ease forwards;
+        .form-control-sm {
+            height: calc(1.5em + 0.5rem + 2px);
+            padding: 0.25rem 0.5rem;
+        }
+
+        .btn-outline-danger:hover {
+            color: #fff;
+        }
+
+        .rounded-2 {
+            border-radius: 8px !important;
         }
     </style>
 }
 
 @section Scripts {
     <script>
-        // Quantity increment/decrement buttons
-        document.addEventListener('DOMContentLoaded', function() {
-            // Increment button
-            document.querySelectorAll('.increment').forEach(button => {
-                button.addEventListener('click', function() {
-                    const input = this.parentElement.querySelector('.quantity-input');
-                    const max = parseInt(input.getAttribute('max'));
-                    let value = parseInt(input.value);
-                    if (value < max) {
-                        input.value = value + 1;
-                        // Submit the form
-                        this.closest('form').submit();
-                    } else {
-                        // Show stock limit message
-                        alert('Maksimum stok adetine ulaştınız: ' + max);
-                    }
-                });
-            });
-
-            // Decrement button
-            document.querySelectorAll('.decrement').forEach(button => {
-                button.addEventListener('click', function() {
-                    const input = this.parentElement.querySelector('.quantity-input');
-                    let value = parseInt(input.value);
-                    if (value > 1) {
-                        input.value = value - 1;
-                        // Submit the form
-                        this.closest('form').submit();
-                    }
-                });
-            });
-
-            // Input change
-            document.querySelectorAll('.quantity-input').forEach(input => {
-                input.addEventListener('change', function() {
-                    const max = parseInt(this.getAttribute('max'));
-                    let value = parseInt(this.value);
-
-                    if (isNaN(value) || value < 1) {
-                        this.value = 1;
-                    } else if (value > max) {
-                        this.value = max;
-                        alert('Maksimum stok adetine ulaştınız: ' + max);
-                    }
-
-                    // Submit the form
-                    this.closest('form').submit();
-                });
-            });
-
-            // Animate items when they come into view
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('animate-fade-in');
-                    }
-                });
-            }, { threshold: 0.1 });
-
-            document.querySelectorAll('.list-group-item').forEach(item => {
-                item.style.opacity = 0;
-                observer.observe(item);
+        $(document).ready(function () {
+            // Tooltip initialization
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
             });
         });
     </script>
