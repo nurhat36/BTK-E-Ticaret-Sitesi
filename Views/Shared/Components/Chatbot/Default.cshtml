@@ -1,130 +1,315 @@
 ﻿<style>
+    :root {
+        --primary-color: #5c6bc0;
+        --primary-light: #8e99f3;
+        --primary-dark: #26418f;
+        --secondary-color: #ff7043;
+        --text-color: #333;
+        --light-gray: #f5f5f5;
+        --dark-gray: #757575;
+    }
+
     .chat-fab {
         position: fixed;
         bottom: 25px;
         right: 25px;
-        background-color: var(--primary-color);
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
         color: white;
-        width: 60px;
-        height: 60px;
+        width: 70px;
+        height: 70px;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 28px;
+        font-size: 30px;
         cursor: pointer;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        box-shadow: 0 6px 16px rgba(0,0,0,0.2);
         z-index: 1040;
-        transition: all 0.3s ease;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        border: none;
+        outline: none;
     }
 
-        .chat-fab:hover {
-            transform: scale(1.1);
-            background-color: var(--primary-dark);
-        }
+    .chat-fab:hover {
+        transform: scale(1.1) translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+    }
+
+    .chat-fab-pulse {
+        animation: pulse 2s infinite;
+    }
+
+    @@keyframes pulse {
+        0% { box-shadow: 0 0 0 0 rgba(92, 107, 192, 0.7); }
+        70% { box-shadow: 0 0 0 15px rgba(92, 107, 192, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(92, 107, 192, 0); }
+    }
 
     .chat-window {
         position: fixed;
-        bottom: 100px;
+        bottom: 110px;
         right: 25px;
-        width: 350px;
+        width: 380px;
         max-width: 90vw;
-        height: 500px;
+        height: 550px;
+        max-height: 70vh;
         background-color: white;
-        border-radius: 15px;
-        box-shadow: 0 5px 20px rgba(0,0,0,0.2);
-        display: none; /* Başlangıçta gizli */
+        border-radius: 18px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        display: none;
         flex-direction: column;
         z-index: 1039;
         overflow: hidden;
+        transform-origin: bottom right;
+        opacity: 0;
+        transform: scale(0.8);
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
 
-        .chat-window.show {
-            display: flex;
-        }
+    .chat-window.show {
+        display: flex;
+        opacity: 1;
+        transform: scale(1);
+    }
 
     .chat-header {
-        background-color: var(--primary-color);
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
         color: white;
-        padding: 1rem;
-        font-weight: bold;
-        border-radius: 15px 15px 0 0;
+        padding: 1.2rem;
+        font-weight: 600;
+        font-size: 1.1rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .chat-header-actions {
+        display: flex;
+        gap: 10px;
+    }
+
+    .chat-header-btn {
+        background: rgba(255,255,255,0.2);
+        border: none;
+        color: white;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .chat-header-btn:hover {
+        background: rgba(255,255,255,0.3);
     }
 
     .chat-body {
         flex-grow: 1;
-        padding: 1rem;
+        padding: 1.2rem;
         overflow-y: auto;
         display: flex;
         flex-direction: column;
-        gap: 0.75rem;
+        gap: 0.9rem;
+        background-color: var(--light-gray);
     }
 
     .chat-message {
-        padding: 0.6rem 1rem;
-        border-radius: 20px;
-        max-width: 80%;
-        line-height: 1.4;
+        padding: 0.8rem 1.2rem;
+        border-radius: 18px;
+        max-width: 85%;
+        line-height: 1.5;
+        font-size: 0.95rem;
+        position: relative;
+        word-wrap: break-word;
+        animation: messageAppear 0.3s ease-out;
     }
 
-        .chat-message.user {
-            background-color: #e9e9eb;
-            align-self: flex-end;
-            border-bottom-right-radius: 5px;
-        }
+    @@keyframes messageAppear {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
 
-        .chat-message.bot {
-            background-color: var(--primary-light);
-            color: white;
-            align-self: flex-start;
-            border-bottom-left-radius: 5px;
-        }
+    .chat-message.user {
+        background-color: white;
+        color: var(--text-color);
+        align-self: flex-end;
+        border-bottom-right-radius: 5px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+        border: 1px solid #e0e0e0;
+    }
 
-            .chat-message.bot.typing {
-                font-style: italic;
-                color: #ccc;
-                background-color: #f1f1f1;
-            }
+    .chat-message.bot {
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+        color: white;
+        align-self: flex-start;
+        border-bottom-left-radius: 5px;
+    }
+
+    .chat-message.bot.typing {
+        background-color: #e0e0e0;
+        color: var(--dark-gray);
+        font-style: italic;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .typing-dots {
+        display: flex;
+        gap: 4px;
+    }
+
+    .typing-dot {
+        width: 8px;
+        height: 8px;
+        background-color: var(--dark-gray);
+        border-radius: 50%;
+        animation: typingAnimation 1.4s infinite ease-in-out;
+    }
+
+    .typing-dot:nth-child(1) { animation-delay: 0s; }
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+    @@keyframes typingAnimation {
+        0%, 60%, 100% { transform: translateY(0); }
+        30% { transform: translateY(-5px); }
+    }
+
+    .chat-message-time {
+        font-size: 0.7rem;
+        opacity: 0.7;
+        margin-top: 5px;
+        text-align: right;
+    }
 
     .chat-footer {
-        padding: 0.5rem 1rem;
+        padding: 0.8rem;
         border-top: 1px solid #eee;
+        background-color: white;
     }
 
-        .chat-footer form {
-            display: flex;
-            gap: 0.5rem;
-        }
+    .chat-footer form {
+        display: flex;
+        gap: 0.8rem;
+        align-items: center;
+    }
 
-        .chat-footer input {
-            flex-grow: 1;
-            border-radius: 20px !important;
-            border: 1px solid #ddd;
-            padding: 0.5rem 1rem;
-        }
+    .chat-footer input {
+        flex-grow: 1;
+        border-radius: 25px !important;
+        border: 1px solid #ddd;
+        padding: 0.8rem 1.2rem;
+        font-size: 0.95rem;
+        transition: all 0.3s;
+    }
 
-        .chat-footer button {
-            border-radius: 50% !important;
-            width: 40px;
-            height: 40px;
+    .chat-footer input:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(92, 107, 192, 0.2);
+        outline: none;
+    }
+
+    .chat-footer button {
+        border-radius: 50% !important;
+        width: 45px;
+        height: 45px;
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        border: none;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .chat-footer button:hover {
+        transform: scale(1.05);
+        box-shadow: 0 3px 10px rgba(92, 107, 192, 0.3);
+    }
+
+    .chat-footer button:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+
+    .quick-replies {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 10px;
+    }
+
+    .quick-reply {
+        background-color: white;
+        border: 1px solid #e0e0e0;
+        border-radius: 20px;
+        padding: 6px 12px;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .quick-reply:hover {
+        background-color: var(--primary-light);
+        color: white;
+        border-color: var(--primary-light);
+    }
+
+    /* Mobile responsive adjustments */
+    @@media (max-width: 480px) {
+        .chat-window {
+            right: 10px;
+            bottom: 80px;
+            width: calc(100% - 20px);
+            max-width: none;
+            height: 65vh;
         }
+        
+        .chat-fab {
+            right: 15px;
+            bottom: 15px;
+            width: 60px;
+            height: 60px;
+        }
+    }
 </style>
 
-<div class="chat-fab" id="chatFab">
-    <i class="fas fa-robot"></i>
+<div class="chat-fab chat-fab-pulse" id="chatFab">
+    <i class="fas fa-comments"></i>
 </div>
 
-<div class="chat-window animate__animated animate__fadeInUp" id="chatWindow">
+<div class="chat-window" id="chatWindow">
     <div class="chat-header">
-        Alışveriş Asistanı
+        <span>Alışveriş Asistanı</span>
+        <div class="chat-header-actions">
+            <button class="chat-header-btn" id="minimizeBtn"><i class="fas fa-minus"></i></button>
+            <button class="chat-header-btn" id="closeBtn"><i class="fas fa-times"></i></button>
+        </div>
     </div>
     <div class="chat-body" id="chatBody">
-        <div class="chat-message bot">Merhaba! Size nasıl yardımcı olabilirim? Ürünlerimiz hakkında soru sorabilirsiniz.</div>
+        <div class="chat-message bot">
+            Merhaba! Size nasıl yardımcı olabilirim? 😊<br>
+            İşte bazı hızlı seçenekler:
+            <div class="quick-replies">
+                <div class="quick-reply" onclick="sendQuickReply('Ürünleriniz neler?')">Ürünleriniz neler?</div>
+                <div class="quick-reply" onclick="sendQuickReply('Kargo seçenekleri')">Kargo seçenekleri</div>
+                <div class="quick-reply" onclick="sendQuickReply('İade politikası')">İade politikası</div>
+            </div>
+            <div class="chat-message-time">Şimdi</div>
+        </div>
     </div>
     <div class="chat-footer">
         <form id="chatForm">
             <input type="text" id="chatInput" placeholder="Mesajınızı yazın..." autocomplete="off" required>
-            <button type="submit" class="btn btn-primary">
+            <button type="submit" class="btn btn-primary" id="sendBtn">
                 <i class="fas fa-paper-plane"></i>
             </button>
         </form>
@@ -138,16 +323,42 @@
         const chatForm = document.getElementById('chatForm');
         const chatInput = document.getElementById('chatInput');
         const chatBody = document.getElementById('chatBody');
+        const minimizeBtn = document.getElementById('minimizeBtn');
+        const closeBtn = document.getElementById('closeBtn');
+        const sendBtn = document.getElementById('sendBtn');
 
-        if (!chatFab) return; // Component'in yüklendiğinden emin ol
+        // Yeni mesaj geldiğinde FAB'ı pulsate yap
+        let newMessageNotification = false;
+        
+        // Sohbet geçmişi
+        let chatHistory = [];
 
         // Sohbet penceresini aç/kapat
         chatFab.addEventListener('click', () => {
             chatWindow.classList.toggle('show');
             if (chatWindow.classList.contains('show')) {
                 chatInput.focus();
+                // Pencere açıldığında pulsation'ı kaldır
+                chatFab.classList.remove('chat-fab-pulse');
+                newMessageNotification = false;
             }
         });
+
+        // Pencereyi küçült
+        minimizeBtn.addEventListener('click', () => {
+            chatWindow.classList.remove('show');
+        });
+
+        // Pencereyi kapat
+        closeBtn.addEventListener('click', () => {
+            chatWindow.classList.remove('show');
+        });
+
+        // Hızlı cevap gönder
+        window.sendQuickReply = function(message) {
+            chatInput.value = message;
+            chatForm.dispatchEvent(new Event('submit'));
+        };
 
         // Form gönderildiğinde
         chatForm.addEventListener('submit', async (e) => {
@@ -156,7 +367,9 @@
             if (!userMessage) return;
 
             addMessageToUI(userMessage, 'user');
+            chatHistory.push({ role: 'user', content: userMessage });
             chatInput.value = '';
+            sendBtn.disabled = true;
 
             showTypingIndicator();
 
@@ -164,7 +377,10 @@
                 const response = await fetch('/api/chat/sendmessage', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: userMessage })
+                    body: JSON.stringify({ 
+                        message: userMessage,
+                        history: chatHistory
+                    })
                 });
 
                 removeTypingIndicator();
@@ -175,45 +391,79 @@
                 }
 
                 const data = await response.json();
-                addMessageToUI(data.reply, 'bot'); // Burası değişmedi, asıl değişiklik addMessageToUI içinde
+                addMessageToUI(data.reply, 'bot');
+                chatHistory.push({ role: 'assistant', content: data.reply });
+
+                // Eğer sohbet penceresi kapalıysa bildirim göster
+                if (!chatWindow.classList.contains('show')) {
+                    chatFab.classList.add('chat-fab-pulse');
+                    newMessageNotification = true;
+                }
 
             } catch (error) {
                 removeTypingIndicator();
                 addMessageToUI('Bağlantı hatası. İnternetinizi kontrol edip tekrar deneyin.', 'bot');
                 console.error('Chat error:', error);
+            } finally {
+                sendBtn.disabled = false;
             }
         });
 
-        // addMessageToUI fonksiyonu güncellendi
+        // Mesaj ekleme fonksiyonu
         function addMessageToUI(message, sender) {
             const messageElement = document.createElement('div');
             messageElement.classList.add('chat-message', sender);
-
-            // Eğer gönderici bot ise ve mesaj HTML içerebilir, innerHTML kullan
+            
             if (sender === 'bot') {
-                // Güvenli bir şekilde HTML içeriği eklemek için, sadece belirli etiketlere izin verilebilir.
-                // Şimdilik, sadece linkleri (<a>) desteklemek için bir regex kullanacağız.
-                // Eğer Gemini'den başka HTML etiketleri (örn: <b>, <i>, <ul>) geliyorsa, bu regex'i veya
-                // bir DOMPurify gibi kütüphaneyi genişletmeniz gerekebilir.
-
                 // Linkleri tıklanabilir hale getir
                 let processedMessage = message.replace(
-                    /(URL:\s*)([^\s]+)/g, // "URL: /product/abc" gibi desenleri bulur
-                    `<a href="$2" target="_blank" style="color: white; text-decoration: underline;">$2</a>`
+                    /(URL:\s*)([^\s]+)/g,
+                    `<a href="$2" target="_blank" style="color: white; text-decoration: underline; font-weight: 500;">$2</a>`
                 );
-
-                // Eğer ürün detayında link olarak dönmüyorsa ama AI kendisi link oluşturuyorsa diye genel http/https linklerini de yakalayalım.
+                
                 processedMessage = processedMessage.replace(
                     /(https?:\/\/[^\s]+)/g,
-                    `<a href="$1" target="_blank" style="color: white; text-decoration: underline;">$1</a>`
+                    `<a href="$1" target="_blank" style="color: white; text-decoration: underline; font-weight: 500;">$1</a>`
                 );
-
+                
+                // Ürün önerileri için özel formatlama
+                if (message.includes('Ürün Önerisi:')) {
+                    processedMessage = processedMessage.replace(
+                        /Ürün Önerisi:([^\n]+)\n/g,
+                        `<strong>Ürün Önerisi:</strong> $1<br>`
+                    );
+                }
+                
                 messageElement.innerHTML = processedMessage;
+                
+                // Hızlı cevaplar ekle
+                if (message.includes('?')) {
+                    const quickReplies = getQuickRepliesBasedOnContext(message);
+                    if (quickReplies.length > 0) {
+                        const quickReplyContainer = document.createElement('div');
+                        quickReplyContainer.className = 'quick-replies';
+                        
+                        quickReplies.forEach(reply => {
+                            const quickReply = document.createElement('div');
+                            quickReply.className = 'quick-reply';
+                            quickReply.textContent = reply;
+                            quickReply.onclick = () => sendQuickReply(reply);
+                            quickReplyContainer.appendChild(quickReply);
+                        });
+                        
+                        messageElement.appendChild(quickReplyContainer);
+                    }
+                }
             } else {
-                // Kullanıcı mesajları her zaman düz metin olmalı
                 messageElement.textContent = message;
             }
-
+            
+            // Mesaj zamanı ekle
+            const timeElement = document.createElement('div');
+            timeElement.className = 'chat-message-time';
+            timeElement.textContent = getCurrentTime();
+            messageElement.appendChild(timeElement);
+            
             chatBody.appendChild(messageElement);
             chatBody.scrollTop = chatBody.scrollHeight;
         }
@@ -222,9 +472,22 @@
             const typingElement = document.createElement('div');
             typingElement.id = 'typingIndicator';
             typingElement.classList.add('chat-message', 'bot', 'typing');
-            typingElement.textContent = 'Yazıyor...';
+            
+            const typingText = document.createElement('span');
+            typingText.textContent = 'Yazıyor';
+            
+            const dotsContainer = document.createElement('div');
+            dotsContainer.className = 'typing-dots';
+            dotsContainer.innerHTML = `
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+            `;
+            
+            typingElement.appendChild(typingText);
+            typingElement.appendChild(dotsContainer);
             chatBody.appendChild(typingElement);
-            chatBody.scrollTop = chatBody.ScrollHeight;
+            chatBody.scrollTop = chatBody.scrollHeight;
         }
 
         function removeTypingIndicator() {
@@ -232,6 +495,22 @@
             if (typingIndicator) {
                 typingIndicator.remove();
             }
+        }
+        
+        function getCurrentTime() {
+            const now = new Date();
+            return now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+        
+        function getQuickRepliesBasedOnContext(message) {
+            if (message.includes('ürün') || message.includes('katalog')) {
+                return ['Popüler ürünler neler?', 'İndirimdeki ürünler', 'Yeni gelen ürünler'];
+            } else if (message.includes('kargo') || message.includes('teslimat')) {
+                return ['Ücretsiz kargo şartları', 'Teslimat süreleri', 'Kargo takibi'];
+            } else if (message.includes('ödeme') || message.includes('fiyat')) {
+                return ['Taksit seçenekleri', 'İndirim kodları', 'Fiyat aralığı'];
+            }
+            return [];
         }
     });
 </script>
