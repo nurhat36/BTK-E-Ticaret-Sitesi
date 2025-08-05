@@ -32,7 +32,24 @@
 
                                 <div class="mb-3">
                                     <label asp-for="Input.Password" class="form-label">Password</label>
-                                    <input asp-for="Input.Password" class="form-control form-control-lg" autocomplete="new-password" aria-required="true" placeholder="Create password" />
+                                    <input asp-for="Input.Password" class="form-control form-control-lg"
+                                           autocomplete="new-password"
+                                           aria-required="true"
+                                           placeholder="Create password"
+                                           id="passwordInput" />
+                                    <div id="passwordStrength" class="mt-2">
+                                        <div class="progress" style="height: 5px;">
+                                            <div id="passwordStrengthBar" class="progress-bar" role="progressbar"></div>
+                                        </div>
+                                        <small id="passwordHelp" class="form-text text-muted"></small>
+                                        <ul id="passwordCriteria" class="list-unstyled small mt-2">
+                                            <li id="length" class="text-danger"><i class="bi bi-x-circle-fill"></i> At least 8 characters</li>
+                                            <li id="uppercase" class="text-danger"><i class="bi bi-x-circle-fill"></i> At least one uppercase letter</li>
+                                            <li id="lowercase" class="text-danger"><i class="bi bi-x-circle-fill"></i> At least one lowercase letter</li>
+                                            <li id="number" class="text-danger"><i class="bi bi-x-circle-fill"></i> At least one number</li>
+                                            <li id="special" class="text-danger"><i class="bi bi-x-circle-fill"></i> At least one special character</li>
+                                        </ul>
+                                    </div>
                                     <span asp-validation-for="Input.Password" class="text-danger small"></span>
                                 </div>
 
@@ -119,9 +136,95 @@
         .form-label {
             font-weight: 500;
         }
+
+        #passwordStrength {
+            margin-top: 0.5rem;
+        }
+
+        #passwordCriteria li {
+            margin-bottom: 0.3rem;
+            transition: all 0.3s ease;
+        }
+
+            #passwordCriteria li.valid {
+                color: #28a745 !important;
+            }
+
+            #passwordCriteria li i {
+                margin-right: 5px;
+            }
     </style>
 }
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const passwordInput = document.getElementById('passwordInput');
+            const passwordStrengthBar = document.getElementById('passwordStrengthBar');
+            const passwordHelp = document.getElementById('passwordHelp');
+            const passwordCriteria = {
+                length: document.getElementById('length'),
+                uppercase: document.getElementById('uppercase'),
+                lowercase: document.getElementById('lowercase'),
+                number: document.getElementById('number'),
+                special: document.getElementById('special')
+            };
+
+            passwordInput.addEventListener('input', function () {
+                const password = this.value;
+                let strength = 0;
+                let messages = [];
+
+                // Check password criteria
+                const hasMinLength = password.length >= 8;
+                const hasUpperCase = /[A-Z]/.test(password);
+                const hasLowerCase = /[a-z]/.test(password);
+                const hasNumbers = /\d/.test(password);
+                const hasSpecial = /[!@@#$%^&*(),.?":{}|<>]/.test(password);
+
+                // Update criteria list
+                updateCriterion(passwordCriteria.length, hasMinLength);
+                updateCriterion(passwordCriteria.uppercase, hasUpperCase);
+                updateCriterion(passwordCriteria.lowercase, hasLowerCase);
+                updateCriterion(passwordCriteria.number, hasNumbers);
+                updateCriterion(passwordCriteria.special, hasSpecial);
+
+                // Calculate strength
+                if (hasMinLength) strength += 20;
+                if (hasUpperCase) strength += 20;
+                if (hasLowerCase) strength += 20;
+                if (hasNumbers) strength += 20;
+                if (hasSpecial) strength += 20;
+
+                // Update progress bar
+                passwordStrengthBar.style.width = strength + '%';
+
+                // Update color based on strength
+                if (strength < 40) {
+                    passwordStrengthBar.className = 'progress-bar bg-danger';
+                    passwordHelp.textContent = 'Weak password';
+                } else if (strength < 80) {
+                    passwordStrengthBar.className = 'progress-bar bg-warning';
+                    passwordHelp.textContent = 'Moderate password';
+                } else {
+                    passwordStrengthBar.className = 'progress-bar bg-success';
+                    passwordHelp.textContent = 'Strong password';
+                }
+            });
+
+            function updateCriterion(element, isValid) {
+                if (isValid) {
+                    element.classList.add('valid');
+                    element.classList.remove('text-danger');
+                    element.innerHTML = element.innerHTML.replace('bi-x-circle-fill', 'bi-check-circle-fill');
+                } else {
+                    element.classList.remove('valid');
+                    element.classList.add('text-danger');
+                    element.innerHTML = element.innerHTML.replace('bi-check-circle-fill', 'bi-x-circle-fill');
+                }
+            }
+        });
+    </script>
 }
