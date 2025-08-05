@@ -1,6 +1,7 @@
 ﻿using BTKETicaretSitesi.Data;
 using BTKETicaretSitesi.Models;
 using BTKETicaretSitesi.Models.ViewModels;
+using BTKETicaretSitesi.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -17,11 +18,13 @@ namespace BTKETicaretSitesi.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly NotificationService _notificationService;
 
-        public OrderController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
+        public OrderController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, NotificationService notificationService)
         {
             _context = context;
             _userManager = userManager;
+            _notificationService = notificationService;
         }
 
         // Sipariş listesi
@@ -88,6 +91,8 @@ namespace BTKETicaretSitesi.Controllers
                 _context.CartItems.RemoveRange(cart.Items);
                 await _context.SaveChangesAsync();
             }
+            
+            
 
             return View(order);
         }
@@ -231,6 +236,13 @@ namespace BTKETicaretSitesi.Controllers
             _context.Orders.Add(order);
             _context.CartItems.RemoveRange(model.Cart.Items);
             await _context.SaveChangesAsync();
+
+            await _notificationService.CreateNotificationAsync(
+                userId,
+                "Siparişiniz Alındı",
+                $"#{order.OrderNumber} numaralı siparişiniz başarıyla oluşturuldu.",
+                link: $"/Orders/Details/{order.OrderNumber}",
+                NotificationType.Order);
 
             // BAŞARILI YÖNLENDİRME
             return RedirectToAction("OrderComplete", new { orderId = order.Id });

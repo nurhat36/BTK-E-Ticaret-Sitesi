@@ -29,6 +29,8 @@ builder.Services.AddScoped<ReviewAnalysisService>();
 builder.Services.AddTransient<GeminiApiService>();
 builder.Services.AddScoped<GeminiQuestionAnalysisService>();
 builder.Services.AddScoped<QuestionAnalysisService>();
+// Notification servisi için yapılandırma
+builder.Services.AddScoped<NotificationService>();
 
 
 

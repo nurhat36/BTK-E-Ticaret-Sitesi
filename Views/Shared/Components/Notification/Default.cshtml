@@ -1,0 +1,206 @@
+﻿@model List<Notification>
+
+<li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle position-relative" href="#" id="navbarDropdownNotifications" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="fas fa-bell"></i>
+        @if (Model.Count > 0)
+        {
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                @Model.Count
+                <span class="visually-hidden">okunmamış bildirimler</span>
+            </span>
+        }
+    </a>
+    <div class="dropdown-menu dropdown-menu-end notification-dropdown" aria-labelledby="navbarDropdownNotifications">
+        <div class="px-3 py-2 border-bottom d-flex justify-content-between align-items-center">
+            <h6 class="mb-0 fw-bold">Bildirimler</h6>
+            <small class="text-muted">@Model.Count adet</small>
+        </div>
+
+        @if (Model.Any())
+        {
+            <div class="notification-list">
+                @foreach (var notification in Model.Take(10))
+                {
+                    <a class="dropdown-item notification-item @(notification.IsRead ? "" : "unread") py-3"
+                       href="@(notification.Link ?? "#")"
+                       onclick="markAsRead(event, @notification.Id, this, '@(notification.Link ?? "#")')">
+                        <div class="d-flex align-items-start">
+                            <div class="flex-shrink-0 me-3">
+                                <div class="icon-circle bg-@GetNotificationBgColor(notification.Type)">
+                                    <i class="fas @GetNotificationIcon(notification.Type) text-white"></i>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <h6 class="mb-0 fw-bold">@notification.Title</h6>
+                                    <small class="text-muted">@GetRelativeTime(notification.CreatedAt)</small>
+                                </div>
+                                <p class="mb-0 small text-muted">@notification.Message</p>
+                            </div>
+                        </div>
+                    </a>
+                }
+            </div>
+            <div class="dropdown-divider my-0"></div>
+            <a class="dropdown-item text-center py-2 bg-light" asp-controller="Account" asp-action="Notifications">
+                <i class="fas fa-list me-1"></i> Tüm Bildirimleri Görüntüle
+            </a>
+        }
+        else
+        {
+            <div class="text-center py-4">
+                <div class="icon-circle bg-light mx-auto mb-3">
+                    <i class="fas fa-bell-slash text-muted"></i>
+                </div>
+                <h6 class="fw-bold">Bildiriminiz Yok</h6>
+                <p class="small text-muted mb-0">Yeni bildirimleriniz burada görünecek</p>
+            </div>
+        }
+    </div>
+</li>
+
+@functions {
+    string GetNotificationIcon(NotificationType type)
+    {
+        return type switch
+        {
+            NotificationType.Order => "fa-shopping-bag",
+            NotificationType.Promotion => "fa-percentage",
+            NotificationType.System => "fa-cog",
+            _ => "fa-info-circle"
+        };
+    }
+
+    string GetNotificationBgColor(NotificationType type)
+    {
+        return type switch
+        {
+            NotificationType.Order => "primary",
+            NotificationType.Promotion => "success",
+            NotificationType.System => "info",
+            _ => "secondary"
+        };
+    }
+
+    string GetRelativeTime(DateTime date)
+    {
+        var timeSpan = DateTime.Now - date;
+
+        if (timeSpan <= TimeSpan.FromSeconds(60))
+            return $"{timeSpan.Seconds} saniye önce";
+
+        if (timeSpan <= TimeSpan.FromMinutes(60))
+            return $"{timeSpan.Minutes} dakika önce";
+
+        if (timeSpan <= TimeSpan.FromHours(24))
+            return $"{timeSpan.Hours} saat önce";
+
+        if (timeSpan <= TimeSpan.FromDays(30))
+            return $"{timeSpan.Days} gün önce";
+
+        if (timeSpan <= TimeSpan.FromDays(365))
+            return date.ToString("dd MMMM");
+
+        return date.ToString("dd.MM.yyyy");
+    }
+}
+
+<script>
+    function markAsRead(event, notificationId, element, link) {
+        // Eğer link '#' ise, sadece okundu işaretle ve dropdown'u kapatma
+        if (link === '#') {
+            event.preventDefault();
+        }
+
+        fetch('/Account/MarkNotificationAsRead?id=' + notificationId, {
+            method: 'POST',
+            headers: {
+                'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value,
+                'Content-Type': 'application/json'
+            }
+        }).then(response => {
+            if (response.ok) {
+                // Görsel geri bildirim
+                element.classList.remove('unread');
+
+                // Bildirim sayacını güncelle
+                const badge = document.querySelector('#navbarDropdownNotifications .badge');
+                if (badge) {
+                    const currentCount = parseInt(badge.textContent);
+                    if (currentCount > 1) {
+                        badge.textContent = currentCount - 1;
+                    } else {
+                        badge.remove();
+                    }
+                }
+
+                // Eğer geçerli bir link varsa ve '#' değilse yönlendir
+                if (link && link !== '#') {
+                    // Dropdown'u kapat
+                    const dropdown = bootstrap.Dropdown.getInstance(element.closest('.dropdown-menu').previousElementSibling);
+                    dropdown.hide();
+
+                    // Yönlendirme yap
+                    window.location.href = link;
+                }
+            }
+        }).catch(error => {
+            console.error('Error:', error);
+        });
+    }
+</script>
+
+<style>
+    .notification-dropdown {
+        width: 380px;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+    }
+
+    .notification-list {
+        max-height: 400px;
+        overflow-y: auto;
+    }
+
+    .notification-item {
+        border-left: 3px solid transparent;
+        transition: all 0.2s ease;
+        padding: 0.75rem 1.5rem !important;
+    }
+
+        .notification-item:hover {
+            background-color: rgba(13, 110, 253, 0.05);
+            border-left-color: var(--bs-primary);
+        }
+
+        .notification-item.unread {
+            background-color: rgba(13, 110, 253, 0.03);
+        }
+
+    .icon-circle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2.5rem;
+        height: 2.5rem;
+        border-radius: 50%;
+    }
+
+    .notification-list::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .notification-list::-webkit-scrollbar-track {
+        background: #f8f9fa;
+    }
+
+    .notification-list::-webkit-scrollbar-thumb {
+        background: #dee2e6;
+        border-radius: 3px;
+    }
+
+        .notification-list::-webkit-scrollbar-thumb:hover {
+            background: #adb5bd;
+        }
+</style>
