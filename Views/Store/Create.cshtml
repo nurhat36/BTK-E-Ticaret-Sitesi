@@ -4,30 +4,123 @@
     ViewData["Title"] = "Mağaza Oluştur";
 }
 
-<h2>Yeni Mağaza Oluştur</h2>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-lg">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="h4 mb-0">Yeni Mağaza Oluştur</h2>
+                </div>
 
-<form asp-action="Create" method="post" enctype="multipart/form-data">
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="card-body">
+                    <form asp-action="Create" method="post" enctype="multipart/form-data">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 
-    <div class="form-group">
-        <label asp-for="Name" class="control-label"></label>
-        <input asp-for="Name" class="form-control" />
-        <span asp-validation-for="Name" class="text-danger"></span>
+                        <!-- Mağaza Adı -->
+                        <div class="mb-4">
+                            <label asp-for="Name" class="form-label fw-bold"></label>
+                            <input asp-for="Name" class="form-control form-control-lg" placeholder="Mağaza adını giriniz" />
+                            <span asp-validation-for="Name" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Açıklama -->
+                        <div class="mb-4">
+                            <label asp-for="Description" class="form-label fw-bold"></label>
+                            <textarea asp-for="Description" class="form-control" rows="5" placeholder="Mağazanız hakkında detaylı bilgi verin"></textarea>
+                            <span asp-validation-for="Description" class="text-danger small"></span>
+                            <div class="form-text">Mağazanızı en iyi şekilde tanımlayan bir açıklama yazın.</div>
+                        </div>
+
+                        <!-- Logo Yükleme -->
+                        <div class="mb-4">
+                            <label asp-for="LogoImage" class="form-label fw-bold"></label>
+                            <div class="file-upload-wrapper">
+                                <input type="file" asp-for="LogoImage" class="form-control" id="logoUpload" />
+                                <label for="logoUpload" class="file-upload-label">
+                                    <i class="bi bi-cloud-upload"></i> Logo Dosyası Seçin
+                                </label>
+                                <span asp-validation-for="LogoImage" class="text-danger small d-block mt-1"></span>
+                                <div class="form-text">Önerilen boyut: 300x300 px (PNG veya JPG)</div>
+                            </div>
+
+                            <!-- Logo önizleme alanı -->
+                            <div class="mt-3 text-center" id="logoPreviewContainer" style="display:none;">
+                                <img id="logoPreview" src="#" alt="Logo önizleme" class="img-thumbnail" style="max-width: 150px; max-height: 150px;" />
+                            </div>
+                        </div>
+
+                        <!-- Gönder Butonu -->
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="bi bi-check-circle"></i> Mağaza Oluştur
+                            </button>
+                            <a href="#" class="btn btn-outline-secondary">Vazgeç</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
+</div>
 
-    <div class="form-group">
-        <label asp-for="Description" class="control-label"></label>
-        <textarea asp-for="Description" class="form-control" rows="5"></textarea>
-        <span asp-validation-for="Description" class="text-danger"></span>
-    </div>
+@section Scripts {
+    <script>
+        // Logo önizleme işlevi
+        document.getElementById('logoUpload').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById('logoPreview');
+                    preview.src = e.target.result;
+                    document.getElementById('logoPreviewContainer').style.display = 'block';
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+    </script>
 
-    <div class="form-group">
-        <label asp-for="LogoImage" class="control-label"></label>
-        <input type="file" asp-for="LogoImage" class="form-control-file" />
-        <span asp-validation-for="LogoImage" class="text-danger"></span>
-    </div>
+    <partial name="_ValidationScriptsPartial" />
+}
 
-    <div class="form-group mt-3">
-        <input type="submit" value="Mağaza Oluştur" class="btn btn-primary" />
-    </div>
-</form>
+<style>
+    .file-upload-wrapper {
+        position: relative;
+        margin-bottom: 1rem;
+    }
+
+    .file-upload-label {
+        display: block;
+        padding: 0.5rem 1rem;
+        background-color: #f8f9fa;
+        border: 1px dashed #ced4da;
+        border-radius: 0.375rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .file-upload-label:hover {
+        background-color: #e9ecef;
+        border-color: #adb5bd;
+    }
+
+    .file-upload-wrapper input[type="file"] {
+        position: absolute;
+        left: 0;
+        top: 0;
+        opacity: 0;
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
+    }
+
+    .card {
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .card-header {
+        padding: 1.5rem;
+    }
+</style>
