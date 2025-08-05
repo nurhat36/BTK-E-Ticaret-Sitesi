@@ -1,42 +1,347 @@
 ﻿@page
 @model IndexModel
 @{
-    ViewData["Title"] = "Profile";
+    ViewData["Title"] = "Profil Ayarları";
     ViewData["ActivePage"] = ManageNavPages.Index;
 }
 
-<h4>@ViewData["Title"]</h4>
+<div class="profile-container">
+    <div class="profile-card">
+        <div class="profile-header">
+            <h1>@ViewData["Title"]</h1>
+            @if (!string.IsNullOrEmpty(Model.ProfileImageUrl))
+            {
+                <div class="profile-avatar glow">
+                    <img src="@Model.ProfileImageUrl" alt="Profil Resmi" />
+                </div>
+            }
+        </div>
 
-<partial name="_StatusMessage" model="Model.StatusMessage" />
-<div class="row">
-    <div class="col-md-6">
-        <form id="profile-form" method="post" enctype="multipart/form-data">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Username"></label>
+        <partial name="_StatusMessage" model="Model.StatusMessage" />
+
+        <form id="profile-form" method="post" enctype="multipart/form-data" class="profile-form">
+            <div asp-validation-summary="ModelOnly" class="form-error"></div>
+
+            <div class="form-group floating">
                 <input asp-for="Username" class="form-control" disabled />
+                <label asp-for="Username"></label>
+                <i class="bi bi-person icon"></i>
             </div>
-            <div class="form-group">
-                <label asp-for="Input.PhoneNumber"></label>
+
+            <div class="form-group floating">
                 <input asp-for="Input.PhoneNumber" class="form-control" />
-                <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
+                <label asp-for="Input.PhoneNumber"></label>
+                <i class="bi bi-phone icon"></i>
+                <span asp-validation-for="Input.PhoneNumber" class="validation-error"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="Input.ProfileImage"></label>
-                <input type="file" asp-for="Input.ProfileImage" class="form-control-file" />
-                <span asp-validation-for="Input.ProfileImage" class="text-danger"></span>
-                @if (!string.IsNullOrEmpty(Model.ProfileImageUrl))
-                {
-                    <div class="mt-2">
-                        <img src="@Model.ProfileImageUrl" width="100" class="img-thumbnail" />
-                    </div>
-                }
+
+            <div class="form-group file-upload">
+                <label class="upload-label">
+                    <span class="upload-text">
+                        <i class="bi bi-cloud-arrow-up"></i> Profil Resmi Yükle
+                    </span>
+                    <input type="file" asp-for="Input.ProfileImage" class="upload-input" accept="image/*" />
+                </label>
+                <span asp-validation-for="Input.ProfileImage" class="validation-error"></span>
+                <div class="image-preview-container">
+                    @if (!string.IsNullOrEmpty(Model.ProfileImageUrl))
+                    {
+                        <div class="image-preview" style="background-image: url('@Model.ProfileImageUrl')"></div>
+                    }
+                    else
+                    {
+                        <div class="image-preview default">
+                            <i class="bi bi-person-circle"></i>
+                        </div>
+                    }
+                </div>
             </div>
-            <button id="update-profile-button" type="submit" class="btn btn-primary">Save</button>
+
+            <button type="submit" class="submit-btn">
+                <span class="btn-text">Kaydet</span>
+                <i class="bi bi-check-circle"></i>
+            </button>
         </form>
     </div>
 </div>
 
+@section Styles {
+    <style>
+        :root {
+            --primary-color: #6a11cb;
+            --secondary-color: #2575fc;
+            --accent-color: #ff5e62;
+            --text-color: #2c3e50;
+            --light-color: #f8f9fa;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .profile-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 2rem;
+        }
+
+        .profile-card {
+            width: 100%;
+            max-width: 600px;
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            position: relative;
+            z-index: 1;
+        }
+
+            .profile-card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 10px;
+                background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            }
+
+        .profile-header {
+            padding: 2rem 2rem 1rem;
+            text-align: center;
+            position: relative;
+        }
+
+            .profile-header h1 {
+                color: var(--text-color);
+                font-weight: 700;
+                margin-bottom: 1.5rem;
+                font-size: 1.8rem;
+                background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+            }
+
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            margin: 0 auto 1.5rem;
+            overflow: hidden;
+            border: 4px solid white;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+            .profile-avatar.glow {
+                box-shadow: 0 0 20px rgba(106, 17, 203, 0.3);
+            }
+
+            .profile-avatar img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+        .profile-form {
+            padding: 0 2rem 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 1rem 1rem 1rem 3rem;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background-color: var(--light-color);
+        }
+
+            .form-control:focus {
+                border-color: var(--secondary-color);
+                box-shadow: 0 0 0 3px rgba(37, 117, 252, 0.2);
+                outline: none;
+            }
+
+        .floating label {
+            position: absolute;
+            top: 1rem;
+            left: 3rem;
+            color: #6c757d;
+            transition: all 0.3s ease;
+            pointer-events: none;
+        }
+
+        .floating .form-control:focus + label,
+        .floating .form-control:not(:placeholder-shown) + label {
+            top: -0.5rem;
+            left: 1rem;
+            font-size: 0.75rem;
+            background: white;
+            padding: 0 0.5rem;
+            color: var(--secondary-color);
+        }
+
+        .icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--secondary-color);
+            font-size: 1.2rem;
+        }
+
+        .file-upload {
+            text-align: center;
+        }
+
+        .upload-label {
+            display: inline-block;
+            padding: 1rem 2rem;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(106, 17, 203, 0.3);
+            margin-bottom: 1rem;
+        }
+
+            .upload-label:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 6px 20px rgba(106, 17, 203, 0.4);
+            }
+
+        .upload-text {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 500;
+        }
+
+        .upload-input {
+            display: none;
+        }
+
+        .image-preview-container {
+            margin-top: 1rem;
+            display: flex;
+            justify-content: center;
+        }
+
+        .image-preview {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background-size: cover;
+            background-position: center;
+            border: 4px solid white;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+            .image-preview.default {
+                background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: var(--secondary-color);
+                font-size: 3rem;
+            }
+
+        .submit-btn {
+            width: 100%;
+            padding: 1rem;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            box-shadow: 0 4px 15px rgba(106, 17, 203, 0.3);
+        }
+
+            .submit-btn:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 6px 20px rgba(106, 17, 203, 0.4);
+                background: linear-gradient(90deg, var(--secondary-color), var(--primary-color));
+            }
+
+        .form-error {
+            color: #dc3545;
+            background: #f8d7da;
+            padding: 0.75rem;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+            border: 1px solid #f5c6cb;
+        }
+
+        .validation-error {
+            color: #dc3545;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+            display: block;
+        }
+
+        @@media (max-width: 576px) {
+            .profile-container {
+                padding: 1rem;
+            }
+
+            .profile-header {
+                padding: 1.5rem 1rem 0;
+            }
+
+            .profile-form {
+                padding: 0 1rem 1.5rem;
+            }
+        }
+    </style>
+}
+
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Resim önizleme fonksiyonu
+        document.addEventListener('DOMContentLoaded', function() {
+            const fileInput = document.querySelector('.upload-input');
+            const imagePreview = document.querySelector('.image-preview');
+
+            if (fileInput && imagePreview) {
+                fileInput.addEventListener('change', function() {
+                    if (this.files && this.files[0]) {
+                        const reader = new FileReader();
+
+                        reader.onload = function(e) {
+                            if (imagePreview.classList.contains('default')) {
+                                imagePreview.classList.remove('default');
+                                imagePreview.innerHTML = '';
+                            }
+                            imagePreview.style.backgroundImage = `url(${e.target.result})`;
+                        }
+
+                        reader.readAsDataURL(this.files[0]);
+                    }
+                });
+            }
+
+            // Floating label için placeholder ekleme
+            document.querySelectorAll('.floating .form-control').forEach(input => {
+                if (!input.getAttribute('placeholder')) {
+                    input.setAttribute('placeholder', ' ');
+                }
+            });
+        });
+    </script>
 }

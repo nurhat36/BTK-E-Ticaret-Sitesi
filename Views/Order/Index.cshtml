@@ -4,50 +4,86 @@
     ViewData["Title"] = "Siparişlerim";
 }
 
-<div class="container mt-4">
-    <h2>Siparişlerim</h2>
+<div class="orders-container">
+    <div class="orders-header">
+        <h1>Siparişlerim</h1>
+        <div class="order-stats">
+            <div class="stat-card">
+                <span class="stat-number">@Model.Count()</span>
+                <span class="stat-label">Toplam Sipariş</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number">@Model.Count(o => o.Status == OrderStatus.Delivered)</span>
+                <span class="stat-label">Teslim Edilen</span>
+            </div>
+        </div>
+    </div>
 
     @if (!Model.Any())
     {
-        <div class="alert alert-info">
-            Henüz siparişiniz bulunmamaktadır. <a href="@Url.Action("Index", "Home")">Alışverişe başlamak için tıklayın.</a>
+        <div class="empty-order">
+            <div class="empty-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M.5 1a.5.5 0 0 0 0 1h1.11l.401 1.607 1.498 7.985A.5.5 0 0 0 4 12h1a2 2 0 1 0 0 4 2 2 0 0 0 0-4h7a2 2 0 1 0 0 4 2 2 0 0 0 0-4h1a.5.5 0 0 0 .491-.408l1.5-8A.5.5 0 0 0 14.5 3H2.89l-.405-1.621A.5.5 0 0 0 2 1H.5zM6 14a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm7 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM9 5.5V7h1.5a.5.5 0 0 1 0 1H9v1.5a.5.5 0 0 1-1 0V8H6.5a.5.5 0 0 1 0-1H8V5.5a.5.5 0 0 1 1 0z" />
+                </svg>
+            </div>
+            <h3>Henüz siparişiniz bulunmamaktadır</h3>
+            <p>Alışverişe başlamak için mağazamızı ziyaret edin</p>
+            <a href="@Url.Action("Index", "Home")" class="btn-shop-now">
+                Alışverişe Başla
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z" />
+                </svg>
+            </a>
         </div>
     }
     else
     {
-        <div class="table-responsive">
-            <table class="table table-bordered table-hover">
-                <thead class="thead-light">
-                    <tr>
-                        <th>Sipariş No</th>
-                        <th>Tarih</th>
-                        <th>Durum</th>
-                        <th>Toplam</th>
-                        <th>İşlemler</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var order in Model)
-                    {
-                        <tr>
-                            <td>@order.OrderNumber</td>
-                            <td>@order.OrderDate.ToString("dd.MM.yyyy HH:mm")</td>
-                            <td>
-                                <span class="badge @GetStatusBadgeClass(order.Status)">
-                                    @order.Status
-                                </span>
-                            </td>
-                            <td>@((order.OrderTotal + order.ShippingFee + order.TaxAmount).ToString("C"))</td>
-                            <td>
-                                <a href="@Url.Action("Details", new { orderNumber = order.OrderNumber })"
-                                   class="btn btn-sm btn-outline-primary">
-                                    Detaylar
-                                </a>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+        <div class="order-list">
+            @foreach (var order in Model)
+            {
+                <div class="order-card">
+                    <div class="order-header">
+                        <div class="order-number">
+                            <span>Sipariş No:</span>
+                            <strong>@order.OrderNumber</strong>
+                        </div>
+                        <div class="order-date">
+                            <span>Tarih:</span>
+                            <strong>@order.OrderDate.ToString("dd.MM.yyyy HH:mm")</strong>
+                        </div>
+                    </div>
+
+                    <div class="order-body">
+                        <div class="order-status">
+                            <span class="status-badge @GetStatusBadgeClass(order.Status)">
+                                @GetStatusText(order.Status)
+                            </span>
+                        </div>
+
+                        <div class="order-summary">
+                           
+                            <div class="summary-item">
+                                <span>Kargo:</span>
+                                <span>@order.ShippingFee.ToString("C")</span>
+                            </div>
+                            <div class="summary-item total">
+                                <span>Toplam:</span>
+                                <span>@((order.OrderTotal + order.ShippingFee + order.TaxAmount).ToString("C"))</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="order-footer">
+                        <a href="@Url.Action("Details", new { orderNumber = order.OrderNumber })" class="btn-details">
+                            Sipariş Detayları
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            }
         </div>
     }
 </div>
@@ -57,13 +93,312 @@
     {
         return status switch
         {
-            OrderStatus.Pending => "badge-secondary",
-            OrderStatus.Processing => "badge-info",
-            OrderStatus.Shipped => "badge-warning",
-            OrderStatus.Delivered => "badge-success",
-            OrderStatus.Cancelled => "badge-danger",
-            OrderStatus.Refunded => "badge-dark",
-            _ => "badge-light"
+            OrderStatus.Pending => "badge-pending",
+            OrderStatus.Processing => "badge-processing",
+            OrderStatus.Shipped => "badge-shipped",
+            OrderStatus.Delivered => "badge-delivered",
+            OrderStatus.Cancelled => "badge-cancelled",
+            OrderStatus.Refunded => "badge-refunded",
+            _ => "badge-default"
         };
     }
+
+    string GetStatusText(OrderStatus status)
+    {
+        return status switch
+        {
+            OrderStatus.Pending => "Onay Bekliyor",
+            OrderStatus.Processing => "Hazırlanıyor",
+            OrderStatus.Shipped => "Kargoda",
+            OrderStatus.Delivered => "Teslim Edildi",
+            OrderStatus.Cancelled => "İptal Edildi",
+            OrderStatus.Refunded => "İade Edildi",
+            _ => status.ToString()
+        };
+    }
+}
+
+@section Styles {
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --success-color: #4cc9f0;
+            --warning-color: #f8961e;
+            --danger-color: #f94144;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --border-radius: 12px;
+            --box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+            --transition: all 0.3s ease;
+        }
+
+        .orders-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        .orders-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+            .orders-header h1 {
+                font-size: 2rem;
+                font-weight: 700;
+                color: var(--dark-color);
+                margin: 0;
+                background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+            }
+
+        .order-stats {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1rem 1.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            text-align: center;
+            min-width: 120px;
+        }
+
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            display: block;
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: #6c757d;
+        }
+
+        .empty-order {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 3rem 2rem;
+            text-align: center;
+            box-shadow: var(--box-shadow);
+        }
+
+        .empty-icon {
+            color: #dee2e6;
+            margin-bottom: 1.5rem;
+        }
+
+        .empty-order h3 {
+            font-size: 1.5rem;
+            color: var(--dark-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-order p {
+            color: #6c757d;
+            margin-bottom: 1.5rem;
+        }
+
+        .btn-shop-now {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition);
+            box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+            border: none;
+        }
+
+            .btn-shop-now:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 20px rgba(67, 97, 238, 0.4);
+            }
+
+        .order-list {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        .order-card {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+            .order-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+            }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.25rem;
+            background: #f8f9fa;
+            border-bottom: 1px solid #eee;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .order-number, .order-date {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9375rem;
+        }
+
+            .order-number span, .order-date span {
+                color: #6c757d;
+            }
+
+            .order-number strong, .order-date strong {
+                color: var(--dark-color);
+                font-weight: 600;
+            }
+
+        .order-body {
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .order-status {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .status-badge {
+            padding: 0.375rem 0.75rem;
+            border-radius: 50px;
+            font-size: 0.8125rem;
+            font-weight: 600;
+        }
+
+        .badge-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .badge-processing {
+            background-color: #cce5ff;
+            color: #004085;
+        }
+
+        .badge-shipped {
+            background-color: #fff3bf;
+            color: #8a6d3b;
+        }
+
+        .badge-delivered {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .badge-cancelled {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .badge-refunded {
+            background-color: #e2e3e5;
+            color: #383d41;
+        }
+
+        .badge-default {
+            background-color: #f8f9fa;
+            color: #212529;
+        }
+
+        .order-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+
+        .summary-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+            .summary-item span:first-child {
+                color: #6c757d;
+                font-size: 0.875rem;
+            }
+
+            .summary-item.total span:last-child {
+                font-weight: 700;
+                color: var(--primary-color);
+                font-size: 1.125rem;
+            }
+
+        .order-footer {
+            padding: 1.25rem;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .btn-details {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 600;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            transition: var(--transition);
+        }
+
+            .btn-details:hover {
+                background-color: rgba(67, 97, 238, 0.1);
+            }
+
+        @@media (max-width: 768px) {
+            .orders-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .order-stats {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .stat-card {
+                flex: 1;
+                min-width: auto;
+            }
+
+            .order-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .order-summary {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 }

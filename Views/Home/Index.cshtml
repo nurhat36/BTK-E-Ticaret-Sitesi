@@ -3,34 +3,55 @@
     ViewData["Title"] = "Ana Sayfa";
 }
 
-<!-- Hero Section with Parallax Effect -->
+<!-- Hero Section with Gradient Background -->
 <section class="hero-section">
-    <div class="hero-content">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-lg-6 order-lg-1 order-2">
-                    <div class="hero-text">
-                        <span class="hero-badge">YENİ KOLEKSİYON</span>
-                        <h1 class="hero-title">Alışverişin Yeni Adresi</h1>
-                        <p class="hero-subtitle">Onaylı mağazalardan binlerce kaliteli ürün bir tık uzağınızda</p>
-                        <div class="hero-buttons">
-                            <a href="#featured-products" class="btn btn-primary btn-lg btn-shine">
-                                <i class="fas fa-chevron-right me-2"></i> Hemen Keşfet
-                            </a>
-                            <a href="#" class="btn btn-outline-light btn-lg">
-                                <i class="fas fa-tag me-2"></i> Kampanyalar
-                            </a>
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 order-lg-1 order-2">
+                <div class="hero-content">
+                    <span class="hero-badge animate__animated animate__fadeIn">YENİ SEZON</span>
+                    <h1 class="hero-title animate__animated animate__fadeInUp">Alışverişin Premium Adresi</h1>
+                    <p class="hero-subtitle animate__animated animate__fadeInUp animate__delay-1s">Kaliteli ürünler, hızlı teslimat ve güvenli alışverişin tek adresi</p>
+                    <div class="hero-buttons animate__animated animate__fadeInUp animate__delay-2s">
+                        <a href="#featured-products" class="btn btn-primary btn-lg btn-hover-shine">
+                            <i class="fas fa-chevron-right me-2"></i> Hemen Keşfet
+                        </a>
+                        <a href="#" class="btn btn-outline-light btn-lg ms-2">
+                            <i class="fas fa-percent me-2"></i> İndirimler
+                        </a>
+                    </div>
+                    <div class="hero-stats mt-4 animate__animated animate__fadeIn animate__delay-3s">
+                        <div class="stat-item">
+                            <div class="stat-number">10.000+</div>
+                            <div class="stat-label">Mutlu Müşteri</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">500+</div>
+                            <div class="stat-label">Marka</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">7/24</div>
+                            <div class="stat-label">Destek</div>
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-6 order-lg-2 order-1">
-                    <div class="hero-image-container">
-                        <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1099&q=80"
-                             alt="Alışveriş"
-                             class="hero-main-img floating-animation">
-                        <img src="https://images.unsplash.com/photo-1546868871-7041f2a55e12?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=764&q=80"
-                             alt="Alışveriş"
-                             class="hero-secondary-img floating-animation-delay">
+            </div>
+            <div class="col-lg-6 order-lg-2 order-1">
+                <div class="hero-image-slider">
+                    <!-- Mağazanızdaki gerçek ürün görselleri burada olacak -->
+                    <div class="slider-item active">
+                        <img src="/images/hero-products/product1.jpg" alt="Öne Çıkan Ürün 1" class="img-fluid rounded-4 shadow-lg">
+                    </div>
+                    <div class="slider-item">
+                        <img src="/images/hero-products/product2.jpg" alt="Öne Çıkan Ürün 2" class="img-fluid rounded-4 shadow-lg">
+                    </div>
+                    <div class="slider-item">
+                        <img src="/images/hero-products/product3.jpg" alt="Öne Çıkan Ürün 3" class="img-fluid rounded-4 shadow-lg">
+                    </div>
+                    <div class="slider-dots">
+                        <button class="slider-dot active"></button>
+                        <button class="slider-dot"></button>
+                        <button class="slider-dot"></button>
                     </div>
                 </div>
             </div>
@@ -68,6 +89,9 @@
                         </div>
                         <h3 class="category-title">@category.Name</h3>
                         <span class="category-count">@(new Random().Next(50, 500)) ürün</span>
+                        <div class="category-hover-img">
+                            <img src="/images/categories/@(category.Slug).jpg" alt="@category.Name">
+                        </div>
                     </a>
                 </div>
             }
@@ -97,12 +121,14 @@
         <div class="row g-4">
             @foreach (var product in Model.FeaturedProducts)
             {
-               
+                <div class="col-md-6 col-lg-4 col-xl-3">
+                    <div class="product-card">
+                        
                         <div class="product-image-container">
                             <a asp-controller="SaleProducts" asp-action="Details" asp-route-id="@product.Id">
                                 @{
                                     var mainImage = product.Images.FirstOrDefault(pi => pi.IsMainImage);
-                                    var imageUrl = mainImage != null ? mainImage.ImageUrl : "https://via.placeholder.com/300";
+                                    var imageUrl = mainImage != null ? mainImage.ImageUrl : "/images/products/default.jpg";
                                 }
                                 <img src="@imageUrl" class="product-image" alt="@product.Name">
                             </a>
@@ -110,21 +136,26 @@
                                 <button class="btn-action add-to-cart" data-product-id="@product.Id" title="Sepete Ekle">
                                     <i class="fas fa-shopping-cart"></i>
                                 </button>
-                                <button class="btn-action" title="Favorilere Ekle">
+                                <button class="btn-action add-to-wishlist" data-product-id="@product.Id" title="Favorilere Ekle">
                                     <i class="far fa-heart"></i>
+                                </button>
+                                <button class="btn-action quick-view" data-product-id="@product.Id" title="Hızlı Görünüm">
+                                    <i class="fas fa-eye"></i>
                                 </button>
                             </div>
                         </div>
                         <div class="product-info">
-                           
+                            <div class="product-meta">
+                                
+                               
                             </div>
                             <h3 class="product-title">
                                 <a asp-controller="SaleProducts" asp-action="Details" asp-route-id="@product.Id">@product.Name</a>
                             </h3>
-                            <div class="product-price">
-                              
-                            </div>
-                    
+                           
+                        </div>
+                    </div>
+                </div>
             }
         </div>
     </div>
@@ -141,19 +172,19 @@
                     <p class="campaign-text">Seçili ürünlerde %50'ye varan indirimlerle sınırlı stoklarda</p>
                     <div class="countdown mb-3">
                         <div class="countdown-item">
-                            <span class="countdown-number">05</span>
+                            <span class="countdown-number" id="days">05</span>
                             <span class="countdown-label">Gün</span>
                         </div>
                         <div class="countdown-item">
-                            <span class="countdown-number">12</span>
+                            <span class="countdown-number" id="hours">12</span>
                             <span class="countdown-label">Saat</span>
                         </div>
                         <div class="countdown-item">
-                            <span class="countdown-number">45</span>
+                            <span class="countdown-number" id="minutes">45</span>
                             <span class="countdown-label">Dak</span>
                         </div>
                         <div class="countdown-item">
-                            <span class="countdown-number">30</span>
+                            <span class="countdown-number" id="seconds">30</span>
                             <span class="countdown-label">San</span>
                         </div>
                     </div>
@@ -162,9 +193,12 @@
                     </a>
                 </div>
                 <div class="col-lg-6 d-none d-lg-block">
-                    <img src="https://images.unsplash.com/photo-1523381210434-271e8be1f52b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80"
-                         alt="Kampanya"
-                         class="campaign-image floating-animation">
+                    <div class="campaign-image-container">
+                        <!-- Mağazanızdaki kampanya görseli -->
+                        <img src="/images/campaigns/summer-sale.jpg"
+                             alt="Yaz İndirimleri"
+                             class="campaign-image floating-animation">
+                    </div>
                 </div>
             </div>
         </div>
@@ -172,31 +206,106 @@
 </section>
 
 <!-- Brands Section -->
-<section class="brands-section py-5">
+<section class="brands-section py-5 bg-white">
     <div class="container">
         <div class="section-header text-center mb-5">
             <h2 class="section-title">Güvenilen Markalar</h2>
             <p class="section-subtitle">Dünyaca ünlü markalarla iş birliği içindeyiz</p>
         </div>
 
-        <div class="brands-slider">
-            <div class="brand-item">
-                <img src="https://via.placeholder.com/150x60?text=BRAND1" alt="Marka">
+       
+    </div>
+</section>
+
+<!-- Testimonials Section -->
+<section class="testimonials-section py-5 bg-light">
+    <div class="container">
+        <div class="section-header text-center mb-5">
+            <h2 class="section-title">Müşteri Yorumları</h2>
+            <p class="section-subtitle">Müşterilerimiz bizim için ne dedi?</p>
+        </div>
+
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="testimonial-card">
+                    <div class="testimonial-rating">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <p class="testimonial-text">"Ürünlerin kalitesi ve teslimat hızı gerçekten çok iyi. Alışveriş deneyimim harikaydı!"</p>
+                    <div class="testimonial-author">
+                        <img src="/images/testimonials/user1.jpg" alt="Ayşe K." class="author-avatar">
+                        <div class="author-info">
+                            <h5>Ayşe K.</h5>
+                            <span>İstanbul</span>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="brand-item">
-                <img src="https://via.placeholder.com/150x60?text=BRAND2" alt="Marka">
+            <div class="col-md-4 mb-4">
+                <div class="testimonial-card">
+                    <div class="testimonial-rating">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <p class="testimonial-text">"Müşteri hizmetleri çok ilgili ve yardımcı oldu. Kesinlikle tekrar alışveriş yapacağım."</p>
+                    <div class="testimonial-author">
+                        <img src="/images/testimonials/user2.jpg" alt="Mehmet T." class="author-avatar">
+                        <div class="author-info">
+                            <h5>Mehmet T.</h5>
+                            <span>Ankara</span>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="brand-item">
-                <img src="https://via.placeholder.com/150x60?text=BRAND3" alt="Marka">
+            <div class="col-md-4 mb-4">
+                <div class="testimonial-card">
+                    <div class="testimonial-rating">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star-half-alt"></i>
+                    </div>
+                    <p class="testimonial-text">"Ürün fotoğraflarla birebir aynı çıktı. Paketleme de çok özenliydi, teşekkürler!"</p>
+                    <div class="testimonial-author">
+                        <img src="/images/testimonials/user3.jpg" alt="Zeynep A." class="author-avatar">
+                        <div class="author-info">
+                            <h5>Zeynep A.</h5>
+                            <span>İzmir</span>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="brand-item">
-                <img src="https://via.placeholder.com/150x60?text=BRAND4" alt="Marka">
-            </div>
-            <div class="brand-item">
-                <img src="https://via.placeholder.com/150x60?text=BRAND5" alt="Marka">
-            </div>
-            <div class="brand-item">
-                <img src="https://via.placeholder.com/150x60?text=BRAND6" alt="Marka">
+        </div>
+    </div>
+</section>
+
+<!-- Newsletter Section -->
+<section class="newsletter-section py-5 bg-primary text-white">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center">
+                <h2 class="mb-3">Bültenimize Abone Olun</h2>
+                <p class="mb-4">Yeni ürünler, özel indirimler ve kampanyalardan haberdar olmak için e-posta listemize katılın.</p>
+                <form class="newsletter-form">
+                    <div class="input-group">
+                        <input type="email" class="form-control form-control-lg" placeholder="E-posta adresiniz" required>
+                        <button class="btn btn-dark btn-lg" type="submit">Abone Ol</button>
+                    </div>
+                    <div class="form-check mt-3">
+                        <input class="form-check-input" type="checkbox" id="privacyCheck" required>
+                        <label class="form-check-label" for="privacyCheck">
+                            <a href="#" class="text-white">Gizlilik Politikası</a>'nı okudum ve kabul ediyorum.
+                        </label>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -210,10 +319,15 @@
             --primary-hover: #5649c7;
             --secondary-color: #a29bfe;
             --danger-color: #ff7675;
+            --success-color: #00b894;
+            --warning-color: #fdcb6e;
             --light-color: #f8f9fa;
             --dark-color: #2d3436;
             --text-color: #333;
             --text-muted: #6c757d;
+            --border-radius: 12px;
+            --box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
         }
 
         /* Hero Section */
@@ -221,99 +335,136 @@
             position: relative;
             background: linear-gradient(135deg, var(--dark-color) 0%, #000 100%);
             color: white;
-            padding: 5rem 0;
+            padding: 6rem 0 8rem;
             overflow: hidden;
-        }
-
-        .hero-content {
-            position: relative;
-            z-index: 2;
         }
 
         .hero-badge {
             display: inline-block;
             background-color: var(--danger-color);
             color: white;
-            padding: 0.5rem 1rem;
+            padding: 0.5rem 1.2rem;
             border-radius: 50px;
-            font-size: 0.8rem;
+            font-size: 0.9rem;
             font-weight: bold;
-            margin-bottom: 1rem;
-            animation: pulse 2s infinite;
+            margin-bottom: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .hero-title {
-            font-size: 3rem;
+            font-size: 3.5rem;
             font-weight: 800;
             margin-bottom: 1.5rem;
             line-height: 1.2;
         }
 
         .hero-subtitle {
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             margin-bottom: 2rem;
             opacity: 0.9;
+            max-width: 80%;
         }
 
         .hero-buttons {
             display: flex;
             gap: 1rem;
+            margin-bottom: 2rem;
         }
 
-        .btn-shine {
+        .btn-hover-shine {
             position: relative;
             overflow: hidden;
         }
 
-            .btn-shine::after {
+            .btn-hover-shine::after {
                 content: '';
                 position: absolute;
                 top: -50%;
                 left: -50%;
                 width: 200%;
                 height: 200%;
-                background: linear-gradient( to bottom right, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 60% );
+                background: linear-gradient(to bottom right, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 60%);
                 transform: rotate(30deg);
-                transition: all 0.3s;
+                transition: var(--transition);
             }
 
-            .btn-shine:hover::after {
+            .btn-hover-shine:hover::after {
                 animation: shine 1.5s infinite;
             }
 
-        .hero-image-container {
+        .hero-stats {
+            display: flex;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--secondary-color);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .hero-image-slider {
             position: relative;
-            height: 400px;
+            height: 450px;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--box-shadow);
         }
 
-        .hero-main-img {
+        .slider-item {
             position: absolute;
-            width: 70%;
-            right: 0;
-            top: 0;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-            z-index: 2;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 1s ease;
         }
 
-        .hero-secondary-img {
+            .slider-item.active {
+                opacity: 1;
+            }
+
+            .slider-item img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+        .slider-dots {
             position: absolute;
-            width: 60%;
+            bottom: 20px;
             left: 0;
-            bottom: 0;
-            border-radius: 15px;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
-            z-index: 1;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            z-index: 10;
         }
 
-        .floating-animation {
-            animation: float 6s ease-in-out infinite;
+        .slider-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.5);
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
         }
 
-        .floating-animation-delay {
-            animation: float 6s ease-in-out infinite reverse;
-            animation-delay: 1s;
-        }
+            .slider-dot.active {
+                background: white;
+                transform: scale(1.2);
+            }
 
         .hero-wave {
             position: absolute;
@@ -325,7 +476,7 @@
             .hero-wave svg {
                 display: block;
                 width: 100%;
-                height: 60px;
+                height: 80px;
             }
 
         .fill-white {
@@ -338,7 +489,7 @@
         }
 
         .section-title {
-            font-size: 2rem;
+            font-size: 2.2rem;
             font-weight: 700;
             position: relative;
             display: inline-block;
@@ -349,8 +500,9 @@
                 content: '';
                 position: absolute;
                 bottom: -10px;
-                left: 0;
-                width: 50px;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 80px;
                 height: 4px;
                 background: var(--primary-color);
                 border-radius: 2px;
@@ -359,6 +511,8 @@
         .section-subtitle {
             color: var(--text-muted);
             font-size: 1.1rem;
+            max-width: 700px;
+            margin: 0 auto;
         }
 
         /* Category Cards */
@@ -368,22 +522,24 @@
             align-items: center;
             padding: 2rem 1rem;
             background: white;
-            border-radius: 15px;
+            border-radius: var(--border-radius);
             box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-            transition: all 0.3s ease;
+            transition: var(--transition);
             text-decoration: none;
             color: var(--text-color);
             height: 100%;
+            position: relative;
+            overflow: hidden;
         }
 
             .category-card:hover {
                 transform: translateY(-10px);
-                box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+                box-shadow: var(--box-shadow);
             }
 
         .category-icon {
-            width: 70px;
-            height: 70px;
+            width: 80px;
+            height: 80px;
             background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
             border-radius: 50%;
             display: flex;
@@ -391,45 +547,74 @@
             justify-content: center;
             margin-bottom: 1.5rem;
             color: white;
-            font-size: 1.5rem;
-            transition: all 0.3s ease;
+            font-size: 1.8rem;
+            transition: var(--transition);
+            position: relative;
+            z-index: 2;
         }
 
         .category-card:hover .category-icon {
             transform: rotate(15deg) scale(1.1);
+            box-shadow: 0 10px 20px rgba(108, 92, 231, 0.3);
         }
 
         .category-title {
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             font-weight: 600;
             margin-bottom: 0.5rem;
             text-align: center;
+            position: relative;
+            z-index: 2;
         }
 
         .category-count {
             font-size: 0.9rem;
             color: var(--text-muted);
+            position: relative;
+            z-index: 2;
+        }
+
+        .category-hover-img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: var(--transition);
+            z-index: 1;
+        }
+
+            .category-hover-img img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+        .category-card:hover .category-hover-img {
+            opacity: 0.1;
         }
 
         /* Product Cards */
         .product-card {
             background: white;
-            border-radius: 15px;
+            border-radius: var(--border-radius);
             overflow: hidden;
             box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-            transition: all 0.3s ease;
+            transition: var(--transition);
             height: 100%;
+            position: relative;
         }
 
             .product-card:hover {
                 transform: translateY(-10px);
-                box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+                box-shadow: var(--box-shadow);
             }
 
         .product-badge {
             position: absolute;
-            top: 10px;
-            right: 10px;
+            top: 15px;
+            right: 15px;
             padding: 0.3rem 0.8rem;
             border-radius: 50px;
             font-size: 0.8rem;
@@ -441,7 +626,7 @@
         .product-image-container {
             position: relative;
             overflow: hidden;
-            height: 200px;
+            height: 220px;
         }
 
         .product-image {
@@ -465,7 +650,7 @@
             gap: 0.5rem;
             opacity: 0;
             transform: translateY(20px);
-            transition: all 0.3s ease;
+            transition: var(--transition);
         }
 
         .product-card:hover .product-actions {
@@ -484,7 +669,7 @@
             color: var(--primary-color);
             border: none;
             box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-            transition: all 0.3s ease;
+            transition: var(--transition);
         }
 
             .btn-action:hover {
@@ -517,21 +702,31 @@
             font-size: 1rem;
             font-weight: 600;
             margin-bottom: 0.5rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
 
             .product-title a {
                 color: var(--text-color);
                 text-decoration: none;
+                transition: var(--transition);
             }
+
+                .product-title a:hover {
+                    color: var(--primary-color);
+                }
 
         .product-price {
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            margin-top: 0.5rem;
         }
 
         .current-price {
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             font-weight: 700;
             color: var(--primary-color);
         }
@@ -564,10 +759,13 @@
             border-radius: 50px;
             font-weight: bold;
             margin-bottom: 1rem;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
         }
 
         .campaign-title {
-            font-size: 2rem;
+            font-size: 2.5rem;
             font-weight: 700;
             margin-bottom: 1rem;
         }
@@ -576,59 +774,83 @@
             font-size: 1.1rem;
             margin-bottom: 1.5rem;
             opacity: 0.9;
+            max-width: 80%;
+        }
+
+        .campaign-image-container {
+            position: relative;
+            height: 100%;
+            display: flex;
+            align-items: center;
         }
 
         .campaign-image {
             width: 100%;
             height: 300px;
             object-fit: cover;
-            border-radius: 15px;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
         }
 
         .countdown {
             display: flex;
-            gap: 0.5rem;
+            gap: 0.8rem;
+            margin-bottom: 1.5rem;
         }
 
         .countdown-item {
             background: rgba(255,255,255,0.2);
             border-radius: 10px;
-            padding: 0.5rem;
+            padding: 0.8rem;
             text-align: center;
-            min-width: 60px;
+            min-width: 70px;
         }
 
         .countdown-number {
-            font-size: 1.5rem;
+            font-size: 1.8rem;
             font-weight: bold;
             display: block;
         }
 
         .countdown-label {
-            font-size: 0.7rem;
+            font-size: 0.8rem;
             opacity: 0.8;
             display: block;
+            text-transform: uppercase;
         }
 
         /* Brands Section */
-        .brands-slider {
+        .brands-section {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .brands-container {
+            width: 100%;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .brands-track {
             display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-wrap: wrap;
             gap: 2rem;
+            align-items: center;
+            padding: 1rem 0;
+            animation: scroll 30s linear infinite;
+            width: calc(200px  * 2);
         }
 
         .brand-item {
-            flex: 1;
-            min-width: 150px;
-            max-width: 200px;
+            flex: 0 0 180px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             padding: 1rem;
             background: white;
             border-radius: 10px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-            transition: all 0.3s ease;
+            transition: var(--transition);
         }
 
             .brand-item:hover {
@@ -637,11 +859,11 @@
             }
 
             .brand-item img {
-                width: 100%;
-                height: auto;
+                max-width: 100%;
+                max-height: 100%;
                 filter: grayscale(100%);
                 opacity: 0.7;
-                transition: all 0.3s ease;
+                transition: var(--transition);
             }
 
             .brand-item:hover img {
@@ -649,48 +871,164 @@
                 opacity: 1;
             }
 
+        /* Testimonials */
+        .testimonial-card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            height: 100%;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: var(--transition);
+        }
+
+            .testimonial-card:hover {
+                transform: translateY(-5px);
+                box-shadow: var(--box-shadow);
+            }
+
+        .testimonial-rating {
+            color: #ffc107;
+            margin-bottom: 1rem;
+        }
+
+        .testimonial-text {
+            font-style: italic;
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+            .testimonial-text::before {
+                content: '"';
+                font-size: 3rem;
+                color: var(--primary-color);
+                opacity: 0.2;
+                position: absolute;
+                top: -20px;
+                left: -10px;
+            }
+
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .author-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .author-info h5 {
+            margin-bottom: 0.2rem;
+            font-size: 1rem;
+        }
+
+        .author-info span {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* Newsletter */
+        .newsletter-section {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .newsletter-form .input-group {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .newsletter-form .form-control {
+            border: none;
+            padding: 1rem 1.5rem;
+            border-radius: 50px !important;
+        }
+
+        .newsletter-form .btn {
+            border-radius: 50px;
+            padding: 0 2rem;
+        }
+
         /* Animations */
-       
+        @@keyframes float {
+            0% {
+                transform: translateY(0px);
+            }
 
-        50% {
-            transform: translateY(-20px) rotate(5deg);
+            50% {
+                transform: translateY(-20px);
+            }
+
+            100% {
+                transform: translateY(0px);
+            }
         }
 
-       
-        
+        @@keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
 
-        50% {
-            transform: scale(1.05);
+            50% {
+                transform: scale(1.05);
+            }
+
+            100% {
+                transform: scale(1);
+            }
         }
 
-        100% {
-            transform: scale(1);
+        @@keyframes shine {
+            100% {
+                transform: rotate(30deg) translate(30%, 30%);
+            }
         }
 
-        
+        @@keyframes scroll {
+            0% {
+                transform: translateX(0);
+            }
 
-      
-
-        100% {
-            transform: rotate(30deg) translate(30%, 30%);
+            
         }
-
-        
 
         /* Responsive Adjustments */
+        @@media (max-width: 1200px) {
+            .hero-title {
+                font-size: 3rem;
+            }
+        }
+
         @@media (max-width: 992px) {
+            .hero-section {
+                padding: 4rem 0 6rem;
+            }
+
             .hero-title {
                 font-size: 2.5rem;
             }
 
-            .hero-image-container {
-                height: 300px;
+            .hero-subtitle {
+                font-size: 1.1rem;
+                max-width: 100%;
+            }
+
+            .hero-image-slider {
+                height: 350px;
+            }
+
+            .section-title {
+                font-size: 1.8rem;
             }
         }
 
         @@media (max-width: 768px) {
             .hero-section {
-                padding: 3rem 0;
+                padding: 3rem 0 5rem;
+                text-align: center;
             }
 
             .hero-title {
@@ -698,12 +1036,17 @@
             }
 
             .hero-subtitle {
-                font-size: 1rem;
+                margin-left: auto;
+                margin-right: auto;
             }
 
             .hero-buttons {
                 flex-direction: column;
                 gap: 0.5rem;
+            }
+
+            .hero-stats {
+                justify-content: center;
             }
 
             .section-title {
@@ -714,8 +1057,45 @@
                 font-size: 1rem;
             }
 
-            .brand-item {
-                min-width: 120px;
+            .campaign-title {
+                font-size: 2rem;
+            }
+
+            .campaign-text {
+                max-width: 100%;
+            }
+        }
+
+        @@media (max-width: 576px) {
+            .hero-title {
+                font-size: 1.8rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1rem;
+            }
+
+            .hero-image-slider {
+                height: 250px;
+            }
+
+            .category-icon {
+                width: 60px;
+                height: 60px;
+                font-size: 1.5rem;
+            }
+
+            .category-title {
+                font-size: 1.1rem;
+            }
+
+            .countdown-item {
+                min-width: 50px;
+                padding: 0.5rem;
+            }
+
+            .countdown-number {
+                font-size: 1.5rem;
             }
         }
     </style>
@@ -724,105 +1104,184 @@
 @section Scripts {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
     <script>
-        // Hero section animations
+        // Hero slider functionality
         document.addEventListener('DOMContentLoaded', function() {
-            // Animate hero elements on load
-            gsap.from('.hero-badge', {
-                duration: 1,
-                y: -20,
-                opacity: 0,
-                ease: 'back.out'
+            const sliderItems = document.querySelectorAll('.slider-item');
+            const sliderDots = document.querySelectorAll('.slider-dot');
+            let currentSlide = 0;
+
+            function showSlide(index) {
+                sliderItems.forEach(item => item.classList.remove('active'));
+                sliderDots.forEach(dot => dot.classList.remove('active'));
+
+                sliderItems[index].classList.add('active');
+                sliderDots[index].classList.add('active');
+                currentSlide = index;
+            }
+
+            function nextSlide() {
+                let nextSlide = currentSlide + 1;
+                if (nextSlide >= sliderItems.length) nextSlide = 0;
+                showSlide(nextSlide);
+            }
+
+            // Auto slide every 5 seconds
+            setInterval(nextSlide, 5000);
+
+            // Dot click functionality
+            sliderDots.forEach((dot, index) => {
+                dot.addEventListener('click', () => showSlide(index));
             });
 
-            gsap.from('.hero-title', {
-                duration: 1,
-                y: 30,
-                opacity: 0,
-                delay: 0.2,
-                ease: 'power3.out'
-            });
+            // Countdown timer for campaign
+            function updateCountdown() {
+                const now = new Date();
+                const endDate = new Date();
+                endDate.setDate(now.getDate() + 5); // 5 days from now
 
-            gsap.from('.hero-subtitle', {
-                duration: 1,
-                y: 30,
-                opacity: 0,
-                delay: 0.4,
-                ease: 'power3.out'
-            });
+                const diff = endDate - now;
 
-            gsap.from('.hero-buttons', {
-                duration: 1,
-                y: 30,
-                opacity: 0,
-                delay: 0.6,
-                ease: 'power3.out'
-            });
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
-            gsap.from('.hero-main-img', {
-                duration: 1,
-                x: 100,
-                opacity: 0,
-                delay: 0.3,
-                ease: 'back.out'
-            });
+                document.getElementById('days').textContent = days.toString().padStart(2, '0');
+                document.getElementById('hours').textContent = hours.toString().padStart(2, '0');
+                document.getElementById('minutes').textContent = minutes.toString().padStart(2, '0');
+                document.getElementById('seconds').textContent = seconds.toString().padStart(2, '0');
+            }
 
-            gsap.from('.hero-secondary-img', {
-                duration: 1,
-                x: -100,
-                opacity: 0,
-                delay: 0.5,
-                ease: 'back.out'
-            });
+            updateCountdown();
+            setInterval(updateCountdown, 1000);
 
-            // Add to cart animation
-            $('.add-to-cart').click(function(e) {
-                e.preventDefault();
-                e.stopPropagation();
+            // Add to cart functionality
+            document.querySelectorAll('.add-to-cart').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
 
-                var productId = $(this).data('product-id');
-                var button = $(this);
+                    const productId = this.dataset.productId;
+                    const button = this;
 
-                // Add animation class
-                button.addClass('animate__animated animate__pulse');
+                    // Add animation
+                    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                    button.classList.add('disabled');
 
-                // Disable button during request
-                button.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i>');
-
-                // Simulate API call
-                setTimeout(function() {
-                    $.post('/Cart/Add', { productId: productId, quantity: 1 })
-                        .done(function(data) {
-                            // Show success
-                            button.html('<i class="fas fa-check"></i>');
-
+                    // Simulate API call
+                    setTimeout(() => {
+                        fetch('/Cart/Add', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ productId: productId, quantity: 1 })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
                             // Update cart count
-                            $('#cart-count').text(data.cartItemCount);
+                            document.getElementById('cart-count').textContent = data.cartItemCount;
 
-                            // Show success notification
-                            toastr.success('Ürün sepete eklendi');
+                            // Show success
+                            button.innerHTML = '<i class="fas fa-check"></i>';
+
+                            // Show notification
+                            Toastify({
+                                text: "Ürün sepete eklendi",
+                                duration: 3000,
+                                close: true,
+                                gravity: "top",
+                                position: "right",
+                                backgroundColor: "var(--success-color)",
+                            }).showToast();
                         })
-                        .fail(function() {
-                            // Show error
-                            button.html('<i class="fas fa-times"></i>');
-                            toastr.error('Bir hata oluştu');
+                        .catch(error => {
+                            console.error('Error:', error);
+                            button.innerHTML = '<i class="fas fa-times"></i>';
+
+                            Toastify({
+                                text: "Bir hata oluştu",
+                                duration: 3000,
+                                close: true,
+                                gravity: "top",
+                                position: "right",
+                                backgroundColor: "var(--danger-color)",
+                            }).showToast();
                         })
-                        .always(function() {
+                        .finally(() => {
                             // Reset button after 2 seconds
-                            setTimeout(function() {
-                                button.prop('disabled', false)
-                                    .html('<i class="fas fa-shopping-cart"></i>')
-                                    .removeClass('animate__animated animate__pulse');
+                            setTimeout(() => {
+                                button.innerHTML = '<i class="fas fa-shopping-cart"></i>';
+                                button.classList.remove('disabled');
                             }, 2000);
                         });
-                }, 800);
+                    }, 800);
+                });
             });
 
-            // Initialize brand slider animation
-            gsap.to('.brands-slider', {
-                duration: 20,
-                x: '-50%',
-                ease: 'none',
-                repeat: -1
+            // Add to wishlist functionality
+            document.querySelectorAll('.add-to-wishlist').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    const productId = this.dataset.productId;
+                    const button = this;
+
+                    // Toggle icon
+                    if (button.querySelector('i').classList.contains('far')) {
+                        button.innerHTML = '<i class="fas fa-heart"></i>';
+
+                        // Show notification
+                        Toastify({
+                            text: "Ürün favorilere eklendi",
+                            duration: 3000,
+                            close: true,
+                            gravity: "top",
+                            position: "right",
+                            backgroundColor: "var(--danger-color)",
+                        }).showToast();
+                    } else {
+                        button.innerHTML = '<i class="far fa-heart"></i>';
+                    }
+                });
+            });
+
+            // Quick view functionality
+            document.querySelectorAll('.quick-view').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    const productId = this.dataset.productId;
+
+                    // Here you would typically fetch product details and show in a modal
+                    console.log('Quick view for product:', productId);
+
+                    // Example modal show
+                    $('#quickViewModal').modal('show');
+                });
+            });
+
+            // Newsletter form submission
+            document.querySelector('.newsletter-form')?.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                const email = this.querySelector('input[type="email"]').value;
+
+                // Simulate subscription
+                setTimeout(() => {
+                    Toastify({
+                        text: "Aboneliğiniz başarıyla tamamlandı!",
+                        duration: 3000,
+                        close: true,
+                        gravity: "top",
+                        position: "right",
+                        backgroundColor: "var(--success-color)",
+                    }).showToast();
+
+                    this.reset();
+                }, 1000);
             });
         });
     </script>
@@ -849,6 +1308,24 @@
                 return "gamepad";
             case "müzik":
                 return "music";
+            case "ayakkabı":
+                return "shoe-prints";
+            case "aksesuar":
+                return "gem";
+            case "saat":
+                return "clock";
+            case "takı":
+                return "ring";
+            case "çanta":
+                return "shopping-bag";
+            case "bebek":
+                return "baby-carriage";
+            case "bahçe":
+                return "tree";
+            case "mutfak":
+                return "utensils";
+            case "ofis":
+                return "briefcase";
             default:
                 return "shopping-bag";
         }
