@@ -8,6 +8,8 @@ using System.IO;
 using System.Threading.Tasks;
 using BTKETicaretSitesi.Data;
 using BTKETicaretSitesi.Models.ViewModels;
+using BTKETicaretSitesi.Services;
+using Microsoft.AspNetCore.Identity;
 
 namespace BTKETicaretSitesi.Controllers
 {
@@ -16,11 +18,17 @@ namespace BTKETicaretSitesi.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly IWebHostEnvironment _hostingEnvironment;
+        private readonly NotificationService _notificationService;
+        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public StoreController(ApplicationDbContext context, IWebHostEnvironment hostingEnvironment)
+        public StoreController(ApplicationDbContext context, IWebHostEnvironment hostingEnvironment,NotificationService notificationService, RoleManager<IdentityRole> roleManager, UserManager<ApplicationUser> userManager)
         {
             _context = context;
             _hostingEnvironment = hostingEnvironment;
+            _notificationService = notificationService;
+            _roleManager = roleManager;
+            _userManager = userManager;
         }
 
         // GET: Mağaza Paneli
@@ -135,6 +143,36 @@ namespace BTKETicaretSitesi.Controllers
 
                 _context.Stores.Add(store);
                 await _context.SaveChangesAsync();
+                // Kullanıcıya onay beklediğini bildiren bir mesaj
+                await _notificationService.CreateNotificationAsync(
+                    userId,
+                    "Mağaza Oluşturuldu",
+                    "Mağazanız başarıyla oluşturuldu. Onay bekleniyor.",
+                    link: $"/Store/Dashboard",
+                    type: NotificationType.System);
+
+                var adminRole = await _roleManager.FindByNameAsync("Admin");
+                if (adminRole == null)
+                {
+                    return NotFound("Admin rolü bulunamadı");
+                }
+
+                // Admin rolündeki kullanıcıları al
+                var adminUsers = await _userManager.GetUsersInRoleAsync("Admin");
+
+                // Sadece ID'leri seç
+                var adminUserIds = adminUsers.Select(u => u.Id).ToList();
+                foreach (var adminUserId in adminUserIds)
+                {
+                    // Admin kullanıcılarına bildirim gönder
+                    await _notificationService.CreateNotificationAsync(
+                        adminUserId,
+                        "Yeni Mağaza Onayı",
+                        $"{store.Name} adlı mağaza onay bekliyor.",
+                        link: $"/Admin/Stores/Index",
+                        type: NotificationType.System);
+                }
+
 
                 TempData["SuccessMessage"] = "Mağazanız başarıyla oluşturuldu. Admin onayı bekleniyor.";
                 return RedirectToAction("Dashboard");

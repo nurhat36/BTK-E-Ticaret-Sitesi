@@ -30,6 +30,9 @@ namespace BTKETicaretSitesi.Data
         public DbSet<ProductQuestion> ProductQuestions { get; set; }
         public DbSet<ProductQuestionAnalysis> ProductQuestionAnalyses { get; set; }
 
+
+        public DbSet<Notification> Notifications { get; set; }
+
         // Alışveriş sepeti
         public DbSet<ShoppingCart> ShoppingCarts { get; set; }
         public DbSet<CartItem> CartItems { get; set; }

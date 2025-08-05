@@ -5,16 +5,19 @@ using BTKETicaretSitesi.Models;
 using System.Linq;
 using System.Threading.Tasks;
 using BTKETicaretSitesi.Data;
+using BTKETicaretSitesi.Services;
 
 [Authorize(Roles = "Admin")]
 [Route("Admin/Stores")]
 public class AdminStoreController : Controller
 {
     private readonly ApplicationDbContext _context;
+    private readonly NotificationService _notificationService;
 
-    public AdminStoreController(ApplicationDbContext context)
+    public AdminStoreController(ApplicationDbContext context,NotificationService notificationService)
     {
         _context = context;
+        _notificationService = notificationService;
     }
 
     // Tüm mağazaları listele
@@ -60,6 +63,13 @@ public class AdminStoreController : Controller
         store.UpdatedAt = DateTime.Now;
         _context.Update(store);
         await _context.SaveChangesAsync();
+        // Kullanıcıya onay bildirimi gönder
+        await _notificationService.CreateNotificationAsync(
+            store.OwnerId,
+            "Mağaza Onayı",
+            $"Mağazanız ({store.Name}) başarıyla onaylandı.",
+            link: $"/Store/Dashboard",
+            type: NotificationType.System);
 
         TempData["Message"] = "Mağaza başarıyla onaylandı";
         return RedirectToAction(nameof(PendingApprovals));
@@ -80,6 +90,13 @@ public class AdminStoreController : Controller
         store.UpdatedAt = DateTime.Now;
         _context.Update(store);
         await _context.SaveChangesAsync();
+        // Kullanıcıya onay kaldırma bildirimi gönder
+        await _notificationService.CreateNotificationAsync(
+            store.OwnerId,
+            "Mağaza Onayı Kaldırıldı",
+            $"Mağazanız ({store.Name}) onayı kaldırıldı. Lütfen mağaza gereksinimlerini kontrol edin.",
+            link: $"/Store/Dashboard",
+            type: NotificationType.System);
 
         TempData["Message"] = "Mağaza onayı başarıyla kaldırıldı";
         return RedirectToAction(nameof(Index));
