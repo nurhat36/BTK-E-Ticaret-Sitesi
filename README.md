@@ -86,7 +86,7 @@ Aşağıdaki gibi bir yapı örnek dosyada tanımlıdır, doldurulması gerekir:
 }
 ```
 #### user secret kısmınada bu yapı yazılmalı
-'''json
+```json
 {
     "GoogleAI": {
         "ApiKey": "****************************"
