@@ -26,7 +26,6 @@ namespace BTKETicaretSitesi.Controllers
         private readonly ApplicationDbContext _dbContext;
         private readonly IMemoryCache _memoryCache;
         private const string ChatHistorySessionKey = "_ChatHistory";
-        private const string ProductEmbeddingsCacheKey = "_ProductEmbeddings";
         private const int MaxConversationHistory = 10;
         private const int MaxRetrievedProducts = 5;
 
@@ -68,33 +67,52 @@ namespace BTKETicaretSitesi.Controllers
                 var googleAIClient = new GoogleAi(geminiApiKey);
                 var model = googleAIClient.CreateGenerativeModel("models/gemini-1.5-flash");
 
-                // 1. Kullanıcı mesajını analiz et ve arama parametrelerini çıkar
-                var searchParams = AnalyzeUserMessage(request.Message);
+                // 1. Mesaj türünü belirle
+                var messageType = await DetermineMessageType(request.Message);
 
-                // 2. RAG için ürün bilgilerini al (vektörel benzerlik + filtreleme)
+                // 2. Genel sorular için bilgi bankası kontrolü
+                if (messageType == MessageType.GeneralQuestion)
+                {
+                    var knowledgeResponse = await SearchKnowledgeBase(request.Message);
+                    if (!string.IsNullOrEmpty(knowledgeResponse))
+                    {
+                        chatHistory.Add(new ChatMessage { Role = "user", Text = request.Message });
+                        chatHistory.Add(new ChatMessage { Role = "model", Text = knowledgeResponse });
+                        SaveChatHistoryToSession(chatHistory);
+
+                        return Ok(new ChatResponse { Reply = knowledgeResponse });
+                    }
+                }
+
+                // 3. Ürün sorguları için RAG işlemi
+                var searchParams = AnalyzeUserMessage(request.Message);
                 var (relevantProducts, searchExplanation) = await RetrieveRelevantProducts(searchParams);
 
-                // 3. RAG contextini oluştur
+                // Eğer ürün bulunamadıysa ve genel soru değilse bilgi bankasına bak
+                if (!relevantProducts.Any() && messageType != MessageType.GeneralQuestion)
+                {
+                    var fallbackResponse = await SearchKnowledgeBase(request.Message);
+                    if (!string.IsNullOrEmpty(fallbackResponse))
+                    {
+                        return Ok(new ChatResponse { Reply = fallbackResponse });
+                    }
+                }
+
                 string ragContext = BuildRagContext(relevantProducts, searchParams, searchExplanation);
 
-                // 4. Sistem talimatlarını ve bağlamı hazırla
+                // 4. Sistem talimatını hazırla
                 var systemPrompt = BuildSystemPrompt(ragContext);
 
-                // 5. Gemini için mesaj tarihçesini hazırla
+                // 5. Mesaj geçmişini hazırla
                 var messages = PrepareMessageHistory(chatHistory, systemPrompt, request.Message);
 
-                // 6. Gemini'ye isteği gönder
+                // 6. Gemini'ye istek gönder
                 var response = await model.GenerateContentAsync(new GenerateContentRequest { Contents = messages });
 
-                // 7. Yanıtı işle ve geçmişi güncelle
+                // 7. Yanıtı işle
                 string botReply = ProcessBotResponse(response, chatHistory, request.Message);
 
-                return Ok(new ChatResponse
-                {
-                    Reply = botReply
-
-                   
-                });
+                return Ok(new ChatResponse { Reply = botReply });
             }
             catch (Exception ex)
             {
@@ -103,7 +121,90 @@ namespace BTKETicaretSitesi.Controllers
             }
         }
 
-        #region RAG Implementation
+        private async Task<MessageType> DetermineMessageType(string message)
+        {
+            // Genel sorular için anahtar kelimeler
+            var generalKeywords = new[]
+            {
+                "iade", "değişim", "kargo", "teslimat", "kargom nerede",
+                "iptal", "sipariş iptali", "üyelik", "hesap", "şifre",
+                "ödeme", "taksit", "garanti", "politika", "koşul", "şart",
+                "nasıl", "yardım", "destek", "müşteri hizmetleri"
+            };
+
+            var containsGeneralTerm = generalKeywords.Any(keyword =>
+                message.Contains(keyword, StringComparison.OrdinalIgnoreCase));
+
+            if (containsGeneralTerm)
+            {
+                return MessageType.GeneralQuestion;
+            }
+
+            // Ürün sorgusu kontrolü
+            var productNames = await _dbContext.Products
+                .Where(p => !string.IsNullOrEmpty(p.Name))
+                .Select(p => p.Name)
+                .ToListAsync();
+
+            var containsProductTerm = productNames.Any(name =>
+                name.Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                    .Any(keyword =>
+                        message.Contains(keyword, StringComparison.OrdinalIgnoreCase)));
+
+            return containsProductTerm ? MessageType.ProductQuery : MessageType.GeneralQuestion;
+        }
+
+        private async Task<string> SearchKnowledgeBase(string question)
+        {
+            var keywords = question.Split(new[] { ' ', '?', '!' }, StringSplitOptions.RemoveEmptyEntries)
+                .Where(w => w.Length > 3)
+                .Select(w => w.ToLower())
+                .ToList();
+
+            var knowledgeItems = await _dbContext.KnowledgeBases
+                .Where(kb => keywords.Any(k =>
+                    kb.Title.ToLower().Contains(k) ||
+                    kb.Content.ToLower().Contains(k) ||
+                    kb.Keywords.Contains(k)))
+                .OrderByDescending(kb =>
+                    kb.Keywords.Count(k => keywords.Contains(k)))
+                .Take(3)
+                .ToListAsync();
+
+            if (!knowledgeItems.Any())
+            {
+                // Eğer bilgi bankasında da cevap yoksa, genel bir yanıt ver
+                return "Üzgünüm, sorunuzu anlayamadım. Daha spesifik bir şekilde sorabilir misiniz? " +
+                       "Veya ürün adı, kategori veya özellik belirterek arama yapmayı deneyebilirsiniz.";
+            }
+
+            var bestMatch = knowledgeItems.First();
+            return FormatKnowledgeResponse(bestMatch, knowledgeItems.Skip(1));
+        }
+
+        private string FormatKnowledgeResponse(KnowledgeBase mainItem, IEnumerable<KnowledgeBase> relatedItems)
+        {
+            var response = new StringBuilder();
+            response.AppendLine($"<div class='knowledge-response'>");
+            response.AppendLine($"<h4>{mainItem.Title}</h4>");
+            response.AppendLine($"<p>{mainItem.Content}</p>");
+
+            if (relatedItems.Any())
+            {
+                response.AppendLine("<div class='related-links'>");
+                response.AppendLine("<p>İlgili konular:</p>");
+                response.AppendLine("<ul>");
+                foreach (var item in relatedItems)
+                {
+                    response.AppendLine($"<li><a href='#' data-knowledge-id='{item.Id}'>{item.Title}</a></li>");
+                }
+                response.AppendLine("</ul>");
+                response.AppendLine("</div>");
+            }
+
+            response.AppendLine("</div>");
+            return response.ToString();
+        }
 
         private SearchParameters AnalyzeUserMessage(string message)
         {
@@ -141,9 +242,7 @@ namespace BTKETicaretSitesi.Controllers
                 if (match.Success)
                 {
                     string value = match.Groups[1].Value.Trim();
-                    if (!string.IsNullOrEmpty(value)
-                        && !IsStopWord(value)
-                        && !parameters.Keywords.Contains(value))
+                    if (!string.IsNullOrEmpty(value) && !IsStopWord(value))
                     {
                         parameters.Attributes[attr] = value;
                     }
@@ -161,31 +260,27 @@ namespace BTKETicaretSitesi.Controllers
             var explanation = new StringBuilder();
             var products = new List<Product>();
 
-            // 1. Önce tam eşleşmeleri ara (filtreleme)
+            // 1. Önce filtreleme ile arama yap
             var filteredProducts = await SearchProductsWithFilters(parameters);
             explanation.AppendLine($"Filtreleme sonucu {filteredProducts.Count} ürün bulundu.");
 
             if (filteredProducts.Count >= MaxRetrievedProducts)
             {
-                products = filteredProducts.Take(MaxRetrievedProducts).ToList();
-                explanation.AppendLine($"İlk {MaxRetrievedProducts} ürün seçildi.");
-                return (products, explanation.ToString());
+                return (filteredProducts.Take(MaxRetrievedProducts).ToList(), explanation.ToString());
             }
 
-            // 2. Vektörel benzerlik araması yap (basit bir keyword eşleştirme simülasyonu)
+            // 2. Semantik arama yap
             if (parameters.Keywords.Any())
             {
                 var semanticProducts = await SearchProductsWithSemanticMatch(parameters);
                 explanation.AppendLine($"Semantik arama sonucu {semanticProducts.Count} ek ürün bulundu.");
 
                 // Benzersiz ürünleri birleştir
-                var uniqueProducts = filteredProducts
+                products = filteredProducts
                     .Union(semanticProducts)
                     .DistinctBy(p => p.Id)
                     .Take(MaxRetrievedProducts)
                     .ToList();
-
-                products = uniqueProducts;
             }
             else
             {
@@ -201,7 +296,7 @@ namespace BTKETicaretSitesi.Controllers
                 .Include(p => p.Category)
                 .Include(p => p.Images)
                 .Include(p => p.Attributes)
-                .AsQueryable();
+                .Where(p => p.IsActive && p.StockQuantity > 0);
 
             // Anahtar kelime filtreleme
             if (parameters.Keywords.Any())
@@ -210,8 +305,7 @@ namespace BTKETicaretSitesi.Controllers
                     parameters.Keywords.Any(k =>
                         p.Name.ToLower().Contains(k) ||
                         p.Description.ToLower().Contains(k) ||
-                        (p.Category != null && p.Category.Name.ToLower().Contains(k)))
-                );
+                        p.Category.Name.ToLower().Contains(k)));
             }
 
             // Bütçe filtreleme
@@ -225,8 +319,7 @@ namespace BTKETicaretSitesi.Controllers
             {
                 query = query.Where(p => p.Attributes.Any(pa =>
                     pa.Key.ToLower() == attr.Key.ToLower() &&
-                    pa.Value.ToLower().Contains(attr.Value.ToLower())
-                ));
+                    pa.Value.ToLower().Contains(attr.Value.ToLower())));
             }
 
             return await query.Take(MaxRetrievedProducts * 2).ToListAsync();
@@ -234,15 +327,13 @@ namespace BTKETicaretSitesi.Controllers
 
         private async Task<List<Product>> SearchProductsWithSemanticMatch(SearchParameters parameters)
         {
-            // Gerçek bir vektörel arama yerine basit bir benzerlik araması
-            // Üretim ortamında Pinecone, Weaviate gibi bir vektör veritabanı kullanılmalı
-
+            // Basit bir benzerlik araması
             var allProducts = await _dbContext.Products
                 .Include(p => p.Category)
                 .Include(p => p.Attributes)
+                .Where(p => p.IsActive && p.StockQuantity > 0)
                 .ToListAsync();
 
-            // Basit bir puanlama mekanizması
             var scoredProducts = allProducts.Select(p => new
             {
                 Product = p,
@@ -266,7 +357,7 @@ namespace BTKETicaretSitesi.Controllers
             {
                 if (product.Name.ToLower().Contains(keyword)) score += 3;
                 if (product.Description.ToLower().Contains(keyword)) score += 1;
-                if (product.Category?.Name.ToLower().Contains(keyword) == true) score += 2;
+                if (product.Category.Name.ToLower().Contains(keyword)) score += 2;
             }
 
             // Nitelik eşleşmeleri
@@ -279,13 +370,13 @@ namespace BTKETicaretSitesi.Controllers
                 if (productAttr != null) score += 2;
             }
 
-            // Bütçe yakınlığı (bütçe belirtilmişse)
+            // Bütçe yakınlığı
             if (parameters.MaxBudget.HasValue && product.Price > 0)
             {
                 decimal ratio = product.Price / parameters.MaxBudget.Value;
-                if (ratio <= 1) score += 5; // Bütçe içinde
-                else if (ratio <= 1.2m) score += 3; // Bütçeye yakın
-                else if (ratio <= 1.5m) score += 1; // Biraz üzerinde
+                if (ratio <= 1) score += 5;
+                else if (ratio <= 1.2m) score += 3;
+                else if (ratio <= 1.5m) score += 1;
             }
 
             return score;
@@ -332,9 +423,114 @@ URL: {productUrl}
             return context.ToString();
         }
 
-        #endregion
+        private string BuildSystemPrompt(string ragContext)
+        {
+            var knowledgeBase = _dbContext.KnowledgeBases
+                .Select(kb => $"{kb.Title}: {kb.Content}")
+                .ToList();
 
-        #region Helper Methods
+            return $"""
+        Sen bir e-ticaret asistanısın. Aşağıdaki bilgileri kullanarak kullanıcıya yardımcı ol:
+        
+        ## Ürün Bilgileri:
+        {ragContext}
+        
+        ## Site Bilgileri:
+        {string.Join("\n", knowledgeBase)}
+        
+        Kurallar:
+        1. Ürün sorularında sadece verilen ürün bilgilerini kullan
+        2. Site politikaları hakkında genel bilgileri 'Site Bilgileri' bölümünden kullan
+        3. Yanıtları marka diline uygun ver (dostça, profesyonel)
+        4. HTML formatında yanıt ver (linkler, listeler, tablolar)
+        5. Ürün linklerini her zaman şu formatta göster: 
+           <a href='URL' target='_blank'>Ürün Sayfası</a>
+        6. Eğer ürün bulunamazsa, kullanıcıya alternatif önerilerde bulun
+        """;
+        }
+
+        private List<Content> PrepareMessageHistory(List<ChatMessage> chatHistory, string systemPrompt, string userMessage)
+        {
+            var messages = new List<Content>();
+
+            // Sistem talimatını ekle
+            messages.Add(new Content
+            {
+                Role = "user",
+                Parts = new List<Part> { new Part { Text = systemPrompt } }
+            });
+
+            // Sohbet geçmişini ekle
+            foreach (var msg in chatHistory)
+            {
+                messages.Add(new Content
+                {
+                    Role = msg.Role,
+                    Parts = new List<Part> { new Part { Text = msg.Text } }
+                });
+            }
+
+            // Son kullanıcı mesajını ekle
+            messages.Add(new Content
+            {
+                Role = "user",
+                Parts = new List<Part> { new Part { Text = userMessage } }
+            });
+
+            return messages;
+        }
+
+        private string ProcessBotResponse(GenerateContentResponse response, List<ChatMessage> chatHistory, string userMessage)
+        {
+            string botReply = response?.Text()?.Trim() ?? "Üzgünüm, yanıt oluşturulamadı. Lütfen tekrar deneyin.";
+
+            // HTML linklerini işle
+            botReply = Regex.Replace(botReply, @"<a\s+href=""(.*?)""", match =>
+            {
+                var url = match.Groups[1].Value;
+                return url.StartsWith("http") ? match.Value : "<a href=\"#\"";
+            });
+
+            // Geçmişi güncelle
+            chatHistory.Add(new ChatMessage { Role = "user", Text = userMessage });
+            chatHistory.Add(new ChatMessage { Role = "model", Text = botReply });
+
+            // Geçmiş boyutunu sınırla
+            if (chatHistory.Count > MaxConversationHistory * 2)
+            {
+                chatHistory = chatHistory.TakeLast(MaxConversationHistory * 2).ToList();
+            }
+            SaveChatHistoryToSession(chatHistory);
+
+            return botReply;
+        }
+
+        private List<ChatMessage> GetChatHistoryFromSession()
+        {
+            var sessionString = HttpContext.Session.GetString(ChatHistorySessionKey);
+            if (string.IsNullOrEmpty(sessionString)) return new List<ChatMessage>();
+
+            try
+            {
+                return JsonSerializer.Deserialize<List<ChatMessage>>(sessionString) ?? new List<ChatMessage>();
+            }
+            catch
+            {
+                return new List<ChatMessage>();
+            }
+        }
+
+        private void SaveChatHistoryToSession(List<ChatMessage> history)
+        {
+            try
+            {
+                HttpContext.Session.SetString(ChatHistorySessionKey, JsonSerializer.Serialize(history));
+            }
+            catch
+            {
+                // Session hatasını görmezden gel
+            }
+        }
 
         private List<string> GetKnownProductAttributes()
         {
@@ -390,113 +586,11 @@ URL: {productUrl}
             if (colorMatch.Success) parameters.Attributes["Renk"] = colorMatch.Groups[1].Value;
         }
 
-        private string BuildSystemPrompt(string ragContext)
+        private enum MessageType
         {
-            return $@"
-Sen bir e-ticaret asistanısın. Kullanıcıların ürünler hakkında sorularını yanıtlıyorsun. 
-Aşağıdaki bilgileri kullanarak kullanıcının sorusuna yanıt ver:
-
-1. Yalnızca aşağıda verilen ürün bilgilerini kullan. Eğer sorunun yanıtı bu bilgilerde yoksa, 
-   'Ürün bilgilerimde bu konuda bir detay bulunmuyor' şeklinde yanıt ver.
-
-2. Ürün URL'lerini her zaman tıklanabilir HTML linkleri olarak göster:
-   <a href='URL' target='_blank'>Ürün Sayfası</a>
-
-3. Eğer uygun ürün yoksa, kullanıcıya bunu kibarca bildir ve farklı kriterler önermekten çekinme.
-
-4. Ürün karşılaştırması yapıyorsan, önemli özellikleri (fiyat, temel özellikler) tablo halinde göster.
-
-Kullanılabilir Ürün Bilgileri:
-{ragContext}
-";
+            ProductQuery,
+            GeneralQuestion
         }
-
-        private List<Content> PrepareMessageHistory(List<ChatMessage> chatHistory, string systemPrompt, string userMessage)
-        {
-            var messages = new List<Content>();
-
-            // Sistem talimatını ekle
-            messages.Add(new Content
-            {
-                Role = "user",
-                Parts = new List<Part> { new Part { Text = systemPrompt } }
-            });
-
-            // Sohbet geçmişini ekle (model ve kullanıcı mesajları)
-            foreach (var msg in chatHistory)
-            {
-                messages.Add(new Content
-                {
-                    Role = msg.Role,
-                    Parts = new List<Part> { new Part { Text = msg.Text } }
-                });
-            }
-
-            // Son kullanıcı mesajını ekle
-            messages.Add(new Content
-            {
-                Role = "user",
-                Parts = new List<Part> { new Part { Text = userMessage } }
-            });
-
-            return messages;
-        }
-
-        private string ProcessBotResponse(GenerateContentResponse response, List<ChatMessage> chatHistory, string userMessage)
-        {
-            string botReply = response?.Text()?.Trim() ?? "Üzgünüm, yanıt oluşturulamadı. Lütfen tekrar deneyin.";
-
-            // HTML linkleri işle (güvenlik için temel sanitize)
-            botReply = Regex.Replace(botReply, @"<a\s+href=""(.*?)""", match =>
-            {
-                var url = match.Groups[1].Value;
-                return url.StartsWith("http") ? match.Value : "<a href=\"#\"";
-            });
-
-            // Geçmişi güncelle
-            chatHistory.Add(new ChatMessage { Role = "user", Text = userMessage });
-            chatHistory.Add(new ChatMessage { Role = "model", Text = botReply });
-
-            // Geçmişi sınırla ve kaydet
-            if (chatHistory.Count > MaxConversationHistory * 2)
-            {
-                chatHistory = chatHistory.TakeLast(MaxConversationHistory * 2).ToList();
-            }
-            SaveChatHistoryToSession(chatHistory);
-
-            return botReply;
-        }
-
-        private List<ChatMessage> GetChatHistoryFromSession()
-        {
-            var sessionString = HttpContext.Session.GetString(ChatHistorySessionKey);
-            if (string.IsNullOrEmpty(sessionString)) return new List<ChatMessage>();
-
-            try
-            {
-                return JsonSerializer.Deserialize<List<ChatMessage>>(sessionString) ?? new List<ChatMessage>();
-            }
-            catch
-            {
-                return new List<ChatMessage>();
-            }
-        }
-
-        private void SaveChatHistoryToSession(List<ChatMessage> history)
-        {
-            try
-            {
-                HttpContext.Session.SetString(ChatHistorySessionKey, JsonSerializer.Serialize(history));
-            }
-            catch
-            {
-                // Session hatası durumunda geçmişi kaydetme
-            }
-        }
-
-        #endregion
-
-        #region Supporting Classes
 
         private class SearchParameters
         {
@@ -504,7 +598,5 @@ Kullanılabilir Ürün Bilgileri:
             public decimal? MaxBudget { get; set; }
             public Dictionary<string, string> Attributes { get; set; } = new Dictionary<string, string>();
         }
-
-        #endregion
     }
 }

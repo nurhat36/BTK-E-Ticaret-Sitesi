@@ -29,6 +29,7 @@ namespace BTKETicaretSitesi.Data
         public DbSet<ProductReviewAnalysis> ProductReviewAnalyses { get; set; }
         public DbSet<ProductQuestion> ProductQuestions { get; set; }
         public DbSet<ProductQuestionAnalysis> ProductQuestionAnalyses { get; set; }
+        public DbSet<KnowledgeBase> KnowledgeBases { get; set; }
 
 
         public DbSet<Notification> Notifications { get; set; }

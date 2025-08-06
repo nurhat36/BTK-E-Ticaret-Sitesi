@@ -179,6 +179,56 @@ namespace BTKETicaretSitesi.Data
     };
 
                 await context.Categories.AddRangeAsync(subCategories);
+               
+
+               
+                await context.SaveChangesAsync();
+            }
+            if (!context.KnowledgeBases.Any())
+            {
+                var knowledgeBases = new KnowledgeBase[]
+            {
+                new KnowledgeBase
+                {
+                    Title = "İade Politikası",
+                    Content = "Satın aldığınız ürünleri 14 gün içinde iade edebilirsiniz. Ürünün orijinal ambalajında ve hasarsız olması gerekmektedir. İade işlemleri için 'Hesabım > Siparişlerim' bölümünden talep oluşturabilirsiniz.",
+                    Keywords = new List<string> { "iade", "değişim", "iptal", "politika", "koşul" },
+                    Category = KnowledgeCategory.ReturnPolicy
+                },
+                new KnowledgeBase
+                {
+                    Title = "Kargo ve Teslimat Bilgileri",
+                    Content = "Siparişleriniz 1-3 iş günü içinde kargoya verilir. Standart teslimat süresi 2-5 iş günüdür. Kargo takip numaranızı sipariş detaylarınızdan görebilirsiniz.",
+                    Keywords = new List<string> { "kargo", "teslimat", "süre", "takip", "kargom" },
+                    Category = KnowledgeCategory.ShippingInfo
+                },
+                new KnowledgeBase
+                {
+                    Title = "Ödeme Yöntemleri",
+                    Content = "Kredi kartı, banka havalesi ve kapıda ödeme seçeneklerimiz mevcuttur. 3D Secure ile güvenli ödeme yapabilirsiniz. Taksit seçenekleri kartınıza göre değişiklik gösterebilir.",
+                    Keywords = new List<string> { "ödeme", "taksit", "kredi kartı", "havale", "kapıda ödeme" },
+                    Category = KnowledgeCategory.PaymentMethods
+                },
+                new KnowledgeBase
+                {
+                    Title = "Hesap Yönetimi",
+                    Content = "Hesap bilgilerinizi 'Profilim' sayfasından güncelleyebilirsiniz. Şifrenizi unuttuysanız 'Şifremi Unuttum' linkini kullanarak yeni şifre oluşturabilirsiniz.",
+                    Keywords = new List<string> { "hesap", "şifre", "üyelik", "giriş", "kayıt" },
+                    Category = KnowledgeCategory.AccountManagement
+                },
+                new KnowledgeBase
+                {
+                    Title = "Garanti Koşulları",
+                    Content = "Ürünlerimiz 2 yıl garantilidir. Garanti kapsamı üretici firma tarafından belirlenir. Garanti belgesini saklayınız.",
+                    Keywords = new List<string> { "garanti", "koşul", "servis", "arıza", "onarım" },
+                    Category = KnowledgeCategory.General
+                }
+            };
+
+                foreach (var kb in knowledgeBases)
+                {
+                    context.KnowledgeBases.Add(kb);
+                }
                 await context.SaveChangesAsync();
             }
         }
