@@ -5,61 +5,83 @@
     ViewData["ActivePage"] = ManageNavPages.Index;
 }
 
-<div class="profile-container">
-    <div class="profile-card">
-        <div class="profile-header">
-            <h1>@ViewData["Title"]</h1>
+<div class="management-container">
+    <div class="management-card">
+        <div class="management-header">
+            <h2><i class="fas fa-user-cog"></i> @ViewData["Title"]</h2>
             @if (!string.IsNullOrEmpty(Model.ProfileImageUrl))
             {
-                <div class="profile-avatar glow">
+                <div class="profile-avatar">
                     <img src="@Model.ProfileImageUrl" alt="Profil Resmi" />
+                    <div class="avatar-overlay">
+                        <i class="fas fa-camera"></i>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="profile-avatar default">
+                    <i class="fas fa-user"></i>
                 </div>
             }
         </div>
 
-        <partial name="_StatusMessage" model="Model.StatusMessage" />
+        @if (Model.StatusMessage != null)
+        {
+            <div class="alert alert-success alert-modern">
+                <span>✓</span> @Model.StatusMessage
+                <button type="button" class="close-alert">&times;</button>
+            </div>
+        }
 
-        <form id="profile-form" method="post" enctype="multipart/form-data" class="profile-form">
+        <form id="profile-form" method="post" enctype="multipart/form-data" class="management-form">
             <div asp-validation-summary="ModelOnly" class="form-error"></div>
 
-            <div class="form-group floating">
-                <input asp-for="Username" class="form-control" disabled />
+            <div class="form-group">
                 <label asp-for="Username"></label>
-                <i class="bi bi-person icon"></i>
-            </div>
-
-            <div class="form-group floating">
-                <input asp-for="Input.PhoneNumber" class="form-control" />
-                <label asp-for="Input.PhoneNumber"></label>
-                <i class="bi bi-phone icon"></i>
-                <span asp-validation-for="Input.PhoneNumber" class="validation-error"></span>
-            </div>
-
-            <div class="form-group file-upload">
-                <label class="upload-label">
-                    <span class="upload-text">
-                        <i class="bi bi-cloud-arrow-up"></i> Profil Resmi Yükle
-                    </span>
-                    <input type="file" asp-for="Input.ProfileImage" class="upload-input" accept="image/*" />
-                </label>
-                <span asp-validation-for="Input.ProfileImage" class="validation-error"></span>
-                <div class="image-preview-container">
-                    @if (!string.IsNullOrEmpty(Model.ProfileImageUrl))
-                    {
-                        <div class="image-preview" style="background-image: url('@Model.ProfileImageUrl')"></div>
-                    }
-                    else
-                    {
-                        <div class="image-preview default">
-                            <i class="bi bi-person-circle"></i>
-                        </div>
-                    }
+                <div class="input-with-icon">
+                    <i class="fas fa-user"></i>
+                    <input asp-for="Username" class="form-control" disabled />
                 </div>
             </div>
 
-            <button type="submit" class="submit-btn">
-                <span class="btn-text">Kaydet</span>
-                <i class="bi bi-check-circle"></i>
+            <div class="form-group">
+                <label asp-for="Input.PhoneNumber"></label>
+                <div class="input-with-icon">
+                    <i class="fas fa-phone"></i>
+                    <input asp-for="Input.PhoneNumber" class="form-control" />
+                </div>
+                <span asp-validation-for="Input.PhoneNumber" class="validation-error"></span>
+            </div>
+
+            <div class="form-group">
+                <label>Profil Resmi</label>
+                <div class="file-upload-container">
+                    <label class="file-upload-label">
+                        <input type="file" asp-for="Input.ProfileImage" class="file-upload-input" accept="image/*" />
+                        <div class="file-upload-content">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <span>Resim Seç veya Sürükle</span>
+                        </div>
+                    </label>
+                    <div class="file-upload-preview">
+                        @if (!string.IsNullOrEmpty(Model.ProfileImageUrl))
+                        {
+                            <img src="@Model.ProfileImageUrl" alt="Profil Resmi Önizleme" />
+                        }
+                        else
+                        {
+                            <div class="no-image">
+                                <i class="fas fa-user"></i>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <span asp-validation-for="Input.ProfileImage" class="validation-error"></span>
+            </div>
+
+            <button type="submit" class="modern-button primary-button full-width">
+                <i class="fas fa-save"></i> Değişiklikleri Kaydet
             </button>
         </form>
     </div>
@@ -67,75 +89,63 @@
 
 @section Styles {
     <style>
+        /* Renk Paleti */
         :root {
-            --primary-color: #6a11cb;
-            --secondary-color: #2575fc;
-            --accent-color: #ff5e62;
-            --text-color: #2c3e50;
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --accent-color: #4895ef;
+            --success-color: #4cc9f0;
+            --warning-color: #f8961e;
+            --danger-color: #f72585;
+            --dark-color: #2b2d42;
             --light-color: #f8f9fa;
-            --shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            --gradient-primary: linear-gradient(135deg, #4361ee 0%, #3f37c9 100%);
+            --gradient-secondary: linear-gradient(135deg, #4895ef 0%, #4cc9f0 100%);
+            --gradient-accent: linear-gradient(135deg, #7209b7 0%, #f72585 100%);
         }
 
-        .profile-container {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        .management-container {
             padding: 2rem;
+            background-color: var(--light-color);
         }
 
-        .profile-card {
-            width: 100%;
-            max-width: 600px;
+        .management-card {
             background: white;
-            border-radius: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
             overflow: hidden;
-            box-shadow: var(--shadow);
-            position: relative;
-            z-index: 1;
+            max-width: 700px;
+            margin: 0 auto;
         }
 
-            .profile-card::before {
-                content: '';
-                position: absolute;
-                top: 0;
-                left: 0;
-                right: 0;
-                height: 10px;
-                background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
-            }
-
-        .profile-header {
-            padding: 2rem 2rem 1rem;
+        .management-header {
+            padding: 2rem;
             text-align: center;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
             position: relative;
+            background: var(--gradient-primary);
         }
 
-            .profile-header h1 {
-                color: var(--text-color);
-                font-weight: 700;
-                margin-bottom: 1.5rem;
-                font-size: 1.8rem;
-                background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
+            .management-header h2 {
+                margin: 0 0 1.5rem;
+                color: white;
+                font-weight: 600;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 0.75rem;
             }
 
         .profile-avatar {
-            width: 100px;
-            height: 100px;
+            width: 120px;
+            height: 120px;
             border-radius: 50%;
             margin: 0 auto 1.5rem;
-            overflow: hidden;
-            border: 4px solid white;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
             position: relative;
+            overflow: hidden;
+            border: 5px solid white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
-
-            .profile-avatar.glow {
-                box-shadow: 0 0 20px rgba(106, 17, 203, 0.3);
-            }
 
             .profile-avatar img {
                 width: 100%;
@@ -143,168 +153,309 @@
                 object-fit: cover;
             }
 
-        .profile-form {
-            padding: 0 2rem 2rem;
+            .profile-avatar.default {
+                background: var(--light-color);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: var(--primary-color);
+                font-size: 3rem;
+            }
+
+            .profile-avatar .avatar-overlay {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(67, 97, 238, 0.7);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                opacity: 0;
+                transition: opacity 0.3s;
+            }
+
+            .profile-avatar:hover .avatar-overlay {
+                opacity: 1;
+            }
+
+        .management-form {
+            padding: 2rem;
         }
 
         .form-group {
             margin-bottom: 1.5rem;
+        }
+
+            .form-group label {
+                display: block;
+                margin-bottom: 0.5rem;
+                font-weight: 500;
+                color: var(--dark-color);
+            }
+
+        .input-with-icon {
             position: relative;
         }
 
+            .input-with-icon i {
+                position: absolute;
+                left: 1rem;
+                top: 50%;
+                transform: translateY(-50%);
+                color: var(--primary-color);
+            }
+
+            .input-with-icon .form-control {
+                padding-left: 3rem;
+            }
+
         .form-control {
             width: 100%;
-            padding: 1rem 1rem 1rem 3rem;
-            border: 2px solid #e9ecef;
-            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
             font-size: 1rem;
-            transition: all 0.3s ease;
-            background-color: var(--light-color);
+            transition: all 0.3s;
         }
 
             .form-control:focus {
-                border-color: var(--secondary-color);
-                box-shadow: 0 0 0 3px rgba(37, 117, 252, 0.2);
+                border-color: var(--primary-color);
+                box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
                 outline: none;
             }
 
-        .floating label {
-            position: absolute;
-            top: 1rem;
-            left: 3rem;
-            color: #6c757d;
-            transition: all 0.3s ease;
-            pointer-events: none;
-        }
-
-        .floating .form-control:focus + label,
-        .floating .form-control:not(:placeholder-shown) + label {
-            top: -0.5rem;
-            left: 1rem;
-            font-size: 0.75rem;
-            background: white;
-            padding: 0 0.5rem;
-            color: var(--secondary-color);
-        }
-
-        .icon {
-            position: absolute;
-            left: 1rem;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--secondary-color);
-            font-size: 1.2rem;
-        }
-
-        .file-upload {
-            text-align: center;
-        }
-
-        .upload-label {
-            display: inline-block;
-            padding: 1rem 2rem;
-            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(106, 17, 203, 0.3);
-            margin-bottom: 1rem;
-        }
-
-            .upload-label:hover {
-                transform: translateY(-3px);
-                box-shadow: 0 6px 20px rgba(106, 17, 203, 0.4);
+            .form-control[disabled] {
+                background-color: #f5f5f5;
+                cursor: not-allowed;
             }
 
-        .upload-text {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-weight: 500;
+        .file-upload-container {
+            margin-top: 0.5rem;
         }
 
-        .upload-input {
+        .file-upload-label {
+            display: block;
+            cursor: pointer;
+        }
+
+        .file-upload-input {
             display: none;
         }
 
-        .image-preview-container {
-            margin-top: 1rem;
-            display: flex;
-            justify-content: center;
+        .file-upload-content {
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s;
+            margin-bottom: 1rem;
+            background: var(--light-color);
         }
 
-        .image-preview {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            background-size: cover;
-            background-position: center;
-            border: 4px solid white;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        }
-
-            .image-preview.default {
-                background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                color: var(--secondary-color);
-                font-size: 3rem;
+            .file-upload-content:hover {
+                border-color: var(--primary-color);
+                background-color: rgba(67, 97, 238, 0.05);
             }
 
-        .submit-btn {
-            width: 100%;
-            padding: 1rem;
-            border: none;
-            border-radius: 10px;
-            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            font-weight: 600;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
+            .file-upload-content i {
+                font-size: 2rem;
+                color: var(--primary-color);
+                margin-bottom: 0.5rem;
+                display: block;
+            }
+
+            .file-upload-content span {
+                color: var(--dark-color);
+                font-weight: 500;
+            }
+
+        .file-upload-preview {
+            width: 150px;
+            height: 150px;
+            border-radius: 8px;
+            overflow: hidden;
+            margin: 0 auto;
+            border: 1px solid #eee;
+            background-color: var(--light-color);
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 0.5rem;
-            margin-top: 1rem;
-            box-shadow: 0 4px 15px rgba(106, 17, 203, 0.3);
         }
 
-            .submit-btn:hover {
-                transform: translateY(-3px);
-                box-shadow: 0 6px 20px rgba(106, 17, 203, 0.4);
-                background: linear-gradient(90deg, var(--secondary-color), var(--primary-color));
+            .file-upload-preview img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+            .file-upload-preview .no-image {
+                color: var(--primary-color);
+                font-size: 3rem;
+                opacity: 0.3;
             }
 
         .form-error {
-            color: #dc3545;
-            background: #f8d7da;
-            padding: 0.75rem;
-            border-radius: 10px;
+            color: var(--danger-color);
+            background-color: rgba(247, 37, 133, 0.1);
+            padding: 1rem;
+            border-radius: 8px;
             margin-bottom: 1.5rem;
-            border: 1px solid #f5c6cb;
+            border-left: 4px solid var(--danger-color);
         }
 
         .validation-error {
-            color: #dc3545;
+            color: var(--danger-color);
             font-size: 0.875rem;
-            margin-top: 0.25rem;
+            margin-top: 0.5rem;
             display: block;
         }
 
-        @@media (max-width: 576px) {
-            .profile-container {
+        .modern-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            gap: 0.5rem;
+        }
+
+            .modern-button i {
+                transition: transform 0.3s;
+            }
+
+            .modern-button:hover i {
+                transform: translateX(3px);
+            }
+
+        .primary-button {
+            background: var(--gradient-primary);
+            color: white;
+        }
+
+            .primary-button:hover {
+                box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
+                transform: translateY(-2px);
+            }
+
+        .full-width {
+            width: 100%;
+        }
+
+        .alert-modern {
+            position: relative;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1.5rem;
+            border: none;
+            border-radius: 8px;
+            background-color: rgba(76, 201, 240, 0.1);
+            color: var(--success-color);
+            display: flex;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+            .alert-modern span {
+                margin-right: 0.75rem;
+                font-size: 1.2rem;
+            }
+
+        .close-alert {
+            margin-left: auto;
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: inherit;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+
+            .close-alert:hover {
+                opacity: 1;
+            }
+
+        /* Dark Mode Adjustments */
+        body.dark-mode .management-container {
+            background-color: #1a1a1a;
+        }
+
+        body.dark-mode .management-card,
+        body.dark-mode .file-upload-content {
+            background-color: #2d2d2d;
+            border-color: #444;
+        }
+
+        body.dark-mode .management-header {
+            border-bottom-color: #444;
+        }
+
+        body.dark-mode .form-group label {
+            color: #f0f0f0;
+        }
+
+        body.dark-mode .form-control {
+            background-color: #333;
+            border-color: #444;
+            color: #f0f0f0;
+        }
+
+            body.dark-mode .form-control:focus {
+                border-color: var(--primary-color);
+                box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.3);
+            }
+
+            body.dark-mode .form-control[disabled] {
+                background-color: #444;
+            }
+
+        body.dark-mode .file-upload-content {
+            border-color: #444;
+            background-color: #333;
+        }
+
+            body.dark-mode .file-upload-content:hover {
+                background-color: rgba(67, 97, 238, 0.1);
+            }
+
+            body.dark-mode .file-upload-content span {
+                color: #f0f0f0;
+            }
+
+        body.dark-mode .file-upload-preview {
+            background-color: #333;
+            border-color: #444;
+        }
+
+            body.dark-mode .file-upload-preview .no-image {
+                color: #555;
+            }
+
+        body.dark-mode .profile-avatar.default {
+            background-color: #333;
+            color: var(--accent-color);
+        }
+
+        @@media (max-width: 768px) {
+            .management-container {
                 padding: 1rem;
             }
 
-            .profile-header {
-                padding: 1.5rem 1rem 0;
+            .management-header,
+            .management-form {
+                padding: 1.5rem;
             }
 
-            .profile-form {
-                padding: 0 1rem 1.5rem;
+            .profile-avatar {
+                width: 100px;
+                height: 100px;
             }
         }
     </style>
@@ -313,34 +464,30 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
-        // Resim önizleme fonksiyonu
-        document.addEventListener('DOMContentLoaded', function() {
-            const fileInput = document.querySelector('.upload-input');
-            const imagePreview = document.querySelector('.image-preview');
+        document.addEventListener('DOMContentLoaded', function () {
+            // Resim önizleme fonksiyonu
+            const fileInput = document.querySelector('.file-upload-input');
+            const previewContainer = document.querySelector('.file-upload-preview');
 
-            if (fileInput && imagePreview) {
-                fileInput.addEventListener('change', function() {
-                    if (this.files && this.files[0]) {
+            if (fileInput && previewContainer) {
+                fileInput.addEventListener('change', function () {
+                    const file = this.files[0];
+                    if (file) {
                         const reader = new FileReader();
-
-                        reader.onload = function(e) {
-                            if (imagePreview.classList.contains('default')) {
-                                imagePreview.classList.remove('default');
-                                imagePreview.innerHTML = '';
-                            }
-                            imagePreview.style.backgroundImage = `url(${e.target.result})`;
+                        reader.onload = function (e) {
+                            previewContainer.innerHTML = `<img src="${e.target.result}" alt="Profil Resmi Önizleme" />`;
                         }
-
-                        reader.readAsDataURL(this.files[0]);
+                        reader.readAsDataURL(file);
                     }
                 });
             }
 
-            // Floating label için placeholder ekleme
-            document.querySelectorAll('.floating .form-control').forEach(input => {
-                if (!input.getAttribute('placeholder')) {
-                    input.setAttribute('placeholder', ' ');
-                }
+            // Alert kapatma butonu
+            document.querySelector('.close-alert')?.addEventListener('click', function () {
+                this.parentElement.style.opacity = '0';
+                setTimeout(() => {
+                    this.parentElement.remove();
+                }, 300);
             });
         });
     </script>
