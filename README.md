@@ -124,6 +124,9 @@ dotnet run
 
 ---
 
+## siteye kayıt olurken kayıt olduğunuz e posta adresine ber e mail gelir maildeki linlke tıklarsanız hesabınız doğrulanır ve artık giriş yapabilirsiniz
+
+
 ## 📂 Proje Yapısı
 
 ```bash
