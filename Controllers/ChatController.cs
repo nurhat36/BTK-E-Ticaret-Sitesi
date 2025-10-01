@@ -65,7 +65,7 @@ namespace BTKETicaretSitesi.Controllers
             try
             {
                 var googleAIClient = new GoogleAi(geminiApiKey);
-                var model = googleAIClient.CreateGenerativeModel("models/gemini-1.5-flash");
+                var model = googleAIClient.CreateGenerativeModel("models/gemini-2.0-flash");
 
                 // 1. Mesaj türünü belirle
                 var messageType = await DetermineMessageType(request.Message);

@@ -1,0 +1,29 @@
+﻿version: '3.8'
+services:
+  web:
+    build: .
+    container_name: btk-eticaret-web
+    ports:
+      - "8080:80"
+    depends_on:
+      - db
+    environment:
+      ConnectionStrings__DefaultConnection: "Server=db;Database=BTKETicaretDB;User Id=sa;Password=Your_Password123;TrustServerCertificate=True;"
+      GEMINI_API_KEY_FILE: /run/secrets/gemini_api_key
+    volumes:
+      - ./secrets/gemini_api_key.txt:/run/secrets/gemini_api_key:ro
+      - ./wwwroot:/app/wwwroot
+
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: btk-eticaret-db
+    environment:
+      SA_PASSWORD: "Your_Password123"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1431:1433"
+    volumes:
+      - sql_data:/var/opt/mssql
+
+volumes:
+  sql_data:

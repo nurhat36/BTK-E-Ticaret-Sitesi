@@ -44,7 +44,7 @@ Soru-Cevaplar:
         try
         {
             var googleAIClient = new GoogleAi(geminiApiKey);
-            var model = googleAIClient.CreateGenerativeModel("models/gemini-1.5-flash");
+            var model = googleAIClient.CreateGenerativeModel("models/gemini-2.0-flash");
 
             var response = await model.GenerateContentAsync(prompt);
             string analysisText = response?.Text();

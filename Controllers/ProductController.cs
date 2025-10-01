@@ -552,10 +552,18 @@ namespace BTKETicaretSitesi.Controllers
                 // **DEĞİŞİKLİK BURADA**
                 // Google_GenerativeAI kütüphanesine göre bir GoogleAi istemcisi oluştur
                 var googleAIClient = new GoogleAi(apiKey); // Namespace'i Google_GenerativeAI olmalı
+                var models = await googleAIClient.ListModelsAsync();
+
+                // Konsola yazdır
+                foreach (var model1 in models.Models)  // models.Models kullanımı SDK'ya bağlı olabilir
+                {
+                    Console.WriteLine($"Model Name: {model1.Name}");
+                }
+
 
                 // Bir GenerativeModel elde et (model adını belirtiyoruz)
                 // "models/gemini-pro" veya "gemini-pro" gibi bir model adı kullanın
-                var model = googleAIClient.CreateGenerativeModel("models/gemini-1.5-flash"); // Veya "gemini-1.5-flash" gibi
+                var model = googleAIClient.CreateGenerativeModel("models/gemini-2.0-flash"); // Veya "gemini-1.5-flash" gibi
 
                 // Prompt'u (yönergeyi) modele gönderin ve yanıtı bekleyin
                 var response = await model.GenerateContentAsync(prompt); // Bu metod da değişebilir
