@@ -4,8 +4,19 @@ using BTKETicaretSitesi.Data;
 using BTKETicaretSitesi.Models;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using BTKETicaretSitesi.Services;
+using BTKETicaretSitesi.Endpoints;
 
 var builder = WebApplication.CreateBuilder(args);
+//builder.WebHost.UseUrls("http://+:80");
+//builder.Configuration.AddEnvironmentVariables();
+
+//var fileEnv = Environment.GetEnvironmentVariable("GEMINI_API_KEY_FILE") ?? "/run/secrets/gemini_api_key";
+//if (File.Exists(fileEnv))
+//{
+//    var apiKey = File.ReadAllText(fileEnv).Trim();
+//    builder.Configuration["GoogleAI:ApiKey"] = apiKey; // 👈 Config'e ekledik
+//}
+
 
 // Veritabanı bağlantısı
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -100,5 +111,6 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 app.MapRazorPages();
+app.MapMcpEndpoints();
 
 app.Run();
