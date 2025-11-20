@@ -37,7 +37,7 @@ builder.Services.AddTransient<IEmailSender, SmtpEmailSender>();
 builder.Services.AddScoped<IFavoriteProductService, FavoriteProductService>();
 builder.Services.AddScoped<ReviewAnalysisService>();
 // Google AI servisi için yapılandırma
-builder.Services.AddTransient<GeminiApiService>();
+builder.Services.AddHttpClient<GeminiApiService>();
 builder.Services.AddScoped<GeminiQuestionAnalysisService>();
 builder.Services.AddScoped<QuestionAnalysisService>();
 // Notification servisi için yapılandırma
