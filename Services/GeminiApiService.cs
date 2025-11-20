@@ -1,143 +1,82 @@
 ﻿using BTKETicaretSitesi.Models;
-using GenerativeAI;
-using GenerativeAI.Types;
-using Microsoft.Extensions.Configuration;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using System;
-using Microsoft.Extensions.Logging;
-using System.Text;
-namespace BTKETicaretSitesi.Services { 
-public class GeminiApiService
+using BTKETicaretSitesi.Models.DTO;
+using System.Net.Http.Json; // Bu namespace gerekli
+
+namespace BTKETicaretSitesi.Services
 {
-    private readonly IConfiguration _configuration;
-    private readonly ILogger<GeminiApiService> _logger;
-
-    public GeminiApiService(IConfiguration configuration, ILogger<GeminiApiService> logger)
+    public class GeminiApiService
     {
-        _configuration = configuration;
-        _logger = logger;
-    }
+        private readonly HttpClient _httpClient;
+        private readonly ILogger<GeminiApiService> _logger;
 
-    public async Task<ProductReviewAnalysis> AnalyzeReviews(List<ProductReview> reviews)
-    {
-        string? geminiApiKey = _configuration["GoogleAI:ApiKey"];
-
-        if (string.IsNullOrEmpty(geminiApiKey))
+        // HttpClientFactory, Program.cs'ten gelecek
+        public GeminiApiService(HttpClient httpClient, ILogger<GeminiApiService> logger, IConfiguration config)
         {
-            _logger.LogError("Gemini API Anahtarı bulunamadı. 'GoogleAI:ApiKey' anahtarını kontrol edin.");
-            throw new InvalidOperationException("Gemini API Anahtarı yapılandırılmamış.");
+            _httpClient = httpClient;
+            _logger = logger;
+
+            // Base adresini ayarlıyoruz
+            var baseUrl = config["McpSettings:BaseUrl"];
+            _httpClient.BaseAddress = new Uri(baseUrl);
         }
 
-        // Yorum metinlerini tek bir metin bloğu haline getirme
-        var combinedReviews = string.Join("\n---\n", reviews.Select(r => $"Puan: {r.Rating}/5. Yorum: {r.Comment}"));
-
-        // Prompt'u hazırlama
-        string prompt = $@"
-Aşağıdaki ürün yorumlarını incele ve üç farklı başlıkta analiz et. Sonuçları aşağıdaki formatta döndür:
-
-DUYGU_DURUMU: (yorumların genel hissiyatı: 'Pozitif', 'Negatif' veya 'Nötr' olarak belirt)
-KALITE_PUANI: (1-10 arasında bir puan ver ve kısa gerekçesini yaz)
-OZET_ONGORULER: (yorumlar arasından en çok tekrar eden ortak noktaları ve müşteri önerilerini maddeler halinde özetle. Örnek: 'Ürünün kalıbı dar olduğu için bir beden büyük alınması öneriliyor.', 'Kargo hızlı geldi.')
-
-Yorumlar:
-{combinedReviews}
-";
-
-        try
+        public async Task<ProductReviewAnalysis> AnalyzeReviews(List<ProductReview> reviews)
         {
-            var googleAIClient = new GoogleAi(geminiApiKey);
-            var model = googleAIClient.CreateGenerativeModel("models/gemini-2.0-flash");
-
-            var generateContentRequest = new GenerateContentRequest
+            // 1. Veriyi McpService'in anlayacağı formata (DTO) çevir
+            var requestDto = new ReviewAnalysisRequest
             {
-                Contents = new List<Content>
+                Reviews = reviews.Select(r => new ReviewItemDto
                 {
-                    new Content { Role = "user", Parts = new List<Part> { new Part { Text = prompt } } }
-                }
+                    Rating = r.Rating,
+                    Comment = r.Comment
+                }).ToList()
             };
 
-            var response = await model.GenerateContentAsync(generateContentRequest);
-            string? analysisText = response?.Text();
-
-            if (string.IsNullOrWhiteSpace(analysisText))
+            try
             {
-                _logger.LogWarning("Gemini'den boş veya geçersiz analiz yanıtı alındı.");
-                return new ProductReviewAnalysis
+                // 2. McpService'e HTTP POST isteği at (Siparişi mutfağa ver)
+                // "/api/mcp/analyze-reviews" -> McpController'daki adres
+                var response = await _httpClient.PostAsJsonAsync("/api/mcp/analyze-reviews", requestDto);
+
+                // 3. Cevabı Oku
+                if (response.IsSuccessStatusCode)
                 {
-                    SentimentAnalysisResult = "Nötr",
-                    QualityScore = 5.0,
-                    SummaryInsights = "Yorum analizi yapılamadı."
-                };
-            }
-            Console.WriteLine("Gemini API'den gelen analiz metni: " + analysisText);
-            // Gelen metni ayrıştırma
-            var analysisData = ParseAnalysisResponse(analysisText);
+                    var apiResult = await response.Content.ReadFromJsonAsync<ReviewAnalysisResponse>();
 
-            return new ProductReviewAnalysis
-            {
-                ProductId = reviews.First().ProductId,
-                SentimentAnalysisResult = analysisData.SentimentAnalysisResult,
-                QualityScore = analysisData.QualityScore,
-                SummaryInsights = analysisData.SummaryInsights,
-                AnalysisDate = DateTime.Now
-            };
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError($"Gemini API çağrısında bir hata oluştu: {ex.Message}", ex);
-            return new ProductReviewAnalysis
-            {
-                ProductId = reviews.First().ProductId,
-                SentimentAnalysisResult = "Hata",
-                QualityScore = 0.0,
-                SummaryInsights = $"Analiz sırasında bir hata oluştu: {ex.Message}"
-            };
-        }
-    }
-
-        private static ProductReviewAnalysis ParseAnalysisResponse(string analysisText)
-        {
-            var result = new ProductReviewAnalysis();
-            var lines = analysisText.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
-            bool isInSummary = false;
-            var summaryBuilder = new StringBuilder();
-
-            foreach (var line in lines)
-            {
-                if (line.StartsWith("DUYGU_DURUMU:"))
-                {
-                    result.SentimentAnalysisResult = line.Replace("DUYGU_DURUMU:", "").Trim();
-                }
-                else if (line.StartsWith("KALITE_PUANI:"))
-                {
-                    var scorePart = line.Replace("KALITE_PUANI:", "").Trim();
-
-                    // 8/10 gibi ifadede ilk sayıyı almaya çalış
-                    var firstPart = scorePart.Split(' ')[0]; // "8/10"
-                    var scoreString = firstPart.Split('/')[0].Replace(",", "."); // "8"
-
-                    if (double.TryParse(scoreString, out double score))
+                    if (apiResult != null && apiResult.IsSuccess)
                     {
-                        result.QualityScore = score;
+                        // 4. Gelen sonucu Ana Projenin kendi modeline çevir
+                        return new ProductReviewAnalysis
+                        {
+                            SentimentAnalysisResult = apiResult.Sentiment,
+                            QualityScore = apiResult.QualityScore,
+                            SummaryInsights = apiResult.SummaryInsights,
+                            AnalysisDate = DateTime.Now,
+                            ProductId = reviews.First().ProductId
+                        };
                     }
                 }
 
-                else if (line.StartsWith("OZET_ONGORULER:"))
-                {
-                    isInSummary = true;
-                }
-                else if (isInSummary && (line.StartsWith("*") || line.StartsWith("-")))
-                {
-                    summaryBuilder.AppendLine(line.Trim());
-                }
+                // Hata durumu
+                _logger.LogError($"MCP Servis Hatası: {response.StatusCode}");
+                return CreateErrorResult(reviews.First().ProductId, "Analiz servisi yanıt vermedi.");
             }
-
-            result.SummaryInsights = summaryBuilder.ToString().Trim();
-            return result;
-
+            catch (Exception ex)
+            {
+                _logger.LogError($"Bağlantı Hatası: {ex.Message}");
+                return CreateErrorResult(reviews.First().ProductId, "Servise bağlanılamadı.");
+            }
         }
 
+        private ProductReviewAnalysis CreateErrorResult(int productId, string msg)
+        {
+            return new ProductReviewAnalysis
+            {
+                ProductId = productId,
+                SentimentAnalysisResult = "Hata",
+                QualityScore = 0,
+                SummaryInsights = msg
+            };
+        }
     }
 }
