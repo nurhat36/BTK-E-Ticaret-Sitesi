@@ -7,107 +7,87 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Net.Http;
+using System.Net.Http.Json;
+using BTKETicaretSitesi.Models.DTO;
 
 public class GeminiQuestionAnalysisService
 {
-    private readonly IConfiguration _configuration;
+    private readonly HttpClient _httpClient;
     private readonly ILogger<GeminiQuestionAnalysisService> _logger;
 
-    public GeminiQuestionAnalysisService(IConfiguration configuration, ILogger<GeminiQuestionAnalysisService> logger)
+    // HttpClient inject ediliyor
+    public GeminiQuestionAnalysisService(HttpClient httpClient, ILogger<GeminiQuestionAnalysisService> logger, IConfiguration config)
     {
-        _configuration = configuration;
+        _httpClient = httpClient;
         _logger = logger;
+
+        // BaseUrl'i appsettings'den alıp ayarlıyoruz
+        var baseUrl = config["McpSettings:BaseUrl"];
+        _httpClient.BaseAddress = new Uri(baseUrl);
     }
 
+    // Dönüş tipi sizin Entity'niz olan 'ProductQuestionAnalysis'
     public async Task<ProductQuestionAnalysis> AnalyzeQuestionsAndAnswers(List<ProductQuestion> questions)
     {
-        string? geminiApiKey = _configuration["GoogleAI:ApiKey"];
-        if (string.IsNullOrEmpty(geminiApiKey))
+        // 1. McpService'e gidecek paketi hazırla
+        var requestDto = new QuestionAnalysisRequest
         {
-            _logger.LogError("Gemini API Anahtarı bulunamadı.");
-            throw new InvalidOperationException("Gemini API Anahtarı yapılandırılmamış.");
-        }
+            Questions = questions.Select(q => new QuestionItemDto
+            {
+                QuestionText = q.QuestionText,
+                AnswerText = q.AnswerText
+            }).ToList()
+        };
 
-        // Soruları ve yanıtları tek bir metin bloğu haline getirme
-        var combinedText = string.Join("\n---\n", questions.Select(q =>
-            $"Soru: {q.QuestionText}\nYanıt: {(string.IsNullOrEmpty(q.AnswerText) ? "Henüz yanıtlanmamış" : q.AnswerText)}"));
-
-        string prompt = $@"
-Aşağıdaki ürün soru-cevaplarını incele ve analiz et. İki ana başlıkta özetle. Yanıtları aşağıdaki formatta döndür:
-
-SIK_SORULAN_SORULAR_OZETI: (Kullanıcıların en sık sorduğu konuları veya soruları maddeler halinde özetle)
-SIK_VERILEN_YANITLAR_OZETI: (Satıcının bu sorulara verdiği yanıtların en çok hangi konulara odaklandığını özetle)
-
-Soru-Cevaplar:
-{combinedText}
-";
         try
         {
-            var googleAIClient = new GoogleAi(geminiApiKey);
-            var model = googleAIClient.CreateGenerativeModel("models/gemini-2.0-flash");
+            // 2. McpService'e POST isteği at
+            var response = await _httpClient.PostAsJsonAsync("/api/mcp/analyze-questions", requestDto);
 
-            var response = await model.GenerateContentAsync(prompt);
-            string analysisText = response?.Text();
-            Console.WriteLine($"Soru analizi sonucu: {analysisText}");
-
-            // Yanıtı ayrıştır
-            var analysisData = ParseQuestionAnalysisResponse(analysisText);
-
-            return new ProductQuestionAnalysis
+            if (response.IsSuccessStatusCode)
             {
-                ProductId = questions.First().ProductId,
-                CommonQuestionsSummary = analysisData.CommonQuestionsSummary,
-                CommonAnswersSummary = analysisData.CommonAnswersSummary,
-                AnalysisDate = DateTime.Now
-            };
+                var apiResult = await response.Content.ReadFromJsonAsync<QuestionAnalysisResponse>();
+
+                if (apiResult != null && apiResult.IsSuccess)
+                {
+                    // 3. Gelen sonucu Entity'e çevir
+                    return new ProductQuestionAnalysis
+                    {
+                        ProductId = questions.First().ProductId,
+
+                        // Null kontrolü (Fallback)
+                        CommonQuestionsSummary = !string.IsNullOrEmpty(apiResult.CommonQuestionsSummary)
+                                                 ? apiResult.CommonQuestionsSummary
+                                                 : "Özet çıkarılamadı.",
+
+                        CommonAnswersSummary = !string.IsNullOrEmpty(apiResult.CommonAnswersSummary)
+                                               ? apiResult.CommonAnswersSummary
+                                               : "Özet çıkarılamadı.",
+
+                        AnalysisDate = DateTime.Now
+                    };
+                }
+            }
+
+            _logger.LogError($"MCP Servis Hatası: {response.StatusCode}");
+            return CreateErrorModel(questions.First().ProductId, "Servis yanıt vermedi.");
         }
         catch (Exception ex)
         {
-            _logger.LogError($"Soru analizi API çağrısında hata: {ex.Message}");
-            return new ProductQuestionAnalysis
-            {
-                ProductId = questions.First().ProductId,
-                CommonQuestionsSummary = "Analiz yapılamadı.",
-                CommonAnswersSummary = "Analiz yapılamadı."
-            };
+            _logger.LogError($"Bağlantı Hatası: {ex.Message}");
+            return CreateErrorModel(questions.First().ProductId, "Bağlantı hatası.");
         }
     }
 
-    private static ProductQuestionAnalysis ParseQuestionAnalysisResponse(string analysisText)
+    private ProductQuestionAnalysis CreateErrorModel(int productId, string msg)
     {
-        var result = new ProductQuestionAnalysis();
-        var lines = analysisText.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
-
-        bool isParsingQuestions = false;
-        bool isParsingAnswers = false;
-        var questionsBuilder = new System.Text.StringBuilder();
-        var answersBuilder = new System.Text.StringBuilder();
-
-        foreach (var line in lines)
+        return new ProductQuestionAnalysis
         {
-            if (line.StartsWith("SIK_SORULAN_SORULAR_OZETI:"))
-            {
-                isParsingQuestions = true;
-                isParsingAnswers = false;
-            }
-            else if (line.StartsWith("SIK_VERILEN_YANITLAR_OZETI:"))
-            {
-                isParsingQuestions = false;
-                isParsingAnswers = true;
-            }
-            else if (isParsingQuestions)
-            {
-                questionsBuilder.AppendLine(line.Trim());
-            }
-            else if (isParsingAnswers)
-            {
-                answersBuilder.AppendLine(line.Trim());
-            }
-        }
-
-        result.CommonQuestionsSummary = questionsBuilder.ToString().Trim();
-        result.CommonAnswersSummary = answersBuilder.ToString().Trim();
-
-        return result;
+            ProductId = productId,
+            CommonQuestionsSummary = msg,
+            CommonAnswersSummary = msg,
+            AnalysisDate = DateTime.Now
+        };
     }
 }
