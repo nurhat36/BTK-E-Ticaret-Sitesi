@@ -5,6 +5,7 @@ using BTKETicaretSitesi.Models;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using BTKETicaretSitesi.Services;
 using BTKETicaretSitesi.Endpoints;
+using Hangfire;
 
 var builder = WebApplication.CreateBuilder(args);
 //builder.WebHost.UseUrls("http://+:80");
@@ -21,6 +22,13 @@ var builder = WebApplication.CreateBuilder(args);
 // Veritabanı bağlantısı
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddHangfire(config => config
+    .UseSimpleAssemblyNameTypeSerializer()
+    .UseRecommendedSerializerSettings()
+    .UseSqlServerStorage(builder.Configuration.GetConnectionString("DefaultConnection"))); // Veritabanına işleri kaydeder
+
+builder.Services.AddHangfireServer(); // İşleri yapacak sunucuyu başlatır
 
 
 // Kimlik ve rol yapılandırması
@@ -94,7 +102,7 @@ else
     app.UseStatusCodePagesWithReExecute("/Error/{0}");
     app.UseHsts(); // HTTP Strict Transport Security Protocol
 }
-
+app.UseHangfireDashboard(); // "/hangfire" adresinde harika bir panel açar!
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
