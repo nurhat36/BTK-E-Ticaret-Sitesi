@@ -20,6 +20,7 @@ using Microsoft.AspNetCore.Authorization; // Bu yeni using ifadesi
 namespace BTKETicaretSitesi.Controllers
 {
     [Route("Product")]
+    [EnableRateLimiting("GenelSiteLimiti")]
     public class ProductController : Controller
     {
         private readonly ApplicationDbContext _context;

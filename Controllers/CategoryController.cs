@@ -3,9 +3,11 @@ using Microsoft.EntityFrameworkCore;
 using BTKETicaretSitesi.Data;
 using BTKETicaretSitesi.Models;
 using System.Linq;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace BTKETicaretSitesi.Controllers
 {
+    [EnableRateLimiting("GenelSiteLimiti")]
     public class CategoryController : Controller
     {
         private readonly ApplicationDbContext _context;

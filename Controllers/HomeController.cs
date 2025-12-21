@@ -2,11 +2,13 @@ using BTKETicaretSitesi.Data;
 using BTKETicaretSitesi.Models;
 using BTKETicaretSitesi.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 
 namespace BTKETicaretSitesi.Controllers
 {
+    [EnableRateLimiting("GenelSiteLimiti")]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;

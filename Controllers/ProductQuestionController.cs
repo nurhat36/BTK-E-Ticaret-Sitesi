@@ -3,6 +3,7 @@ using BTKETicaretSitesi.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
@@ -10,6 +11,7 @@ using System.Threading.Tasks;
 
 namespace BTKETicaretSitesi.Controllers
 {
+    [EnableRateLimiting("GenelSiteLimiti")]
     public class ProductQuestionController : Controller
     {
         private readonly ApplicationDbContext _context;

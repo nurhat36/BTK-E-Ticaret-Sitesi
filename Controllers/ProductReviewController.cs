@@ -5,12 +5,14 @@ using BTKETicaretSitesi.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 
 namespace BTKETicaretSitesi.Controllers
 {
     
     [Route("products/{productId}/reviews")]
+    [EnableRateLimiting("GenelSiteLimiti")]
     public class ProductReviewController : Controller
     {
         private readonly ApplicationDbContext _context;

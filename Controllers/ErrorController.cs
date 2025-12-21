@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace BTKETicaretSitesi.Controllers
 {
+    [EnableRateLimiting("GenelSiteLimiti")]
     public class ErrorController : Controller
     {
         [Route("Error/{statusCode}")]
