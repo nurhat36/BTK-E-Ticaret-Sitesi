@@ -25,6 +25,7 @@ public class AdminStoreController : Controller
     public async Task<IActionResult> Index()
     {
         var stores = await _context.Stores
+            .AsNoTracking()
             .Include(s => s.Owner)
             .Include(s => s.Products)
             .OrderByDescending(s => s.CreatedAt)

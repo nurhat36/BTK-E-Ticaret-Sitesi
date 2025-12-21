@@ -27,6 +27,7 @@ namespace BTKETicaretSitesi.Controllers
         {
             var userId = _userManager.GetUserId(User);
             var addresses = await _context.Addresses
+                .AsNoTracking()
                 .Where(a => a.UserId == userId)
                 .ToListAsync();
 

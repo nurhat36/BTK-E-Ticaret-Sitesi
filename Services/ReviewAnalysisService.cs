@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using Hangfire;
 namespace BTKETicaretSitesi.Services
 {
     
@@ -41,24 +42,26 @@ namespace BTKETicaretSitesi.Services
             // 3. 30 yoruma ulaşıldıysa veya ilk kez analiz yapılacaksa
             if (newReviewCount >= 30 || lastAnalysis == null)
             {
-                // Son 30 yorumu al (eğer 30'dan azsa hepsini al)
-                var reviewsToAnalyze = await _context.ProductReviews
-                                                     .Where(r => r.ProductId == productId)
-                                                     .OrderByDescending(r => r.ReviewDate)
-                                                     .Take(30)
-                                                     .ToListAsync();
-
-                if (!reviewsToAnalyze.Any())
-                {
-                    return; // Yorum yoksa işlem yapma
-                }
-
-                // 4. Yorumları API'ye gönder ve analizi al
-                var analysisResult = await _geminiApiService.AnalyzeReviews(reviewsToAnalyze);
-
-                // 5. Analiz sonucunu veritabanına kaydet/güncelle
-                await SaveAnalysisResult(productId, analysisResult);
+                BackgroundJob.Enqueue<ReviewAnalysisService>(x => x.RunBackgroundAnalysisAsync(productId));
             }
+        }
+        public async Task RunBackgroundAnalysisAsync(int productId)
+        {
+            // 1. Verileri arka planda tekrar çekiyoruz (Çünkü önceki Context kapanmış olabilir)
+            // Yeni bir scope oluşturulması gerekebilir ama Hangfire bunu genelde halleder.
+            var reviewsToAnalyze = await _context.ProductReviews
+                                                 .Where(r => r.ProductId == productId)
+                                                 .OrderByDescending(r => r.ReviewDate)
+                                                 .Take(30)
+                                                 .ToListAsync();
+
+            if (!reviewsToAnalyze.Any()) return;
+
+            // 2. Gemini API çağrısı (McpService üzerinden)
+            var analysisResult = await _geminiApiService.AnalyzeReviews(reviewsToAnalyze);
+
+            // 3. Kaydetme işlemi
+            await SaveAnalysisResult(productId, analysisResult);
         }
 
         // Bu metot, Gemini'den gelen yanıtı veritabanına kaydetmek için kullanılacak
