@@ -3,11 +3,13 @@ using BTKETicaretSitesi.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace BTKETicaretSitesi.Controllers
 {
     [Authorize]
     [Route("FavoriteProducts")]
+    [EnableRateLimiting("GenelSiteLimiti")]
     public class FavoriteProductsController : Controller
     {
         private readonly IFavoriteProductService _favoriteProductService;

@@ -16,9 +16,11 @@ using Microsoft.EntityFrameworkCore;
 using System.Text;
 using Microsoft.Extensions.Caching.Memory;
 using System.Globalization;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace BTKETicaretSitesi.Controllers
 {
+    [EnableRateLimiting("GenelSiteLimiti")]
     public class ChatController : Controller
     {
         private readonly IConfiguration _configuration;

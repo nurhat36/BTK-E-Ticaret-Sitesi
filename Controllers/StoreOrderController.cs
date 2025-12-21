@@ -3,6 +3,7 @@ using BTKETicaretSitesi.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
@@ -12,6 +13,8 @@ namespace BTKETicaretSitesi.Controllers
 {
     [Authorize]
     [Route("Store/Orders")]
+    [EnableRateLimiting("GenelSiteLimiti")]
+
     public class StoreOrderController : Controller
     {
         private readonly ApplicationDbContext _context;

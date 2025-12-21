@@ -7,11 +7,15 @@ using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Threading.Tasks;
 using BTKETicaretSitesi.Models.ViewModels;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace BTKETicaretSitesi.Controllers
 {
     [Route("[controller]")]
     [Authorize]
+
+
+    [EnableRateLimiting("GenelSiteLimiti")]
     public class ShoppingCartController : Controller
     {
         private readonly ApplicationDbContext _context;

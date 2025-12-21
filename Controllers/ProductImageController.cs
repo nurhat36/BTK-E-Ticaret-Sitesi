@@ -3,12 +3,14 @@ using BTKETicaretSitesi.Data;
 using BTKETicaretSitesi.Models;
 using BTKETicaretSitesi.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 
 namespace BTKETicaretSitesi.Controllers
 {
     
     [Route("products/{productId}/images")]
+    [EnableRateLimiting("GenelSiteLimiti")]
     public class ProductImageController : Controller
     {
         private readonly ApplicationDbContext _context;

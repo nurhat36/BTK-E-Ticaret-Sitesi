@@ -6,9 +6,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using BTKETicaretSitesi.Data;
 using BTKETicaretSitesi.Services;
+using Microsoft.AspNetCore.RateLimiting;
 
 [Authorize(Roles = "Admin")]
 [Route("Admin/Stores")]
+[EnableRateLimiting("GenelSiteLimiti")]
 public class AdminStoreController : Controller
 {
     private readonly ApplicationDbContext _context;

@@ -5,10 +5,11 @@ using BTKETicaretSitesi.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using BTKETicaretSitesi.Attributes;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace BTKETicaretSitesi.Controllers
 {
-    
+    [EnableRateLimiting("GenelSiteLimiti")]
     [Route("products/{productId}/attributes")]
     public class ProductAttributeController : Controller
     {

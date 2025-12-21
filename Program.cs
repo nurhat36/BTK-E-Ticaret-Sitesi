@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using BTKETicaretSitesi.Services;
 using BTKETicaretSitesi.Endpoints;
 using Hangfire;
+using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 //builder.WebHost.UseUrls("http://+:80");
@@ -29,6 +30,54 @@ builder.Services.AddHangfire(config => config
     .UseSqlServerStorage(builder.Configuration.GetConnectionString("DefaultConnection"))); // Veritabanına işleri kaydeder
 
 builder.Services.AddHangfireServer(); // İşleri yapacak sunucuyu başlatır
+
+
+builder.Services.AddRateLimiter(options =>
+{
+    // Hata durumunda (429) ne dönecek?
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+    // 1. GENEL KORUMA (Tüm Site İçin)
+    // Her IP adresi dakikada en fazla 100 sayfa gezebilir.
+    options.AddPolicy("GenelSiteLimiti", context =>
+    {
+        // Kullanıcının IP adresini alıyoruz
+        var ipAddress = context.Request.Headers["X-Forwarded-For"].FirstOrDefault()
+                        ?? context.Request.HttpContext.Connection.RemoteIpAddress?.ToString()
+                        ?? "unknown";
+
+        return RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: ipAddress, // Limiti IP'ye göre ayır (ÖNEMLİ!)
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 100, // Dakikada 100 istek
+                Window = TimeSpan.FromMinutes(1),
+                QueueLimit = 2
+            });
+    });
+
+    // 2. KRİTİK İŞLEM KORUMASI (Sipariş, Login vb.)
+    // Her IP adresi dakikada en fazla 5 kritik işlem yapabilir.
+    options.AddPolicy("KritikIslemLimiti", context =>
+    {
+        // IP adresini al
+        var ipAddress = context.Request.Headers["X-Forwarded-For"].FirstOrDefault()
+                        ?? context.Request.HttpContext.Connection.RemoteIpAddress?.ToString()
+                        ?? "unknown";
+
+        // Eğer kullanıcı giriş yapmışsa, UserID'ye göre de sınırlayabilirsin!
+        // var userId = context.User.Identity?.Name ?? ipAddress; 
+
+        return RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: ipAddress,
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 5,  // Dakikada SADECE 5 kere basabilir!
+                Window = TimeSpan.FromMinutes(1),
+                QueueLimit = 0    // Kuyruk yok, 6. basışta direkt hata ver.
+            });
+    });
+});
 
 
 // Kimlik ve rol yapılandırması
@@ -111,6 +160,7 @@ app.UseRouting();
 // SADECE BU İŞ İÇİN EKLENMESİ GEREKENLER: Session middleware'ini etkinleştir
 // app.UseRouting() sonrası ve app.UseAuthentication() öncesi olmalı
 app.UseSession();
+app.UseRateLimiter();
 
 app.UseAuthentication(); // <-- Bu şart
 app.UseAuthorization();

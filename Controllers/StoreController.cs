@@ -10,10 +10,13 @@ using BTKETicaretSitesi.Data;
 using BTKETicaretSitesi.Models.ViewModels;
 using BTKETicaretSitesi.Services;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace BTKETicaretSitesi.Controllers
 {
     [Authorize]
+    [EnableRateLimiting("GenelSiteLimiti")]
+
     public class StoreController : Controller
     {
         private readonly ApplicationDbContext _context;

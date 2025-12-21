@@ -8,10 +8,12 @@ using Microsoft.AspNetCore.Authorization;
 using BTKETicaretSitesi.Models.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using BTKETicaretSitesi.Services;
+using Microsoft.AspNetCore.RateLimiting;
 namespace BTKETicaretSitesi.Controllers { 
 [AllowAnonymous]
 [Route("Urunler")]
-public class SaleProductsController : Controller
+    [EnableRateLimiting("GenelSiteLimiti")]
+    public class SaleProductsController : Controller
 {
     private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;

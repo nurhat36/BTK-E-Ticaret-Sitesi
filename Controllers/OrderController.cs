@@ -5,6 +5,7 @@ using BTKETicaretSitesi.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
@@ -29,6 +30,7 @@ namespace BTKETicaretSitesi.Controllers
 
         // Sipariş listesi
         [HttpGet("Index")]
+        [EnableRateLimiting("GenelSiteLimiti")]
         public async Task<IActionResult> Index()
         {
             var userId = _userManager.GetUserId(User);
@@ -44,6 +46,7 @@ namespace BTKETicaretSitesi.Controllers
 
         // Sipariş detayı
         [HttpGet("Details/{orderNumber}")]
+        [EnableRateLimiting("GenelSiteLimiti")]
         public async Task<IActionResult> Details(string orderNumber)
         {
             var userId = _userManager.GetUserId(User);
@@ -64,6 +67,7 @@ namespace BTKETicaretSitesi.Controllers
             return View(order);
         }
         [Authorize]
+        [EnableRateLimiting("KritikIslemLimiti")]
         public async Task<IActionResult> OrderComplete(int orderId)
         {
             var userId = _userManager.GetUserId(User);
@@ -99,6 +103,7 @@ namespace BTKETicaretSitesi.Controllers
 
         // Sipariş oluşturma (Checkout)
         [HttpGet]
+        [EnableRateLimiting("GenelSiteLimiti")]
         public async Task<IActionResult> Checkout()
         {
             var userId = _userManager.GetUserId(User);
@@ -152,6 +157,7 @@ namespace BTKETicaretSitesi.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [EnableRateLimiting("GenelSiteLimiti")]
         public async Task<IActionResult> Checkout(CheckoutViewModel model)
         {
             var userId = _userManager.GetUserId(User);
