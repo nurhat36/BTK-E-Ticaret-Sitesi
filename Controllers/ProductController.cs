@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Threading.Tasks;
 using BTKETicaretSitesi.Models.ViewModels;
-using BTKETicaretSitesi.Models.ViewModels;
+using Microsoft.AspNetCore.RateLimiting;
 using System.Text;
 using Azure.Core;
 using BTKETicaretSitesi.Attributes;
