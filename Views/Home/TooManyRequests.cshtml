@@ -1,0 +1,32 @@
+﻿@{
+    ViewData["Title"] = "Çok Fazla İstek";
+    Layout = "_Layout"; // Veya null yapabilirsin, menüleri göstermek istemezsen
+}
+
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 60vh;">
+    <div class="text-center">
+        <div style="font-size: 80px;">🚦</div>
+
+        <h1 class="display-4 fw-bold text-danger mt-3">Biraz Yavaşlayalım!</h1>
+
+        <p class="lead text-muted mt-3">
+            Sistemimizden çok kısa süre içinde çok fazla istek aldık. <br />
+            Güvenlik önlemleri gereği sizi kısa bir süreliğine bekletiyoruz. <br />
+
+            Sakin ol şampiyon çok hızlısın!
+        </p>
+
+        <div class="alert alert-warning d-inline-block mt-4">
+            Lütfen <strong>1 dakika</strong> bekleyin ve sayfayı yenileyin.
+        </div>
+
+        <div class="mt-5">
+            <a href="/" class="btn btn-primary btn-lg">
+                <i class="fa fa-home"></i> Anasayfaya Dön
+            </a>
+            <button onclick="location.reload()" class="btn btn-outline-secondary btn-lg ms-2">
+                <i class="fa fa-refresh"></i> Tekrar Dene
+            </button>
+        </div>
+    </div>
+</div>

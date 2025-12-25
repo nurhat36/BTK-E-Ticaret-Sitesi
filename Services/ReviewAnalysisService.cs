@@ -40,7 +40,7 @@ namespace BTKETicaretSitesi.Services
                                                .CountAsync();
 
             // 3. 30 yoruma ulaşıldıysa veya ilk kez analiz yapılacaksa
-            if (newReviewCount >= 30 || lastAnalysis == null)
+            if (newReviewCount % 30==0 || lastAnalysis == null)
             {
                 BackgroundJob.Enqueue<ReviewAnalysisService>(x => x.RunBackgroundAnalysisAsync(productId));
             }
