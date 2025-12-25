@@ -1,6 +1,7 @@
 using BTKETicaretSitesi.Data;
 using BTKETicaretSitesi.Models;
 using BTKETicaretSitesi.Models.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
@@ -41,6 +42,15 @@ namespace BTKETicaretSitesi.Controllers
             };
 
             return View(model);
+        }
+        [DisableRateLimiting]
+        [AllowAnonymous] // Giriþ yapmamýþ kullanýcý da görebilsin
+        public IActionResult TooManyRequests()
+        {
+            // Kullanýcýya bu sayfayý gösterirken HTTP 429 koduyla gönderelim ki
+            // SEO botlarý veya tarayýcýlar durumu anlasýn.
+            Response.StatusCode = 429;
+            return View();
         }
 
         public IActionResult Privacy()

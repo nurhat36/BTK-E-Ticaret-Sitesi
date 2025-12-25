@@ -77,6 +77,31 @@ builder.Services.AddRateLimiter(options =>
                 QueueLimit = 0    // Kuyruk yok, 6. basışta direkt hata ver.
             });
     });
+
+
+    // LİMİT AŞILDIĞINDA NE OLACAK?
+    options.OnRejected = async (context, token) =>
+    {
+        context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+
+        // İsteğin tipini kontrol et
+        // "Accept" başlığında "text/html" varsa, bu bir tarayıcı isteğidir.
+        if (context.HttpContext.Request.Headers.Accept.ToString().Contains("text/html"))
+        {
+            // Kullanıcıyı oluşturduğumuz şık sayfaya yönlendir
+            context.HttpContext.Response.Redirect("/Home/TooManyRequests");
+        }
+        else
+        {
+            // Bu bir API isteği veya AJAX çağrısıdır (Örn: Sepete Ekle butonu)
+            // Sayfa yönlendirmesi yapma, sadece JSON mesaj dön.
+            await context.HttpContext.Response.WriteAsJsonAsync(new
+            {
+                error = "RateLimitExceeded",
+                message = "Çok fazla istek gönderdiniz. Lütfen 1 dakika bekleyin.\n sakin olunuz."
+            }, token);
+        }
+    };
 });
 
 
