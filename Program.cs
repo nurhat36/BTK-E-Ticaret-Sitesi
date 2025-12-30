@@ -7,6 +7,8 @@ using BTKETicaretSitesi.Services;
 using BTKETicaretSitesi.Endpoints;
 using Hangfire;
 using System.Threading.RateLimiting;
+using BTKETicaretSitesi.Middleware;
+using McpService.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 //builder.WebHost.UseUrls("http://+:80");
@@ -132,6 +134,9 @@ builder.Services.AddHttpContextAccessor(); // Email veya kullanıcı bilgilerine
 // Razor Pages ve Controller desteği
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
+builder.Services.AddMemoryCache(); // Zaten varsa tekrar ekleme
+builder.Services.AddSingleton<DdosGuardService>(); // Tek bir bekçi (Singleton)
+builder.Services.AddSingleton<ScannerDetectorService>();
 
 // SADECE BU İŞ İÇİN EKLENMESİ GEREKENLER: Session servislerini ekle
 builder.Services.AddSession(options =>
@@ -178,6 +183,10 @@ else
 }
 app.UseHangfireDashboard(); // "/hangfire" adresinde harika bir panel açar!
 app.UseHttpsRedirection();
+
+
+app.UseMiddleware<ScannerDetectionMiddleware>();
+app.UseMiddleware<DdosProtectionMiddleware>();
 app.UseStaticFiles();
 
 app.UseRouting();
