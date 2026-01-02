@@ -21,7 +21,7 @@ namespace BTKETicaretSitesi.Services
         public void RecordError(string ipAddress, int statusCode)
         {
             // Sadece 404 (Bulunamadı) ve 400 (Bad Request - SQL Injection denemeleri genelde 400 verir) takip et
-            if (statusCode != 404 && statusCode != 400) return;
+            if (statusCode != 404 && statusCode != 400 || ipAddress == "::1" || ipAddress == "127.0.0.1") return;
 
             var cacheKey = $"ERRORS_{ipAddress}";
 

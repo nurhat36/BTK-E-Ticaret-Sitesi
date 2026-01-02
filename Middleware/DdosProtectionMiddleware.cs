@@ -19,7 +19,7 @@ namespace BTKETicaretSitesi.Middleware
             var ipAddress = context.Connection.RemoteIpAddress?.ToString();
 
             // Localhost ise veya IP yoksa geç (Test ortamı kolaylığı)
-            if (string.IsNullOrEmpty(ipAddress) || ipAddress == "::1")
+            if (string.IsNullOrEmpty(ipAddress) || ipAddress == "::1" || ipAddress == "127.0.0.1")
             {
                 await _next(context);
                 return;

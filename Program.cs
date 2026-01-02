@@ -8,7 +8,7 @@ using BTKETicaretSitesi.Endpoints;
 using Hangfire;
 using System.Threading.RateLimiting;
 using BTKETicaretSitesi.Middleware;
-using McpService.Middleware;
+using BTKETicaretSitesi.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 //builder.WebHost.UseUrls("http://+:80");
@@ -148,6 +148,23 @@ builder.Services.AddSession(options =>
 
 
 var app = builder.Build();
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        // DbContext ismini kendi projendekiyle değiştir (örn: ApplicationDbContext)
+        var context = services.GetRequiredService<ApplicationDbContext>();
+
+        // Bu komut "update-database" işlemini kod içinden yapar
+        context.Database.Migrate();
+        Console.WriteLine("--> Veritabanı başarıyla güncellendi (Migration uygulandı).");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"--> Veritabanı oluşturulurken hata çıktı: {ex.Message}");
+    }
+}
 
 // Seed işlemi (rol ve kullanıcı ekleme)
 using (var scope = app.Services.CreateScope())
