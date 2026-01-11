@@ -7,8 +7,8 @@ namespace BTKETicaretSitesi.Services
         private readonly IMemoryCache _cache;
 
         // AYARLAR
-        private const int RequestLimit = 100; // Dakikada 100 istek normal
-        private const int BanDurationMinutes = 10; // Cezalı süre
+        private const int RequestLimit = 1000; // Dakikada 100 istek normal
+        private const int BanDurationMinutes = 1; // Cezalı süre
 
         public DdosGuardService(IMemoryCache cache)
         {

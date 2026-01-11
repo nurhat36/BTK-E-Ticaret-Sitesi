@@ -9,6 +9,7 @@ using Hangfire;
 using System.Threading.RateLimiting;
 using BTKETicaretSitesi.Middleware;
 using BTKETicaretSitesi.Middleware;
+using Prometheus;
 
 var builder = WebApplication.CreateBuilder(args);
 //builder.WebHost.UseUrls("http://+:80");
@@ -52,7 +53,7 @@ builder.Services.AddRateLimiter(options =>
             partitionKey: ipAddress, // Limiti IP'ye göre ayır (ÖNEMLİ!)
             factory: _ => new FixedWindowRateLimiterOptions
             {
-                PermitLimit = 100, // Dakikada 100 istek
+                PermitLimit = 1000, // Dakikada 100 istek
                 Window = TimeSpan.FromMinutes(1),
                 QueueLimit = 2
             });
@@ -74,7 +75,7 @@ builder.Services.AddRateLimiter(options =>
             partitionKey: ipAddress,
             factory: _ => new FixedWindowRateLimiterOptions
             {
-                PermitLimit = 5,  // Dakikada SADECE 5 kere basabilir!
+                PermitLimit = 50,  // Dakikada SADECE 5 kere basabilir!
                 Window = TimeSpan.FromMinutes(1),
                 QueueLimit = 0    // Kuyruk yok, 6. basışta direkt hata ver.
             });
@@ -148,6 +149,7 @@ builder.Services.AddSession(options =>
 
 
 var app = builder.Build();
+app.UseHttpMetrics();
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
@@ -221,5 +223,6 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 app.MapRazorPages();
 app.MapMcpEndpoints();
+app.MapMetrics();
 
 app.Run();
