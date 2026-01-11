@@ -8,8 +8,8 @@ namespace BTKETicaretSitesi.Services
         private readonly ILogger<ScannerDetectorService> _logger;
 
         // Ayarlar
-        private const int MaxErrorLimit = 10; // Dakikada 10 tane 404 hatası alırsa BANLA
-        private const int BanMinutes = 60;   // 1 Saat ceza
+        private const int MaxErrorLimit = 100; // Dakikada 10 tane 404 hatası alırsa BANLA
+        private const int BanMinutes = 1;   // 1 Saat ceza
 
         public ScannerDetectorService(IMemoryCache cache, ILogger<ScannerDetectorService> logger)
         {
